@@ -5,7 +5,7 @@
 
 #include "peer.h"
 
-class Example : QObject
+class Example : public QObject
 {
     Q_OBJECT
 public:
@@ -21,7 +21,7 @@ public slots:
     void newUsers();
 
     void newClientConnection();
-    void receiveTextComplete(QString* newMessage);
+    void receiveTextComplete(QString newMessage);
 
 private:
     RemoteProtocol  remoteProtocol;

@@ -2,8 +2,6 @@
 #include <iostream>
 
 #include "example.h"
-#include "peer.h"
-#include "remoteprotocol.h"
 
 Example::Example(){
 //    remoteProtocol.runTcpServer();
@@ -28,7 +26,8 @@ void Example::newUsers(){
 void Example::newClientConnection(){
     std::cout << "Server have new connection from client\n";
 }
-receiveTextComplete(QString* newMessage){
+
+void Example::receiveTextComplete(QString newMessage){
     qDebug() << newMessage << "\n";
 }
 
@@ -76,7 +75,7 @@ void Example::createServer(){
     remoteProtocol.runUdpSocket();
 
     connect(&remoteProtocol, SIGNAL(newClientConnection()), this, SLOT(newClientConnection()), Qt::DirectConnection);
-    connect(&remoteProtocol, SIGNAL(receiveTextComplete(QString*)), this, SLOT(receiveTextComplete(QString*)), Qt::DirectConnection);
+    QObject::connect(&remoteProtocol, &RemoteProtocol::receiveTextComplete, this, &Example::receiveTextComplete);
 //    receiveTextComplete
 }
 

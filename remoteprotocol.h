@@ -51,7 +51,7 @@ class RemoteProtocol : public QObject
     signals:
         void peerListAdded(Peer peer);
         void peerListRemoved(Peer peer);
-        void receiveTextComplete(QString *text);
+        void receiveTextComplete(QString newMessage);
         void sendTextComplete(QString *text);
         void newClientConnection();
 

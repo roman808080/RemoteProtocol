@@ -199,8 +199,8 @@ void RemoteProtocol::readNewData()
 
     in.startTransaction();
 
-    QString *nextMessage;
-    in >> *nextMessage;
+    QString nextMessage;
+    in >> nextMessage;
 
     receiveTextComplete(nextMessage);
 }
