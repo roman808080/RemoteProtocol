@@ -4,12 +4,9 @@
 #include "example.h"
 
 Example::Example(){
-//    remoteProtocol.runTcpServer();
-//    remoteProtocol.runUdpSocket();
-//    remoteProtocol.sayHello(QHostAddress::Broadcast, true);
-
     connect(&remoteProtocol, SIGNAL(peerListAdded(Peer)), this, SLOT(newUsers(Peer)), Qt::DirectConnection);
-//    connect(&remoteProtocol, SIGNAL(simple()), this, SLOT(newUsers()), Qt::DirectConnection);
+    QObject::connect(&remoteProtocol, &RemoteProtocol::newClientConnection, this, &Example::newClientConnection, Qt::DirectConnection);
+    QObject::connect(&remoteProtocol, &RemoteProtocol::receiveTextComplete, this, &Example::receiveTextComplete);
 }
 
 Example::~Example(){
@@ -36,6 +33,7 @@ void Example::menu(){
     std::cout << "Hello in menu\n ";
     std::cout << "Input 1 for create Server\n";
     std::cout << "Input 2 for create Client\n";
+    std::cout << "Input 3 for input message from Client to Server\n";
 
     std::cin >> choice;
 
@@ -43,7 +41,7 @@ void Example::menu(){
         std::cout << "You're choice is server\n";
         remoteProtocol.runTcpServer();
     }
-    if(choice == 2){
+    else if(choice == 2){
         std::string ip;
         int port;
 
@@ -55,6 +53,14 @@ void Example::menu(){
         std::cout << "Please input port or -1 if you'll want to use standart 4644 port\n";
         std::cin >> port;
 
+        if(ip == "-1"){
+            ip = "127.0.0.1";
+        }
+
+        if(port == -1){
+            port = 4644;
+        }
+
         createClient(ip, port);
 
         std::string message;
@@ -62,6 +68,12 @@ void Example::menu(){
         std::cin >> message;
 
         remoteProtocol.sendData(QString::fromUtf8(message.c_str()));
+    }
+    else if(choice == 3){
+
+    }
+    else {
+        std::cout << "Invalid comand\n";
     }
 }
 
@@ -73,10 +85,8 @@ void Example::createClient(std::string ip, int port){
 void Example::createServer(){
     remoteProtocol.runTcpServer();
     remoteProtocol.runUdpSocket();
-
-    connect(&remoteProtocol, SIGNAL(newClientConnection()), this, SLOT(newClientConnection()), Qt::DirectConnection);
-    QObject::connect(&remoteProtocol, &RemoteProtocol::receiveTextComplete, this, &Example::receiveTextComplete);
-//    receiveTextComplete
+//    connect(&remoteProtocol, SIGNAL(newClientConnection()), this, SLOT(newClientConnection()), Qt::DirectConnection);
+//    QObject::connect(&remoteProtocol, &RemoteProtocol::receiveTextComplete, this, &Example::receiveTextComplete);
 }
 
 void Example::sayHello(){

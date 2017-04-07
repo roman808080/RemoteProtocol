@@ -6,6 +6,7 @@
 #include <QNetworkInterface>
 #include <QTimer>
 #include <QDataStream>
+#include <QDebug>
 
 
 #define DEFAULT_UDP_PORT 4644
@@ -178,7 +179,7 @@ void RemoteProtocol::newOutcomingConnection(QString ip, int port)
 
 void RemoteProtocol::newIncomingConnection()
 {
-
+//    qDebug() << "here";
     if (!mTcpServer->hasPendingConnections() || mIsReceiving || mIsSending) return;
 
     mCurrentSocket = mTcpServer->nextPendingConnection();
@@ -201,6 +202,8 @@ void RemoteProtocol::readNewData()
 
     QString nextMessage;
     in >> nextMessage;
+
+//    qDebug() << nextMessage <<" hereldldldld\n";
 
     receiveTextComplete(nextMessage);
 }
