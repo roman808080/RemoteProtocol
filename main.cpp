@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 //    RemoteProtocol  remoteProtocol;
     Example example;
+    example.menu();
 
 //    remoteProtocol.sayHello(QHostAddress::Broadcast, true);
 //    QObject::connect(&remoteProtocol, SIGNAL(peerListAdded(Peer), &example, SLOT(newUsers(Peer)));

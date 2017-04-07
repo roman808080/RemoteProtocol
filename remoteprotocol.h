@@ -20,7 +20,10 @@ class RemoteProtocol : public QObject
     public:
         RemoteProtocol();
         virtual ~RemoteProtocol();
-        void initialize();
+//        void initialize();
+        void runUdpSocket();
+        void runTcpServer();
+        void getUsers();
 
         void setPorts(qint16 udp, qint16 tcp);
 
@@ -50,10 +53,10 @@ class RemoteProtocol : public QObject
         void peerListRemoved(Peer peer);
         void receiveTextComplete(QString *text);
         void sendTextComplete(QString *text);
-        void simple();
+        void newClientConnection();
 
     private:
-        QUdpSocket *mUdpSocket;            // Socket UDP
+        QUdpSocket *mUdpSocket;         // Socket UDP
         QTcpServer *mTcpServer;         // Socket TCP
         QTcpSocket *mCurrentSocket;     // Socket TCP current socket
         // need change mCurrentSocket to separeted class

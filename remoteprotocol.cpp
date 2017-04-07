@@ -15,13 +15,12 @@
 RemoteProtocol::RemoteProtocol()
     : mUdpSocket(NULL), mTcpServer(NULL), mCurrentSocket(NULL)
 {
-    mLocalUdpPort = DEFAULT_UDP_PORT;
-    mLocalTcpPort = DEFAULT_TCP_PORT;
+    setPorts(DEFAULT_UDP_PORT, DEFAULT_TCP_PORT);
 
     mIsSending = false;
     mIsReceiving = false;
 
-    initialize();
+//    initialize();
 }
 
 RemoteProtocol::~RemoteProtocol()
@@ -31,16 +30,30 @@ RemoteProtocol::~RemoteProtocol()
     if (mTcpServer) delete mTcpServer;
 }
 
-void RemoteProtocol::initialize()
+void RemoteProtocol::runUdpSocket()
 {
     mUdpSocket = new QUdpSocket(this);
     mUdpSocket->bind(QHostAddress::Any, mLocalUdpPort);
     connect(mUdpSocket, SIGNAL(readyRead()), this, SLOT(newUdpData()));
+}
 
+void RemoteProtocol::runTcpServer()
+{
     mTcpServer = new QTcpServer(this);
     mTcpServer->listen(QHostAddress::Any, mLocalTcpPort);
     connect(mTcpServer, SIGNAL(newConnection()), this, SLOT(newIncomingConnection()));
 }
+
+//void RemoteProtocol::initialize()
+//{
+//    mUdpSocket = new QUdpSocket(this);
+//    mUdpSocket->bind(QHostAddress::Any, mLocalUdpPort);
+//    connect(mUdpSocket, SIGNAL(readyRead()), this, SLOT(newUdpData()));
+
+//    mTcpServer = new QTcpServer(this);
+//    mTcpServer->listen(QHostAddress::Any, mLocalTcpPort);
+//    connect(mTcpServer, SIGNAL(newConnection()), this, SLOT(newIncomingConnection()));
+//}
 
 void RemoteProtocol::setPorts(qint16 udp, qint16 tcp)
 {
@@ -50,8 +63,6 @@ void RemoteProtocol::setPorts(qint16 udp, qint16 tcp)
 
 void RemoteProtocol::sayHello(QHostAddress dest, qint16 port)
 {
-    emit simple();
-//    qDebug() << "Say Hello\n";
     QByteArray *packet = new QByteArray();
     if ((port == DEFAULT_UDP_PORT) && (mLocalUdpPort == DEFAULT_UDP_PORT))
     {
@@ -167,7 +178,6 @@ void RemoteProtocol::newOutcomingConnection(QString ip, int port)
 
 void RemoteProtocol::newIncomingConnection()
 {
-    qDebug() << "new Connection\n";
 
     if (!mTcpServer->hasPendingConnections() || mIsReceiving || mIsSending) return;
 
@@ -175,6 +185,8 @@ void RemoteProtocol::newIncomingConnection()
 
     connect(mCurrentSocket, SIGNAL(readyRead()), this, SLOT(readNewData()), Qt::DirectConnection);
     connect(mCurrentSocket, SIGNAL(disconnected()), this, SLOT(closedConnectionTmp()), Qt::QueuedConnection);
+
+    emit newClientConnection();
 
     mIsReceiving = true;
 }

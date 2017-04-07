@@ -11,10 +11,17 @@ class Example : QObject
 public:
     Example();
     virtual ~Example();
+    void menu();
+    void sayHello();
+    void createClient(std::__cxx11::string ip, int port);
+    void createServer();
 
 public slots:
     void newUsers(Peer peer);
     void newUsers();
+
+    void newClientConnection();
+    void receiveTextComplete(QString* newMessage);
 
 private:
     RemoteProtocol  remoteProtocol;
