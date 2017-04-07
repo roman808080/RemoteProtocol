@@ -6,7 +6,7 @@
 Example::Example(){
     connect(&remoteProtocol, SIGNAL(peerListAdded(Peer)), this, SLOT(newUsers(Peer)), Qt::DirectConnection);
     QObject::connect(&remoteProtocol, &RemoteProtocol::newClientConnection, this, &Example::newClientConnection, Qt::DirectConnection);
-    QObject::connect(&remoteProtocol, &RemoteProtocol::receiveTextComplete, this, &Example::receiveTextComplete);
+    QObject::connect(&remoteProtocol, &RemoteProtocol::receiveTextComplete, this, &Example::receiveTextComplete, Qt::DirectConnection);
 }
 
 Example::~Example(){
@@ -30,54 +30,56 @@ void Example::receiveTextComplete(QString newMessage){
 
 void Example::menu(){
     int choice;
-    std::cout << "Hello in menu\n ";
-    std::cout << "Input 1 for create Server\n";
-    std::cout << "Input 2 for create Client\n";
-    std::cout << "Input 3 for input message from Client to Server\n";
+    while(true){
+        std::cout << "Hello in menu\n ";
+        std::cout << "Input 1 for create Server\n";
+        std::cout << "Input 2 for create Client\n";
+        std::cout << "Input 3 for input message from Client to Server\n";
+        std::cout << "Input -1 for end program\n";
 
-    std::cin >> choice;
+        std::cin >> choice;
 
-    if(choice == 1){
-        std::cout << "You're choice is server\n";
-        remoteProtocol.runTcpServer();
-    }
-    else if(choice == 2){
-        std::string ip;
-        int port;
-
-        std::cout << "You're choice is client\n";
-
-        std::cout << "Please input ip or -1 if you'll want to use local 127.0.0.1 ip\n";
-        std::cin >> ip;
-
-        std::cout << "Please input port or -1 if you'll want to use standart 4644 port\n";
-        std::cin >> port;
-
-        if(ip == "-1"){
-            ip = "127.0.0.1";
+        if(choice == 1){
+            std::cout << "You're choice is server\n";
+            remoteProtocol.runTcpServer();
         }
+        else if(choice == 2){
+            std::string ip;
+            int port;
 
-        if(port == -1){
-            port = 4644;
+            std::cout << "You're choice is client\n";
+
+            std::cout << "Please input ip or -1 if you'll want to use local 127.0.0.1 ip\n";
+            std::cin >> ip;
+
+            std::cout << "Please input port or -1 if you'll want to use standart 4644 port\n";
+            std::cin >> port;
+
+            createClient(ip, port);
         }
+        else if(choice == 3){
+            std::string message;
+            std::cout << "Please input message for server\n";
+            std::cin >> message;
 
-        createClient(ip, port);
-
-        std::string message;
-        std::cout << "Please input message for server\n";
-        std::cin >> message;
-
-        remoteProtocol.sendData(QString::fromUtf8(message.c_str()));
+            remoteProtocol.sendData(QString::fromUtf8(message.c_str()));
+        }
+        else if(choice == -1){
+            break;
+        }
+        else {
+            std::cout << "Invalid comand\n";
+        }
     }
-    else if(choice == 3){
 
-    }
-    else {
-        std::cout << "Invalid comand\n";
-    }
 }
 
 void Example::createClient(std::string ip, int port){
+    if(ip == "-1")
+        ip = "127.0.0.1";
+    if(port == -1)
+        port = 4644;
+
     remoteProtocol.runUdpSocket();
     remoteProtocol.newOutcomingConnection(QString::fromUtf8(ip.c_str()), port);
 }
