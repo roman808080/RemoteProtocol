@@ -8,8 +8,9 @@
 #include <QtNetwork/QTcpSocket>
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QHostInfo>
+#include <QScopedPointer>
+#include <QSharedPointer>
 #include <QHash>
-#include <QFile>
 
 #include "peer.h"
 
@@ -20,7 +21,6 @@ class RemoteProtocol : public QObject
     public:
         RemoteProtocol();
         virtual ~RemoteProtocol();
-//        void initialize();
         void runUdpSocket();
         void runTcpServer();
         void getUsers();
@@ -53,13 +53,12 @@ class RemoteProtocol : public QObject
         void peerListRemoved(Peer peer);
         void receiveTextComplete(QString newMessage);
         void sendTextComplete(QString *text);
-        void newClientConnection();
+        void newClientConnection(QSharedPointer<QTcpSocket> mSock);
 
     private:
-        QUdpSocket *mUdpSocket;         // Socket UDP
-        QTcpServer *mTcpServer;         // Socket TCP
-        QTcpSocket *mCurrentSocket;     // Socket TCP current socket
-        // need change mCurrentSocket to separeted class
+        QScopedPointer<QUdpSocket> mUdpSocket; // Socket UDP
+        QScopedPointer<QTcpServer> mTcpServer; // Socket UDP
+        QSharedPointer<QTcpSocket> mCurrentSocket; // Socket TCP current socket
 
         QHash<QString, Peer> mPeers; // List of Peers
 

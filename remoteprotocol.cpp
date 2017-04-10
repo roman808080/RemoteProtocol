@@ -21,40 +21,24 @@ RemoteProtocol::RemoteProtocol()
     mIsSending = false;
     mIsReceiving = false;
 
-//    initialize();
 }
 
 RemoteProtocol::~RemoteProtocol()
-{
-    if (mCurrentSocket) delete mCurrentSocket;
-    if (mUdpSocket) delete mUdpSocket;
-    if (mTcpServer) delete mTcpServer;
-}
+{}
 
 void RemoteProtocol::runUdpSocket()
 {
-    mUdpSocket = new QUdpSocket(this);
+    mUdpSocket.reset(new QUdpSocket);
     mUdpSocket->bind(QHostAddress::Any, mLocalUdpPort);
-    connect(mUdpSocket, SIGNAL(readyRead()), this, SLOT(newUdpData()));
+    connect(mUdpSocket.data(), SIGNAL(readyRead()), this, SLOT(newUdpData()));
 }
 
 void RemoteProtocol::runTcpServer()
 {
-    mTcpServer = new QTcpServer(this);
+    mTcpServer.reset(new QTcpServer);
     mTcpServer->listen(QHostAddress::Any, mLocalTcpPort);
-    connect(mTcpServer, SIGNAL(newConnection()), this, SLOT(newIncomingConnection()));
+    connect(mTcpServer.data(), SIGNAL(newConnection()), this, SLOT(newIncomingConnection()));
 }
-
-//void RemoteProtocol::initialize()
-//{
-//    mUdpSocket = new QUdpSocket(this);
-//    mUdpSocket->bind(QHostAddress::Any, mLocalUdpPort);
-//    connect(mUdpSocket, SIGNAL(readyRead()), this, SLOT(newUdpData()));
-
-//    mTcpServer = new QTcpServer(this);
-//    mTcpServer->listen(QHostAddress::Any, mLocalTcpPort);
-//    connect(mTcpServer, SIGNAL(newConnection()), this, SLOT(newIncomingConnection()));
-//}
 
 void RemoteProtocol::setPorts(qint16 udp, qint16 tcp)
 {
@@ -169,25 +153,24 @@ void RemoteProtocol::newOutcomingConnection(QString ip, int port)
 {
     if (mIsReceiving || mIsSending) return;
 
-    mCurrentSocket = new QTcpSocket();
+    mCurrentSocket.reset(new QTcpSocket);
     mCurrentSocket->connectToHost(ip, port);
 
-    connect(mCurrentSocket, SIGNAL(disconnected()), this, SLOT(closedConnectionTmp()), Qt::QueuedConnection);
+    connect(mCurrentSocket.data(), SIGNAL(disconnected()), this, SLOT(closedConnectionTmp()), Qt::QueuedConnection);
 
     mIsSending = true;
 }
 
 void RemoteProtocol::newIncomingConnection()
 {
-//    qDebug() << "here";
     if (!mTcpServer->hasPendingConnections() || mIsReceiving || mIsSending) return;
 
-    mCurrentSocket = mTcpServer->nextPendingConnection();
+    mCurrentSocket.reset(mTcpServer->nextPendingConnection());
 
-    connect(mCurrentSocket, SIGNAL(readyRead()), this, SLOT(readNewData()), Qt::DirectConnection);
-    connect(mCurrentSocket, SIGNAL(disconnected()), this, SLOT(closedConnectionTmp()), Qt::QueuedConnection);
+    connect(mCurrentSocket.data(), SIGNAL(readyRead()), this, SLOT(readNewData()), Qt::DirectConnection);
+    connect(mCurrentSocket.data(), SIGNAL(disconnected()), this, SLOT(closedConnectionTmp()), Qt::QueuedConnection);
 
-    emit newClientConnection();
+    emit newClientConnection(mCurrentSocket);
 
     mIsReceiving = true;
 }
@@ -195,7 +178,7 @@ void RemoteProtocol::newIncomingConnection()
 void RemoteProtocol::readNewData()
 {
     QDataStream in;
-    in.setDevice(mCurrentSocket);
+    in.setDevice(mCurrentSocket.data());
     in.setVersion(QDataStream::Qt_4_0);
 
     in.startTransaction();
