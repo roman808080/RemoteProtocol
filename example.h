@@ -1,6 +1,8 @@
 #ifndef EXAMPLE_H
 #define EXAMPLE_H
 #include <QObject>
+#include <QTcpSocket>
+#include <QSharedPointer>
 #include "remoteprotocol.h"
 
 #include "peer.h"
@@ -20,8 +22,8 @@ public slots:
     void newUsers(Peer peer);
     void newUsers();
 
-    void newClientConnection();
-    void receiveTextComplete(QString newMessage);
+    void newInConnection(QSharedPointer<QTcpSocket> socket);
+//    void receiveTextComplete(QString newMessage);
 
 private:
     RemoteProtocol  remoteProtocol;

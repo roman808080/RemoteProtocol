@@ -35,25 +35,27 @@ class RemoteProtocol : public QObject
 
         void sendText(QString ipDest, qint16 port, QString text);
 
-        inline bool isBusy() { return mIsSending || mIsReceiving; }
+//        inline bool isBusy() { return mIsSending || mIsReceiving; }
 
     public slots:
         void newUdpData();
         void newIncomingConnection();
         void newOutcomingConnection(QString ip, int port);
-        void readNewData();
+//        void readNewData();
         void closedConnection();
         void closedConnectionTmp();
-        void sendData(QString text);
+//        void sendData(QString text);
         void sendConnectError(QAbstractSocket::SocketError);
         void sendToAllBroadcast(QByteArray *packet, qint16 port);
 
     signals:
         void peerListAdded(Peer peer);
         void peerListRemoved(Peer peer);
-        void receiveTextComplete(QString newMessage);
-        void sendTextComplete(QString *text);
-        void newClientConnection(QSharedPointer<QTcpSocket> mSock);
+//        void receiveTextComplete(QString newMessage);
+//        void sendTextComplete(QString *text);
+//        void newClientConnection(QSharedPointer<QTcpSocket> mSock);
+        void newOutConnection(QSharedPointer<QTcpSocket> mSock);
+        void newInConnection(QSharedPointer<QTcpSocket> mSock);
 
     private:
         QScopedPointer<QUdpSocket> mUdpSocket; // Socket UDP
@@ -69,8 +71,8 @@ class RemoteProtocol : public QObject
         qint16 mLocalUdpPort;
         qint16 mLocalTcpPort;
 
-        bool mIsSending;
-        bool mIsReceiving;
+//        bool mIsSending;
+//        bool mIsReceiving;
 
 };
 

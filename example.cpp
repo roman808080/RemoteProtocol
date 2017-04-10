@@ -1,12 +1,14 @@
 #include <QObject>
+#include <QSharedPointer>
+#include <QTcpSocket>
 #include <iostream>
 
 #include "example.h"
 
 Example::Example(){
     connect(&remoteProtocol, SIGNAL(peerListAdded(Peer)), this, SLOT(newUsers(Peer)), Qt::DirectConnection);
-    QObject::connect(&remoteProtocol, &RemoteProtocol::newClientConnection, this, &Example::newClientConnection, Qt::DirectConnection);
-    QObject::connect(&remoteProtocol, &RemoteProtocol::receiveTextComplete, this, &Example::receiveTextComplete, Qt::DirectConnection);
+    QObject::connect(&remoteProtocol, &RemoteProtocol::newInConnection, this, &Example::newInConnection, Qt::DirectConnection);
+//    QObject::connect(&remoteProtocol, &RemoteProtocol::receiveTextComplete, this, &Example::receiveTextComplete, Qt::DirectConnection);
 }
 
 Example::~Example(){
@@ -20,12 +22,9 @@ void Example::newUsers(){
     std::cout << "We have new user\n";
 }
 
-void Example::newClientConnection(){
+void Example::newInConnection(QSharedPointer<QTcpSocket> socket){
     std::cout << "Server have new connection from client\n";
-}
-
-void Example::receiveTextComplete(QString newMessage){
-    qDebug() << newMessage << "\n";
+    // pass
 }
 
 void Example::menu(){
@@ -62,7 +61,7 @@ void Example::menu(){
             std::cout << "Please input message for server\n";
             std::cin >> message;
 
-            remoteProtocol.sendData(QString::fromUtf8(message.c_str()));
+//            remoteProtocol.sendData(QString::fromUtf8(message.c_str()));
         }
         else if(choice == -1){
             break;
