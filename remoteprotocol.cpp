@@ -239,7 +239,7 @@ void RemoteProtocol::closedConnection()
            mCurrentSocket->disconnectFromHost();
            mCurrentSocket->close();
            mCurrentSocket->deleteLater();
-           mCurrentSocket = NULL;
+//           mCurrentSocket = NULL;
        }
 
 //    mIsReceiving = false;
@@ -266,7 +266,7 @@ void RemoteProtocol::sendConnectError(QAbstractSocket::SocketError e)
     {
         mCurrentSocket->close();
         mCurrentSocket->deleteLater();
-        mCurrentSocket = NULL;
+//        mCurrentSocket = NULL;
     }
 
 //    mIsReceiving = false;

@@ -23,9 +23,11 @@ public slots:
     void newUsers();
 
     void newInConnection(QSharedPointer<QTcpSocket> socket);
+    void newOutConnection(QSharedPointer<QTcpSocket> socket);
 //    void receiveTextComplete(QString newMessage);
 
 private:
+//    QDataStream in;
     RemoteProtocol  remoteProtocol;
 };
 
