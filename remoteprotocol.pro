@@ -12,9 +12,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     remoteprotocol.cpp \
-    example.cpp
+    example.cpp \
+    udpprotocol.cpp
 
 HEADERS += \
     remoteprotocol.h \
     peer.h \
-    example.h
+    example.h \
+    udpprotocol.h
