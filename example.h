@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QSharedPointer>
-#include "remoteprotocol.h"
+#include "tcpprotocol.h"
 
 #include "peer.h"
 
@@ -28,7 +28,7 @@ public slots:
 
 private:
 //    QDataStream in;
-    RemoteProtocol  remoteProtocol;
+    TcpProtocol  remoteProtocol;
 };
 
 #endif // EXAMPLE_H

@@ -14,13 +14,13 @@
 
 #include "peer.h"
 
-class RemoteProtocol : public QObject
+class TcpProtocol : public QObject
 {
     Q_OBJECT
 
     public:
-        RemoteProtocol();
-        virtual ~RemoteProtocol();
+        TcpProtocol();
+        virtual ~TcpProtocol();
         void runTcpServer();
         void setPort(qint16 tcp);
         void sendText(QString ipDest, qint16 port, QString text);

@@ -1,4 +1,4 @@
-#include "remoteprotocol.h"
+#include "tcpprotocol.h"
 
 #include <QTimer>
 #include <QDataStream>
@@ -6,28 +6,28 @@
 #define DEFAULT_TCP_PORT 4644
 
 
-RemoteProtocol::RemoteProtocol()
+TcpProtocol::TcpProtocol()
     : mTcpServer(NULL), mCurrentSocket(NULL)
 {
     setPort(DEFAULT_TCP_PORT);
 }
 
-RemoteProtocol::~RemoteProtocol()
+TcpProtocol::~TcpProtocol()
 {}
 
-void RemoteProtocol::runTcpServer()
+void TcpProtocol::runTcpServer()
 {
     mTcpServer.reset(new QTcpServer);
     mTcpServer->listen(QHostAddress::Any, mLocalTcpPort);
     connect(mTcpServer.data(), SIGNAL(newConnection()), this, SLOT(newIncomingConnection()));
 }
 
-void RemoteProtocol::setPort(qint16 tcp)
+void TcpProtocol::setPort(qint16 tcp)
 {
     mLocalTcpPort = tcp;
 }
 
-void RemoteProtocol::newOutcomingConnection(QString ip, int port)
+void TcpProtocol::newOutcomingConnection(QString ip, int port)
 {
     mCurrentSocket.reset(new QTcpSocket);
     mCurrentSocket->connectToHost(ip, port);
@@ -35,7 +35,7 @@ void RemoteProtocol::newOutcomingConnection(QString ip, int port)
     emit newOutConnection(mCurrentSocket);
 }
 
-void RemoteProtocol::newIncomingConnection()
+void TcpProtocol::newIncomingConnection()
 {
     if (!mTcpServer->hasPendingConnections()) return;
     mCurrentSocket.reset(mTcpServer->nextPendingConnection());
@@ -43,12 +43,12 @@ void RemoteProtocol::newIncomingConnection()
     emit newInConnection(mCurrentSocket);
 }
 
-void RemoteProtocol::closedConnectionTmp()
+void TcpProtocol::closedConnectionTmp()
 {
     QTimer::singleShot(500, this, SLOT(closedConnection()));
 }
 
-void RemoteProtocol::closedConnection()
+void TcpProtocol::closedConnection()
 {
     if (mCurrentSocket)
        {
@@ -59,7 +59,7 @@ void RemoteProtocol::closedConnection()
        }
 }
 
-void RemoteProtocol::sendConnectError(QAbstractSocket::SocketError e)
+void TcpProtocol::sendConnectError(QAbstractSocket::SocketError e)
 {
     if (mCurrentSocket)
     {

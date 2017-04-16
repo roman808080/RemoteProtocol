@@ -5,7 +5,7 @@
 //#include <QScopedPointer>
 //#include <QSharedPointer>
 
-#include "remoteprotocol.h"
+#include "tcpprotocol.h"
 #include "peer.h"
 #include "example.h"
 

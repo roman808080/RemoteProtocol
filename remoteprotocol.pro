@@ -11,12 +11,12 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    remoteprotocol.cpp \
     example.cpp \
-    udpprotocol.cpp
+    udpprotocol.cpp \
+    tcpprotocol.cpp
 
 HEADERS += \
-    remoteprotocol.h \
     peer.h \
     example.h \
-    udpprotocol.h
+    udpprotocol.h \
+    tcpprotocol.h
