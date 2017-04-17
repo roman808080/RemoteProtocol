@@ -2,9 +2,33 @@
 #include <QSharedPointer>
 #include <QTcpSocket>
 #include <QDataStream>
+#include <QBuffer>
 #include <iostream>
 
 #include "example.h"
+
+
+
+struct anyStruct
+{
+short sVal;
+float fVal;
+double dVal;
+short Empty;
+char array[8];
+};
+
+void operator <<(QDataStream &out, const anyStruct &any)
+{
+    out << any.sVal;
+    out << any.fVal;
+    out << any.dVal;
+    out << any.Empty;
+    std::vector<char>& str;
+    data_to_vector(any, str, sizeof(any));
+    out.writeRawData(any.array, sizeof(any.array));
+}
+
 
 Example::Example(){
 //    connect(&remoteProtocol, SIGNAL(peerListAdded(Peer)), this, SLOT(newUsers(Peer)), Qt::DirectConnection);
@@ -24,6 +48,20 @@ void Example::newUsers(){
     std::cout << "We have new user\n";
 }
 
+ void Example::write(QSharedPointer<QTcpSocket> socket, char str[]){
+     QByteArray block;
+     QDataStream out(&block, QIODevice::WriteOnly);
+     out.setVersion(QDataStream::Qt_4_0);
+
+     out << str;
+
+//     out.device()->seek(0);
+//     out << (quint16)(block.size() - sizeof(quint16));
+
+     socket->write(block);
+     socket->waitForBytesWritten();
+ }
+
 void Example::newInConnection(QSharedPointer<QTcpSocket> socket){
         std::cout << "Server have new connection from client\n";
         while(true){
@@ -34,19 +72,14 @@ void Example::newInConnection(QSharedPointer<QTcpSocket> socket){
             in.setDevice(socket.data());
             in.setVersion(QDataStream::Qt_4_0);
 
-            QString nextMessage;
-            in >> nextMessage;
+            char nextMessage[100];
+//            in >> nextMessage;
+            in.writeRawData("here",4);
 
-            qDebug() << nextMessage << "\n";
+            std::cout << nextMessage << "\n";
             // after write our console answer
 
-            QByteArray block;
-            QDataStream out(&block, QIODevice::WriteOnly);
-            out.setVersion(QDataStream::Qt_4_0);
-
-            out << QString("Answer");
-            socket->write(block);
-            socket->waitForBytesWritten();
+            write(socket, "Answer");
        }
 }
 
@@ -55,17 +88,9 @@ void Example::newOutConnection(QSharedPointer<QTcpSocket> socket){
         while(true){
             // first command
             std::cout << "Input text\n";
-            std::string str;
+            char str[100];
             std::cin >> str;
-
-            QByteArray block;
-            QDataStream out(&block, QIODevice::WriteOnly);
-            out.setVersion(QDataStream::Qt_4_0);
-
-            out << QString::fromStdString(str);
-
-            socket->write(block);
-            socket->waitForBytesWritten();
+            write(socket, str);
 
             // after read
 
@@ -75,12 +100,12 @@ void Example::newOutConnection(QSharedPointer<QTcpSocket> socket){
             in.setDevice(socket.data());
             in.setVersion(QDataStream::Qt_4_0);
 
-//            in.startTransaction();
+            std::string nextMessage;
+//            in >> nextMessage;
+            in.writeRawData("hello", 4);
 
-            QString nextMessage;
-            in >> nextMessage;
+            std::cout << nextMessage.c_str() << "\n";
 
-            qDebug() << nextMessage << "\n";
         }
 }
 
@@ -136,3 +161,20 @@ void Example::sayHello(){
 //    remoteProtocol.sayHello(QHostAddress::Broadcast, true);
 }
 
+
+int vector_to_data(const std::vector<char>& str, void* data, int size)
+{
+    if (str.size() < size - 1)
+        return -1;
+    for (int i = 0; i < size; i++)
+        ((char*)data)[i] = str[i];
+    return 0;
+}
+
+int data_to_vector(void* data, std::vector<char>& str, int size)
+{
+    str.resize(size);
+    for (int i = 0; i < size; i++)
+        str[i] = ((char*)data)[i];
+    return 0;
+}
