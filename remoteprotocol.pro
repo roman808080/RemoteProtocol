@@ -14,11 +14,16 @@ SOURCES += main.cpp \
     example.cpp \
     udpprotocol.cpp \
     tcpprotocol.cpp \
-    convertordata.cpp
+    convertordata.cpp \
+    client.cpp \
+    server.cpp
 
 HEADERS += \
     peer.h \
     example.h \
     udpprotocol.h \
     tcpprotocol.h \
-    convertordata.h
+    convertordata.h \
+    client.h \
+    server.h \
+    datastruct.h

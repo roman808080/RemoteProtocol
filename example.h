@@ -7,13 +7,14 @@
 #include "tcpprotocol.h"
 
 #include "peer.h"
-struct DataIn;
-struct DataOut;
+#include "server.h"
+#include "client.h"
+#include "datastruct.h"
 
 class Example : public QObject
 {
     Q_OBJECT
-//    Q_DECLARE_METATYPE(std::string)
+
 public:
     Example();
     virtual ~Example();
@@ -21,11 +22,6 @@ public:
     void sayHello();
     void createClient(std::__cxx11::string ip, int port);
     void createServer();
-    int write(QSharedPointer<QTcpSocket> socket, DataIn &data);
-    int read(QSharedPointer<QTcpSocket> socket, DataIn &data);
-
-    int write(QSharedPointer<QTcpSocket> socket, DataOut& data);
-    int read(QSharedPointer<QTcpSocket> socket, DataOut &data);
 
 public slots:
     void newUsers(Peer peer);
@@ -36,8 +32,11 @@ public slots:
     void newOutConnection(QSharedPointer<QTcpSocket> socket);
 
 private:
-//    QDataStream in;
     TcpProtocol  remoteProtocol;
+//    QList<QScopedPointer<Client>> listClients;
+//    QList<QScopedPointer<Server>> listServers;
+    QScopedPointer<Client> client;
+    QScopedPointer<Server> server;
 };
 
 #endif // EXAMPLE_H
