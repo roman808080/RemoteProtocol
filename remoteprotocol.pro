@@ -13,10 +13,12 @@ TEMPLATE = app
 SOURCES += main.cpp \
     example.cpp \
     udpprotocol.cpp \
-    tcpprotocol.cpp
+    tcpprotocol.cpp \
+    convertordata.cpp
 
 HEADERS += \
     peer.h \
     example.h \
     udpprotocol.h \
-    tcpprotocol.h
+    tcpprotocol.h \
+    convertordata.h

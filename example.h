@@ -7,6 +7,8 @@
 #include "tcpprotocol.h"
 
 #include "peer.h"
+struct DataIn;
+struct DataOut;
 
 class Example : public QObject
 {
@@ -19,15 +21,19 @@ public:
     void sayHello();
     void createClient(std::__cxx11::string ip, int port);
     void createServer();
-    void write(QSharedPointer<QTcpSocket> socket, char str[]);
+    int write(QSharedPointer<QTcpSocket> socket, DataIn &data);
+    int read(QSharedPointer<QTcpSocket> socket, DataIn &data);
+
+    int write(QSharedPointer<QTcpSocket> socket, DataOut& data);
+    int read(QSharedPointer<QTcpSocket> socket, DataOut &data);
 
 public slots:
     void newUsers(Peer peer);
     void newUsers();
+    void sendConnectError(QAbstractSocket::SocketError);
 
     void newInConnection(QSharedPointer<QTcpSocket> socket);
     void newOutConnection(QSharedPointer<QTcpSocket> socket);
-//    void receiveTextComplete(QString newMessage);
 
 private:
 //    QDataStream in;
