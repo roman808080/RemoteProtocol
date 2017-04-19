@@ -5,6 +5,7 @@
 #include <QBuffer>
 #include <iostream>
 #include <windows.h>
+#include <QThread>
 
 #include "example.h"
 #include "convertordata.h"
@@ -13,8 +14,9 @@
 #include "server.h"
 
 Example::Example(){
+      qDebug()<<"From worker thread: "<< QThread::currentThreadId();
 //    connect(&remoteProtocol, SIGNAL(peerListAdded(Peer)), this, SLOT(newUsers(Peer)), Qt::DirectConnection);
-    QObject::connect(&remoteProtocol, &TcpProtocol::newInConnection, this, &Example::newInConnection, Qt::DirectConnection);
+    QObject::connect(&remoteProtocol, &TcpProtocol::newInConnection, this, &Example::newInConnection, Qt::QueuedConnection);
 //    QObject::connect(&remoteProtocol, &TcpProtocol::newOutConnection, this, &Example::newOutConnection, Qt::DirectConnection);
 //    QObject::connect(&remoteProtocol, &RemoteProtocol::receiveTextComplete, this, &Example::receiveTextComplete, Qt::DirectConnection);
 }

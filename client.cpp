@@ -54,8 +54,10 @@ int Client::read(DataOut& data)
 
 void Client::loop()
 {
-    QObject::connect(this, SIGNAL(finished()), this, SLOT(quit()));
-    start();
+      qDebug()<<"From worker thread: "<< QThread::currentThreadId();
+//    QObject::connect(this, SIGNAL(finished()), this, SLOT(quit()));
+//    start();
+    run();
 }
 
 void Client::run()

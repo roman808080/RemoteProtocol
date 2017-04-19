@@ -6,9 +6,9 @@
 
 #include "datastruct.h"
 
-class Client: public QThread
+class Client//: public QThread
 {
-    Q_OBJECT
+    //Q_OBJECT
 public:
     Client(QSharedPointer<QTcpSocket> socket);
     int write(DataIn& data);

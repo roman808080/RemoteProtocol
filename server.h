@@ -7,9 +7,9 @@
 
 #include "datastruct.h"
 
-class Server: public QThread
+class Server//: public QThread
 {
-    Q_OBJECT
+   //Q_OBJECT
 public:
     Server(QSharedPointer<QTcpSocket> socket);
     int write(DataOut& data);

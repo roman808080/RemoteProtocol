@@ -53,8 +53,9 @@ int Server::read(DataIn& data)
 
 void Server::loop()
 {
-    QObject::connect(this, SIGNAL(finished()), this, SLOT(quit()));
-    start();
+//    QObject::connect(this, SIGNAL(finished()), this, SLOT(quit()));
+//    start();
+    run();
 }
 
 void Server::run()
