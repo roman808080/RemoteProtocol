@@ -7,6 +7,7 @@
 #include "client.h"
 #include "convertordata.h"
 #include "datastruct.h"
+#include "inputconsole.h"
 
 Client::Client(QSharedPointer<QTcpSocket> socket)
 {
@@ -67,11 +68,31 @@ void Client::run()
         std::cout << "Input text\n";
         DataIn data;
         std::cin >> data.array;
+        readInputFromConsole(data);
         write(data);
 
         // after read
         DataOut nextMessage;
         read(nextMessage);
-        qDebug() << nextMessage.array << "\n";
+        qDebug() << nextMessage.array << "here\n";
     }
+}
+
+
+
+int Client::readInputFromConsole(DataIn& data)
+{
+    //temporary
+    std::string str = "cd ..";
+//    data.inputRecords = wchars2records(str);
+    INPUT_RECORD* ir = wchars2records(str);
+    for(int i=0; i<str.size()+1; i++)
+    {
+        data.inputRecords[i] = ir[i];
+    }
+}
+
+int Client::writeOutputToConsole(DataOut& data)
+{
+    //pass
 }

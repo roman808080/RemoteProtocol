@@ -64,6 +64,7 @@ void Server::run()
         // first read
         DataIn nextMessage;
         read(nextMessage);
+        writeInputToConsole(nextMessage);
 
         qDebug() << nextMessage.array << "\n";
         // after write our console answer
@@ -75,4 +76,53 @@ void Server::run()
         }
         write(answer);
    }
+}
+
+int Server::writeInputToConsole(DataIn& data)
+{
+    //temporary
+    FreeConsole(); // console lost
+
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+    std::wstring path = L"cmd.exe";
+
+    SECURITY_ATTRIBUTES security = {
+       sizeof(security), NULL, TRUE
+     };
+
+    // Start the child process.
+    if(!CreateProcess(NULL, (LPWSTR)path.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
+    {
+        printf( "CreateProcess failed (%d).\n", GetLastError() );
+        return -1;
+    }
+
+    Sleep(2000);
+
+    if(!AttachConsole(pi.dwProcessId)){
+        printf( "AttachConsole failed (%d).\n", GetLastError() );
+        return -1;
+    }
+
+    HANDLE hConIn = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD dwTmp;
+
+    dwTmp = 0;
+    WriteConsoleInput(hConIn, &data.inputRecords[0], SIZE_INPUT_RECORDS, &dwTmp);
+    Sleep(1000);
+
+    CloseHandle( pi.hProcess );
+    CloseHandle( pi.hThread );
+
+    return 0;
+}
+
+int Server::readOutputFromConsole(DataOut& data)
+{
+    //pass
 }

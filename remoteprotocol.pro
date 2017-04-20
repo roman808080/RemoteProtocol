@@ -26,4 +26,5 @@ HEADERS += \
     convertordata.h \
     client.h \
     server.h \
-    datastruct.h
+    datastruct.h \
+    inputconsole.h

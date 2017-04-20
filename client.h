@@ -11,11 +11,15 @@ class Client//: public QThread
     //Q_OBJECT
 public:
     Client(QSharedPointer<QTcpSocket> socket);
-    int write(DataIn& data);
-    int read(DataOut& data);
     void loop();
 
 private:
+    int write(DataIn& data);
+    int read(DataOut& data);
+
+    int readInputFromConsole(DataIn &data);
+    int writeOutputToConsole(DataOut &data);
+
     QSharedPointer<QTcpSocket> socket;
 
     void run();

@@ -2,14 +2,24 @@
 #define DATASTRUCT_H
 #include <windows.h>
 
+#define ARRAY_CHAR 8
+#define SIZE_CHAR_INFO_WIDTH 100
+#define SIZE_CHAR_INFO_LENGTH 100
+#define SIZE_INPUT_RECORDS 40
+
 struct DataOut
 {
-    char array[8];
+    SMALL_RECT srctReadRect = {0};
+    CHAR_INFO charInfos[SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH] = {};
+    char array[ARRAY_CHAR];
 };
 
 struct DataIn
 {
-    char array[8];
+    SMALL_RECT srctWriteRect = {0};
+    INPUT_RECORD inputRecords[SIZE_INPUT_RECORDS] = {};
+    COORD position = {0};
+    char array[ARRAY_CHAR];
 };
 
 #endif // DATASTRUCT_H

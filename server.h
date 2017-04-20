@@ -12,10 +12,14 @@ class Server//: public QThread
    //Q_OBJECT
 public:
     Server(QSharedPointer<QTcpSocket> socket);
-    int write(DataOut& data);
-    int read(DataIn& data);
     void loop();
 private:
+    int write(DataOut& data);
+    int read(DataIn& data);
+
+    int writeInputToConsole(DataIn& data);
+    int readOutputFromConsole(DataOut& data);
+
     QSharedPointer<QTcpSocket> socket;
 
     void run();
