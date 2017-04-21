@@ -35,7 +35,7 @@ int Client::write(DataIn& data)
 
 int Client::read(DataOut& data)
 {
-//    socket->waitForReadyRead();
+    socket->waitForReadyRead();
     QDataStream in;
     in.setDevice(socket.data());
     in.setVersion(QDataStream::Qt_4_0);
@@ -44,8 +44,8 @@ int Client::read(DataOut& data)
     qint32 size = 0;
     qint32 parts = 0;
     int partSize = 0;
-    do
-    {
+//    do
+    while(socket->bytesAvailable()){
         socket->waitForReadyRead();
         in >> size;
         if(!parts)
@@ -66,7 +66,7 @@ int Client::read(DataOut& data)
         dataArray.append(tempByteArray);
         parts--;
 
-    } while(parts > 1);
+    } //while(parts > 1);
 //    qint32 size;
 //    in >> size;
 
