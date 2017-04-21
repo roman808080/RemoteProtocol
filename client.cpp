@@ -123,6 +123,9 @@ int Client::read(DataOut& data)
 
     ConvertorData::qbytearray_to_data(dataArray, &data, size);
     qDebug() << data.array << "here2\n";
+
+    size = 0;
+    loop();
     return 0;
 }
 
