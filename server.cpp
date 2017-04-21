@@ -1,11 +1,4 @@
-#include <QTcpSocket>
-#include <QSharedPointer>
-#include <QDataStream>
-
-
 #include "server.h"
-#include "convertordata.h"
-#include "datastruct.h"
 
 Server::Server(QSharedPointer<QTcpSocket> socket)
 {
@@ -20,11 +13,14 @@ int Server::write(DataOut& data)
 
     QByteArray qbytearray;
     qint32 size = sizeof(data);
+    qDebug() << "server side. size struct: " << size;
     ConvertorData::data_to_qbytearray(&data, qbytearray, size);
 
     out << size;
-    if(out.writeRawData(qbytearray.data(), size) == -1)
+    int writedBytes = out.writeRawData(qbytearray.data(), size);
+    if(writedBytes == -1)
         return -1;
+    qDebug() << "server side. write: " << writedBytes;
 
     socket->write(block);
     socket->waitForBytesWritten();
@@ -60,69 +56,72 @@ void Server::loop()
 
 void Server::run()
 {
+    ServerConsole serverConsole;
     while(true){
         // first read
         DataIn nextMessage;
         read(nextMessage);
-        writeInputToConsole(nextMessage);
+        serverConsole.writeInputToConsole(nextMessage);
 
         qDebug() << nextMessage.array << "\n";
         // after write our console answer
         DataOut answer;
         int i = 0;
+        qDebug() << "write our answer";
         for(char c: "Answer"){
             answer.array[i] = c;
+            qDebug() << "from string " <<  c << "from array " << answer.array[i];
             i++;
         }
         write(answer);
    }
 }
 
-int Server::writeInputToConsole(DataIn& data)
-{
-    //temporary
-    FreeConsole(); // console lost
+//int Server::writeInputToConsole(DataIn& data)
+//{
+//    //temporary
+//    FreeConsole(); // console lost
 
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
+//    STARTUPINFO si;
+//    PROCESS_INFORMATION pi;
 
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-    ZeroMemory(&pi, sizeof(pi));
-    std::wstring path = L"cmd.exe";
+//    ZeroMemory(&si, sizeof(si));
+//    si.cb = sizeof(si);
+//    ZeroMemory(&pi, sizeof(pi));
+//    std::wstring path = L"cmd.exe";
 
-    SECURITY_ATTRIBUTES security = {
-       sizeof(security), NULL, TRUE
-     };
+//    SECURITY_ATTRIBUTES security = {
+//       sizeof(security), NULL, TRUE
+//     };
 
-    // Start the child process.
-    if(!CreateProcess(NULL, (LPWSTR)path.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
-    {
-        printf( "CreateProcess failed (%d).\n", GetLastError() );
-        return -1;
-    }
+//    // Start the child process.
+//    if(!CreateProcess(NULL, (LPWSTR)path.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
+//    {
+//        printf( "CreateProcess failed (%d).\n", GetLastError() );
+//        return -1;
+//    }
 
-    Sleep(2000);
+//    Sleep(2000);
 
-    if(!AttachConsole(pi.dwProcessId)){
-        printf( "AttachConsole failed (%d).\n", GetLastError() );
-        return -1;
-    }
+//    if(!AttachConsole(pi.dwProcessId)){
+//        printf( "AttachConsole failed (%d).\n", GetLastError() );
+//        return -1;
+//    }
 
-    HANDLE hConIn = GetStdHandle(STD_INPUT_HANDLE);
-    DWORD dwTmp;
+//    HANDLE hConIn = GetStdHandle(STD_INPUT_HANDLE);
+//    DWORD dwTmp;
 
-    dwTmp = 0;
-    WriteConsoleInput(hConIn, &data.inputRecords[0], SIZE_INPUT_RECORDS, &dwTmp);
-    Sleep(1000);
+//    dwTmp = 0;
+//    WriteConsoleInput(hConIn, &data.inputRecords[0], SIZE_INPUT_RECORDS, &dwTmp);
+//    Sleep(1000);
 
-    CloseHandle( pi.hProcess );
-    CloseHandle( pi.hThread );
+//    CloseHandle( pi.hProcess );
+//    CloseHandle( pi.hThread );
 
-    return 0;
-}
+//    return 0;
+//}
 
-int Server::readOutputFromConsole(DataOut& data)
-{
-    //pass
-}
+//int Server::readOutputFromConsole(DataOut& data)
+//{
+//    //pass
+//}

@@ -1,17 +1,4 @@
-#include <QObject>
-#include <QSharedPointer>
-#include <QTcpSocket>
-#include <QDataStream>
-#include <QBuffer>
-#include <iostream>
-#include <windows.h>
-#include <QThread>
-
 #include "example.h"
-#include "convertordata.h"
-#include "datastruct.h"
-#include "client.h"
-#include "server.h"
 
 Example::Example(){
       qDebug()<<"From worker thread: "<< QThread::currentThreadId();

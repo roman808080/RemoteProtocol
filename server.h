@@ -3,9 +3,13 @@
 
 #include <QSharedPointer>
 #include <QTcpServer>
+#include <QTcpSocket>
+#include <QDataStream>
 #include <QThread>
 
+#include "convertordata.h"
 #include "datastruct.h"
+#include "serverconsole.h"
 
 class Server//: public QThread
 {
@@ -17,8 +21,8 @@ private:
     int write(DataOut& data);
     int read(DataIn& data);
 
-    int writeInputToConsole(DataIn& data);
-    int readOutputFromConsole(DataOut& data);
+//    int writeInputToConsole(DataIn& data);
+//    int readOutputFromConsole(DataOut& data);
 
     QSharedPointer<QTcpSocket> socket;
 

@@ -1,8 +1,5 @@
 #include "tcpprotocol.h"
 
-#include <QTimer>
-#include <QDataStream>
-
 #define DEFAULT_TCP_PORT 4644
 
 

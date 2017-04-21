@@ -2,14 +2,10 @@
 #include <QDebug>
 #include <iostream>
 #include <QObject>
-//#include <QScopedPointer>
-//#include <QSharedPointer>
 
 #include "tcpprotocol.h"
 #include "peer.h"
 #include "example.h"
-
-
 
 int main(int argc, char *argv[])
 {

@@ -1,13 +1,4 @@
-#include <QTcpSocket>
-#include <QSharedPointer>
-#include <QDataStream>
-#include <iostream>
-#include <QDebug>
-
 #include "client.h"
-#include "convertordata.h"
-#include "datastruct.h"
-#include "inputconsole.h"
 
 Client::Client(QSharedPointer<QTcpSocket> socket)
 {
@@ -45,11 +36,35 @@ int Client::read(DataOut& data)
 
     QByteArray dataArray;
     dataArray.resize(size);
+    qDebug() << "it's side of client. size = " << size;
 
-    if(in.readRawData(dataArray.data(), size) == -1)
+    int readByte = in.readRawData(dataArray.data(), size);
+    if( readByte == -1)
         return -1;
+    qDebug() << "all " << size << " read " << readByte;
+//    qint32 completed = 0;
+//    while(completed < size)
+//    while(socket->bytesAvailable())
+//    {
+//        //socket->bytesAvailable();
+//        QByteArray tempDataArray;
+//        tempDataArray.resize(size);
+
+//        int readByte = in.readRawData(tempDataArray.data(), size);
+//        if( readByte == -1)
+//        {
+//            qDebug() << "Have some error";
+//            return -1;
+//        }
+//        dataArray.append(tempDataArray);
+//        completed += readByte;
+//        qDebug() << "we read data " << completed << " in this iteration " << readByte;
+//    }
+
+//    qDebug() << "we read " << completed;
 
     ConvertorData::qbytearray_to_data(dataArray, &data, size);
+    qDebug() << data.array << "here2\n";
     return 0;
 }
 
@@ -63,36 +78,41 @@ void Client::loop()
 
 void Client::run()
 {
+    ClientConsole clientConsole;
     while(true){
         // first command
         std::cout << "Input text\n";
         DataIn data;
         std::cin >> data.array;
-        readInputFromConsole(data);
+        clientConsole.readInputFromConsole(data);
+//        readInputFromConsole(data);
         write(data);
 
         // after read
         DataOut nextMessage;
         read(nextMessage);
         qDebug() << nextMessage.array << "here\n";
+        for(char c : nextMessage.array){
+            qDebug() << c;
+        }
     }
 }
 
 
 
-int Client::readInputFromConsole(DataIn& data)
-{
-    //temporary
-    std::string str = "cd ..";
-//    data.inputRecords = wchars2records(str);
-    INPUT_RECORD* ir = wchars2records(str);
-    for(int i=0; i<str.size()+1; i++)
-    {
-        data.inputRecords[i] = ir[i];
-    }
-}
+//int Client::readInputFromConsole(DataIn& data)
+//{
+//    //temporary
+//    std::string str = "cd ..";
+////    data.inputRecords = wchars2records(str);
+//    INPUT_RECORD* ir = wchars2records(str);
+//    for(int i=0; i<str.size()+1; i++)
+//    {
+//        data.inputRecords[i] = ir[i];
+//    }
+//}
 
-int Client::writeOutputToConsole(DataOut& data)
-{
-    //pass
-}
+//int Client::writeOutputToConsole(DataOut& data)
+//{
+//    //pass
+//}

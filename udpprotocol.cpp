@@ -1,8 +1,5 @@
 #include "udpprotocol.h"
 
-#include <QNetworkInterface>
-#include <QDataStream>
-
 #define DEFAULT_UDP_PORT 4644
 
 UdpProtocol::UdpProtocol()

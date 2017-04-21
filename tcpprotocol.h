@@ -11,6 +11,8 @@
 #include <QScopedPointer>
 #include <QSharedPointer>
 #include <QHash>
+#include <QTimer>
+#include <QDataStream>
 
 #include "peer.h"
 

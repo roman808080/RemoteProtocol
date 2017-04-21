@@ -1,10 +1,17 @@
 #ifndef CLIENT_H
 #define CLIENT_H
-#include <QSharedPointer>
 #include <QTcpServer>
 #include <QThread>
+#include <QTcpSocket>
+#include <QSharedPointer>
+#include <QDataStream>
+#include <QDebug>
 
+#include <iostream>
+
+#include "convertordata.h"
 #include "datastruct.h"
+#include "clientconsole.h"
 
 class Client//: public QThread
 {
@@ -17,8 +24,8 @@ private:
     int write(DataIn& data);
     int read(DataOut& data);
 
-    int readInputFromConsole(DataIn &data);
-    int writeOutputToConsole(DataOut &data);
+//    int readInputFromConsole(DataIn &data);
+//    int writeOutputToConsole(DataOut &data);
 
     QSharedPointer<QTcpSocket> socket;
 

@@ -2,11 +2,12 @@
 #define UDPPROTOCOL_H
 
 #include <QObject>
-
 #include <QtNetwork/QUdpSocket>
 #include <QtNetwork/QHostInfo>
 #include <QScopedPointer>
 #include <QHash>
+#include <QNetworkInterface>
+#include <QDataStream>
 
 #include "peer.h"
 

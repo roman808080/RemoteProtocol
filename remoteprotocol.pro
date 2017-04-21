@@ -16,7 +16,9 @@ SOURCES += main.cpp \
     tcpprotocol.cpp \
     convertordata.cpp \
     client.cpp \
-    server.cpp
+    server.cpp \
+    clientconsole.cpp \
+    serverconsole.cpp
 
 HEADERS += \
     peer.h \
@@ -27,4 +29,6 @@ HEADERS += \
     client.h \
     server.h \
     datastruct.h \
+    clientconsole.h \
+    serverconsole.h \
     inputconsole.h

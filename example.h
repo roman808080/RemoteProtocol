@@ -1,15 +1,21 @@
 #ifndef EXAMPLE_H
 #define EXAMPLE_H
-#include <QObject>
-#include <QTcpSocket>
-#include <QSharedPointer>
-#include <iostream>
-#include "tcpprotocol.h"
 
+#include <QObject>
+#include <QSharedPointer>
+#include <QTcpSocket>
+#include <QDataStream>
+#include <QThread>
+
+#include <iostream>
+#include <windows.h>
+
+#include "tcpprotocol.h"
 #include "peer.h"
-#include "server.h"
-#include "client.h"
+#include "convertordata.h"
 #include "datastruct.h"
+#include "client.h"
+#include "server.h"
 
 class Example : public QObject
 {
