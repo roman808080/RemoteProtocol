@@ -1,5 +1,7 @@
 #include "server.h"
 
+#define SIZE_CHUNK 200
+
 Server::Server(QSharedPointer<QTcpSocket> socket)
 {
     this->socket.reset(socket.data());
@@ -33,19 +35,49 @@ int Server::write(DataOut& data)
 
     QByteArray qbytearray;
     qint32 size = sizeof(data);
-    qint32 parts = ceil(size/200);
+    qint32 parts = ceil((size*1.0)/SIZE_CHUNK);
+
     qDebug() << "how many parts we must do! "<< parts;
     qDebug() << "server side. size struct: " << size;
     ConvertorData::data_to_qbytearray(&data, qbytearray, size);
 
-    out << size;
-    int writedBytes = out.writeRawData(qbytearray.data(), size);
-    if(writedBytes == -1)
-        return -1;
-    qDebug() << "server side. write: " << writedBytes;
+//    out << size;
+//    out << parts;
 
-    socket->write(block);
-    socket->waitForBytesWritten();
+    while(parts)
+    {
+        QByteArray tempByteArray;
+        out << size;
+        out << parts;
+
+        tempByteArray.setRawData(qbytearray, SIZE_CHUNK);
+        out << tempByteArray.size();
+
+        qDebug() << "size tempByteArray " << tempByteArray.size();
+
+        int writedBytes = out.writeRawData(tempByteArray.data(), tempByteArray.size());
+        if(writedBytes == -1)
+        {
+            qDebug() << "error with write data";
+            return -1;
+        }
+
+        socket->write(block);
+        socket->waitForBytesWritten();
+
+        qbytearray.remove(0, tempByteArray.size());
+        parts--;
+    }
+
+
+
+//    int writedBytes = out.writeRawData(qbytearray.data(), size);
+//    if(writedBytes == -1)
+//        return -1;
+//    qDebug() << "server side. write: " << writedBytes;
+
+//    socket->write(block);
+//    socket->waitForBytesWritten();
     return 0;
 }
 
