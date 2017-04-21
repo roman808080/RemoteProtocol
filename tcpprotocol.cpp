@@ -36,7 +36,7 @@ void TcpProtocol::newIncomingConnection()
 {
     if (!mTcpServer->hasPendingConnections()) return;
     mCurrentSocket.reset(mTcpServer->nextPendingConnection());
-    connect(mCurrentSocket.data(), SIGNAL(disconnected()), this, SLOT(closedConnectionTmp()), Qt::QueuedConnection);
+//    connect(mCurrentSocket.data(), SIGNAL(disconnected()), this, SLOT(closedConnectionTmp()), Qt::QueuedConnection);
     emit newInConnection(mCurrentSocket);
 }
 

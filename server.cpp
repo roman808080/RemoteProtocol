@@ -3,6 +3,17 @@
 Server::Server(QSharedPointer<QTcpSocket> socket)
 {
     this->socket.reset(socket.data());
+    connect(this->socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
+    connect(this->socket.data(), SIGNAL(disconnected()),
+            this, SLOT(closedConnection()));
+    connect(this->socket.data(), SIGNAL(readyRead()),
+            this, SLOT(exchange()));
+}
+
+Server::~Server()
+{
+    closedConnection();
 }
 
 int Server::write(DataOut& data)
@@ -29,7 +40,7 @@ int Server::write(DataOut& data)
 
 int Server::read(DataIn& data)
 {
-    socket->waitForReadyRead();
+//    socket->waitForReadyRead();
     QDataStream in;
     in.setDevice(socket.data());
     in.setVersion(QDataStream::Qt_4_0);
@@ -40,88 +51,63 @@ int Server::read(DataIn& data)
     QByteArray dataArray;
     dataArray.resize(size);
 
-    if(in.readRawData(dataArray.data(), size) == -1)
+    int readByte = in.readRawData(dataArray.data(), size);
+    if(readByte == -1)
         return -1;
+
+    qDebug() << "all " << size << " read " << readByte;
 
     ConvertorData::qbytearray_to_data(dataArray, &data, size);
     return 0;
 }
 
-void Server::loop()
-{
+//void Server::loop()
+//{
 //    QObject::connect(this, SIGNAL(finished()), this, SLOT(quit()));
 //    start();
-    run();
-}
+//    run();
+//}
 
-void Server::run()
+void Server::exchange()
 {
-    ServerConsole serverConsole;
-    while(true){
-        // first read
-        DataIn nextMessage;
-        read(nextMessage);
-        serverConsole.writeInputToConsole(nextMessage);
+    qDebug() << "hell";
+//    ServerConsole serverConsole;
+//    while(true){
+    // first read
+    DataIn nextMessage;
+    read(nextMessage);
+//        serverConsole.writeInputToConsole(nextMessage);
 
-        qDebug() << nextMessage.array << "\n";
-        // after write our console answer
-        DataOut answer;
-        int i = 0;
-        qDebug() << "write our answer";
-        for(char c: "Answer"){
-            answer.array[i] = c;
-            qDebug() << "from string " <<  c << "from array " << answer.array[i];
-            i++;
-        }
-        write(answer);
-   }
+    qDebug() << nextMessage.array << "\n";
+    // after write our console answer
+    DataOut answer;
+    int i = 0;
+    qDebug() << "write our answer";
+    for(char c: "Answer"){
+        answer.array[i] = c;
+        qDebug() << "from string " <<  c << "from array " << answer.array[i];
+        i++;
+    }
+    write(answer);
+//   }
 }
 
-//int Server::writeInputToConsole(DataIn& data)
-//{
-//    //temporary
-//    FreeConsole(); // console lost
+void Server::sendConnectError(QAbstractSocket::SocketError e)
+{
+    if (socket)
+    {
+        socket->close();
+        socket->deleteLater();
+    }
+}
 
-//    STARTUPINFO si;
-//    PROCESS_INFORMATION pi;
-
-//    ZeroMemory(&si, sizeof(si));
-//    si.cb = sizeof(si);
-//    ZeroMemory(&pi, sizeof(pi));
-//    std::wstring path = L"cmd.exe";
-
-//    SECURITY_ATTRIBUTES security = {
-//       sizeof(security), NULL, TRUE
-//     };
-
-//    // Start the child process.
-//    if(!CreateProcess(NULL, (LPWSTR)path.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
-//    {
-//        printf( "CreateProcess failed (%d).\n", GetLastError() );
-//        return -1;
-//    }
-
-//    Sleep(2000);
-
-//    if(!AttachConsole(pi.dwProcessId)){
-//        printf( "AttachConsole failed (%d).\n", GetLastError() );
-//        return -1;
-//    }
-
-//    HANDLE hConIn = GetStdHandle(STD_INPUT_HANDLE);
-//    DWORD dwTmp;
-
-//    dwTmp = 0;
-//    WriteConsoleInput(hConIn, &data.inputRecords[0], SIZE_INPUT_RECORDS, &dwTmp);
-//    Sleep(1000);
-
-//    CloseHandle( pi.hProcess );
-//    CloseHandle( pi.hThread );
-
-//    return 0;
-//}
-
-//int Server::readOutputFromConsole(DataOut& data)
-//{
-//    //pass
-//}
+void Server::closedConnection()
+{
+    if (socket)
+       {
+           socket->disconnect();
+           socket->disconnectFromHost();
+           socket->close();
+           socket->deleteLater();
+       }
+}

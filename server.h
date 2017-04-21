@@ -11,22 +11,23 @@
 #include "datastruct.h"
 #include "serverconsole.h"
 
-class Server//: public QThread
+class Server: public QObject//: public QThread
 {
-   //Q_OBJECT
+   Q_OBJECT
 public:
     Server(QSharedPointer<QTcpSocket> socket);
-    void loop();
+    ~Server();
+
+public slots:
+    void sendConnectError(QAbstractSocket::SocketError e);
+    void closedConnection();
+    void exchange();
+
 private:
     int write(DataOut& data);
     int read(DataIn& data);
 
-//    int writeInputToConsole(DataIn& data);
-//    int readOutputFromConsole(DataOut& data);
-
     QSharedPointer<QTcpSocket> socket;
-
-    void run();
 };
 
 #endif // SERVER_H

@@ -15,6 +15,8 @@ ServerConsole::ServerConsole()
     ZeroMemory(&pi, sizeof(pi));
 
     si.cb = sizeof(si);
+//    si.wShowWindow = SW_SHOW;// show main window maybe
+//    si.wShowWindow = SW_MINIMIZE;
 
     SECURITY_ATTRIBUTES security = {
        sizeof(security), NULL, TRUE

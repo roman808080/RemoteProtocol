@@ -20,15 +20,15 @@ void Example::newUsers(){
 }
 
  void Example::newInConnection(QSharedPointer<QTcpSocket> socket){
-     connect(socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
-             this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
+//     connect(socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
+//             this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
      std::cout << "Server have new connection from client\n";
 //     QSharedPointer<Server> server(socket);
 //     server->loop();
 //     listServers.append(server);
 //     listServers.append(new QScopedPointer<Server>(new Server(socket)));
      server.reset(new Server(socket));
-     server->loop();
+//     server->loop();
  }
 
  void Example::newOutConnection(QSharedPointer<QTcpSocket> socket){

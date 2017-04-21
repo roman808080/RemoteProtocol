@@ -13,12 +13,17 @@
 #include "datastruct.h"
 #include "clientconsole.h"
 
-class Client//: public QThread
+class Client: QObject//: public QThread
 {
-    //Q_OBJECT
+    Q_OBJECT
 public:
     Client(QSharedPointer<QTcpSocket> socket);
+    ~Client();
     void loop();
+
+public slots:
+    void sendConnectError(QAbstractSocket::SocketError e);
+    void closedConnection();
 
 private:
     int write(DataIn& data);

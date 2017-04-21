@@ -3,6 +3,15 @@
 Client::Client(QSharedPointer<QTcpSocket> socket)
 {
     this->socket.reset(socket.data());
+    connect(this->socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
+    connect(this->socket.data(), SIGNAL(disconnected()),
+            this, SLOT(closedConnection()));
+}
+
+Client::~Client()
+{
+    closedConnection();
 }
 
 int Client::write(DataIn& data)
@@ -78,13 +87,13 @@ void Client::loop()
 
 void Client::run()
 {
-    ClientConsole clientConsole;
+//    ClientConsole clientConsole;
     while(true){
         // first command
         std::cout << "Input text\n";
         DataIn data;
         std::cin >> data.array;
-        clientConsole.readInputFromConsole(data);
+//        clientConsole.readInputFromConsole(data);
 //        readInputFromConsole(data);
         write(data);
 
@@ -98,6 +107,26 @@ void Client::run()
     }
 }
 
+
+void Client::sendConnectError(QAbstractSocket::SocketError e)
+{
+    if (socket)
+    {
+        socket->close();
+        socket->deleteLater();
+    }
+}
+
+void Client::closedConnection()
+{
+    if (socket)
+       {
+           socket->disconnect();
+           socket->disconnectFromHost();
+           socket->close();
+           socket->deleteLater();
+       }
+}
 
 
 //int Client::readInputFromConsole(DataIn& data)
