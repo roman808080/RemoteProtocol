@@ -35,22 +35,51 @@ int Client::write(DataIn& data)
 
 int Client::read(DataOut& data)
 {
-    socket->waitForReadyRead();
+//    socket->waitForReadyRead();
     QDataStream in;
     in.setDevice(socket.data());
     in.setVersion(QDataStream::Qt_4_0);
 
-    qint32 size;
-    in >> size;
-
     QByteArray dataArray;
-    dataArray.resize(size);
+    qint32 size = 0;
+    qint32 parts = 0;
+    int partSize = 0;
+    do
+    {
+        socket->waitForReadyRead();
+        in >> size;
+        if(!parts)
+            in >> parts;
+        in >> partSize;
+
+        QByteArray tempByteArray;
+        tempByteArray.resize(partSize);
+
+        int readByte = in.readRawData(tempByteArray.data(), partSize);
+        if( readByte == -1)
+        {
+            qDebug() << "error with read bytes. side client";
+            return -1;
+        }
+        qDebug() << "all " << size << " read " << readByte << " parts " << parts;
+        qDebug() << tempByteArray;
+        dataArray.append(tempByteArray);
+        parts--;
+
+    } while(parts > 1);
+//    qint32 size;
+//    in >> size;
+
+
+//    dataArray.resize(size);
     qDebug() << "it's side of client. size = " << size;
 
-    int readByte = in.readRawData(dataArray.data(), size);
-    if( readByte == -1)
-        return -1;
-    qDebug() << "all " << size << " read " << readByte;
+//    int readByte = in.readRawData(dataArray.data(), size);
+//    if( readByte == -1)
+//        return -1;
+//    qDebug() << "all " << size << " read " << readByte;
+
+
 //    qint32 completed = 0;
 //    while(completed < size)
 //    while(socket->bytesAvailable())

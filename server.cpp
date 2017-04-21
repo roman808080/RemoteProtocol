@@ -1,6 +1,6 @@
 #include "server.h"
 
-#define SIZE_CHUNK 200
+#define SIZE_CHUNK 500
 
 Server::Server(QSharedPointer<QTcpSocket> socket)
 {
@@ -53,7 +53,8 @@ int Server::write(DataOut& data)
         tempByteArray.setRawData(qbytearray, SIZE_CHUNK);
         out << tempByteArray.size();
 
-        qDebug() << "size tempByteArray " << tempByteArray.size();
+        qDebug() << "size tempByteArray " << tempByteArray.size() << " parts " << parts;
+        qDebug() << tempByteArray;
 
         int writedBytes = out.writeRawData(tempByteArray.data(), tempByteArray.size());
         if(writedBytes == -1)
