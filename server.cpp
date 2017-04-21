@@ -31,44 +31,56 @@ int Server::write(DataOut& data)
 
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
+    out.setVersion(QDataStream::Qt_5_4);
 
     QByteArray qbytearray;
     qint32 size = sizeof(data);
-    qint32 parts = ceil((size*1.0)/SIZE_CHUNK);
+//    qint32 parts = ceil((size*1.0)/SIZE_CHUNK);
 
-    qDebug() << "how many parts we must do! "<< parts;
+//    qDebug() << "how many parts we must do! "<< parts;
     qDebug() << "server side. size struct: " << size;
     ConvertorData::data_to_qbytearray(&data, qbytearray, size);
 
+    out << (quint32)0;
+    block.append(qbytearray);
+
+    out.device()->seek(0);
+    out << (quint32)(block.size() - sizeof(quint32));
+
+    qint64 x = 0;
+    while (x < block.size()) {
+        qint64 y = socket->write(block);
+        x += y;
+        //qDebug() << x;    // summary size you send, so you can check recieved and replied sizes
+    }
 //    out << size;
 //    out << parts;
 
-    while(parts)
-    {
-        QByteArray tempByteArray;
-        out << size;
-        out << parts;
+//    while(parts)
+//    {
+//        QByteArray tempByteArray;
+//        out << size;
+//        out << parts;
 
-        tempByteArray.setRawData(qbytearray, SIZE_CHUNK);
-        out << tempByteArray.size();
+//        tempByteArray.setRawData(qbytearray, SIZE_CHUNK);
+//        out << tempByteArray.size();
 
-        qDebug() << "size tempByteArray " << tempByteArray.size() << " parts " << parts;
-        qDebug() << tempByteArray;
+//        qDebug() << "size tempByteArray " << tempByteArray.size() << " parts " << parts;
+//        qDebug() << tempByteArray;
 
-        int writedBytes = out.writeRawData(tempByteArray.data(), tempByteArray.size());
-        if(writedBytes == -1)
-        {
-            qDebug() << "error with write data";
-            return -1;
-        }
+//        int writedBytes = out.writeRawData(tempByteArray.data(), tempByteArray.size());
+//        if(writedBytes == -1)
+//        {
+//            qDebug() << "error with write data";
+//            return -1;
+//        }
 
-        socket->write(block);
-        socket->waitForBytesWritten();
+//        socket->write(block);
+//        socket->waitForBytesWritten();
 
-        qbytearray.remove(0, tempByteArray.size());
-        parts--;
-    }
+//        qbytearray.remove(0, tempByteArray.size());
+//        parts--;
+//    }
 
 
 

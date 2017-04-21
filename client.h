@@ -6,6 +6,7 @@
 #include <QSharedPointer>
 #include <QDataStream>
 #include <QDebug>
+#include <QByteArray>
 
 #include <iostream>
 
@@ -24,10 +25,13 @@ public:
 public slots:
     void sendConnectError(QAbstractSocket::SocketError e);
     void closedConnection();
+    void readStruct();
 
 private:
     int write(DataIn& data);
     int read(DataOut& data);
+
+    qint32 size;
 
 //    int readInputFromConsole(DataIn &data);
 //    int writeOutputToConsole(DataOut &data);

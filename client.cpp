@@ -7,6 +7,9 @@ Client::Client(QSharedPointer<QTcpSocket> socket)
             this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
     connect(this->socket.data(), SIGNAL(disconnected()),
             this, SLOT(closedConnection()));
+
+    connect(this->socket.data(), SIGNAL(readyRead()), this, SLOT(readStruct()));
+    size = 0;
 }
 
 Client::~Client()
@@ -32,20 +35,35 @@ int Client::write(DataIn& data)
     socket->waitForBytesWritten();
     return 0;
 }
+void Client::readStruct()
+{
+    DataOut data;
+    read(data);
+}
 
 int Client::read(DataOut& data)
 {
-    socket->waitForReadyRead();
+//    socket->waitForReadyRead();
     QDataStream in;
     in.setDevice(socket.data());
-    in.setVersion(QDataStream::Qt_4_0);
+    in.setVersion(QDataStream::Qt_5_4);
+    qDebug() << "i was here";
+//    qint32 size;
 
-    QByteArray dataArray;
-    qint32 size = 0;
-    qint32 parts = 0;
-    int partSize = 0;
+    if (size == 0) {
+            if (socket->bytesAvailable() < sizeof(quint32))
+            return 0;
+            in >> size;
+        }
+    if (socket->bytesAvailable() < size)
+        return 0;
+
+    QByteArray dataArray = socket->readAll();
+//    qint32 size = 0;
+//    qint32 parts = 0;
+//    int partSize = 0;
 //    do
-    while(socket->bytesAvailable()){
+    /*while(socket->bytesAvailable()){
         socket->waitForReadyRead();
         in >> size;
         if(!parts)
@@ -66,13 +84,13 @@ int Client::read(DataOut& data)
         dataArray.append(tempByteArray);
         parts--;
 
-    } //while(parts > 1);
+    }*/ //while(parts > 1);
 //    qint32 size;
 //    in >> size;
 
 
 //    dataArray.resize(size);
-    qDebug() << "it's side of client. size = " << size;
+//    qDebug() << "it's side of client. size = " << size;
 
 //    int readByte = in.readRawData(dataArray.data(), size);
 //    if( readByte == -1)
@@ -100,6 +118,8 @@ int Client::read(DataOut& data)
 //    }
 
 //    qDebug() << "we read " << completed;
+    qDebug() << "we read " << dataArray.size() << " we need " << size;
+//    qDebug() << dataArray;
 
     ConvertorData::qbytearray_to_data(dataArray, &data, size);
     qDebug() << data.array << "here2\n";
@@ -117,7 +137,7 @@ void Client::loop()
 void Client::run()
 {
 //    ClientConsole clientConsole;
-    while(true){
+//    while(true){
         // first command
         std::cout << "Input text\n";
         DataIn data;
@@ -127,13 +147,13 @@ void Client::run()
         write(data);
 
         // after read
-        DataOut nextMessage;
-        read(nextMessage);
-        qDebug() << nextMessage.array << "here\n";
-        for(char c : nextMessage.array){
-            qDebug() << c;
-        }
-    }
+//        DataOut nextMessage;
+//        read(nextMessage);
+//        qDebug() << nextMessage.array << "here\n";
+//        for(char c : nextMessage.array){
+//            qDebug() << c;
+//        }
+//    }
 }
 
 
