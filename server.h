@@ -7,6 +7,8 @@
 #include <QDataStream>
 #include <QThread>
 
+#include <math.h>
+
 #include "convertordata.h"
 #include "datastruct.h"
 #include "serverconsole.h"

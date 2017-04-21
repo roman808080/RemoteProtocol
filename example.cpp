@@ -44,7 +44,6 @@ void Example::newUsers(){
 
 void Example::menu(){
     int choice;
-
     std::cout << "Hello in menu\n ";
     std::cout << "Input 1 for create Server\n";
     std::cout << "Input 2 for create Client\n";

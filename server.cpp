@@ -18,12 +18,23 @@ Server::~Server()
 
 int Server::write(DataOut& data)
 {
+//    QByteArray simple("I am Roman. I say you hello");
+//    QByteArray second;
+//    qDebug() << simple.size();
+//    second.setRawData(simple, 3);
+//    qDebug() << second;
+//    qDebug() << simple;
+//    simple.remove(0, 3);
+//    qDebug() << simple;
+
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_4_0);
 
     QByteArray qbytearray;
     qint32 size = sizeof(data);
+    qint32 parts = ceil(size/200);
+    qDebug() << "how many parts we must do! "<< parts;
     qDebug() << "server side. size struct: " << size;
     ConvertorData::data_to_qbytearray(&data, qbytearray, size);
 
