@@ -20,24 +20,13 @@ Server::~Server()
 
 int Server::write(DataOut& data)
 {
-//    QByteArray simple("I am Roman. I say you hello");
-//    QByteArray second;
-//    qDebug() << simple.size();
-//    second.setRawData(simple, 3);
-//    qDebug() << second;
-//    qDebug() << simple;
-//    simple.remove(0, 3);
-//    qDebug() << simple;
-
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_4);
 
     QByteArray qbytearray;
     qint32 size = sizeof(data);
-//    qint32 parts = ceil((size*1.0)/SIZE_CHUNK);
 
-//    qDebug() << "how many parts we must do! "<< parts;
     qDebug() << "server side. size struct: " << size;
     ConvertorData::data_to_qbytearray(&data, qbytearray, size);
 
@@ -51,52 +40,12 @@ int Server::write(DataOut& data)
     while (x < block.size()) {
         qint64 y = socket->write(block);
         x += y;
-        //qDebug() << x;    // summary size you send, so you can check recieved and replied sizes
     }
-//    out << size;
-//    out << parts;
-
-//    while(parts)
-//    {
-//        QByteArray tempByteArray;
-//        out << size;
-//        out << parts;
-
-//        tempByteArray.setRawData(qbytearray, SIZE_CHUNK);
-//        out << tempByteArray.size();
-
-//        qDebug() << "size tempByteArray " << tempByteArray.size() << " parts " << parts;
-//        qDebug() << tempByteArray;
-
-//        int writedBytes = out.writeRawData(tempByteArray.data(), tempByteArray.size());
-//        if(writedBytes == -1)
-//        {
-//            qDebug() << "error with write data";
-//            return -1;
-//        }
-
-//        socket->write(block);
-//        socket->waitForBytesWritten();
-
-//        qbytearray.remove(0, tempByteArray.size());
-//        parts--;
-//    }
-
-
-
-//    int writedBytes = out.writeRawData(qbytearray.data(), size);
-//    if(writedBytes == -1)
-//        return -1;
-//    qDebug() << "server side. write: " << writedBytes;
-
-//    socket->write(block);
-//    socket->waitForBytesWritten();
     return 0;
 }
 
 int Server::read(DataIn& data)
 {
-//    socket->waitForReadyRead();
     QDataStream in;
     in.setDevice(socket.data());
     in.setVersion(QDataStream::Qt_4_0);
@@ -117,35 +66,22 @@ int Server::read(DataIn& data)
     return 0;
 }
 
-//void Server::loop()
-//{
-//    QObject::connect(this, SIGNAL(finished()), this, SLOT(quit()));
-//    start();
-//    run();
-//}
 
 void Server::exchange()
 {
-    qDebug() << "hell";
-//    ServerConsole serverConsole;
-//    while(true){
-    // first read
     DataIn nextMessage;
     read(nextMessage);
-//        serverConsole.writeInputToConsole(nextMessage);
 
-    qDebug() << nextMessage.array << "\n";
+    qDebug() << nextMessage.array;
     // after write our console answer
     DataOut answer;
     int i = 0;
     qDebug() << "write our answer";
     for(char c: "Answer"){
         answer.array[i] = c;
-        qDebug() << "from string " <<  c << "from array " << answer.array[i];
         i++;
     }
     write(answer);
-//   }
 }
 
 void Server::sendConnectError(QAbstractSocket::SocketError e)

@@ -13,7 +13,7 @@
 #include "datastruct.h"
 #include "serverconsole.h"
 
-class Server: public QObject//: public QThread
+class Server: public QObject
 {
    Q_OBJECT
 public:

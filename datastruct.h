@@ -9,10 +9,10 @@
 
 struct DataOut
 {
-    char array[ARRAY_CHAR] = {};
     SMALL_RECT srctReadRect = {0};
     COORD position = {0};
     CHAR_INFO charInfos[SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH] = {};
+    char array[ARRAY_CHAR] = {};
 };
 
 struct DataIn

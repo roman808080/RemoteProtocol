@@ -20,25 +20,20 @@ class Client: QObject//: public QThread
 public:
     Client(QSharedPointer<QTcpSocket> socket);
     ~Client();
-    void loop();
 
 public slots:
     void sendConnectError(QAbstractSocket::SocketError e);
     void closedConnection();
-    void readStruct();
+
+    void startExchange();
+    void endExchange();
 
 private:
     int write(DataIn& data);
     int read(DataOut& data);
 
     qint32 size;
-
-//    int readInputFromConsole(DataIn &data);
-//    int writeOutputToConsole(DataOut &data);
-
     QSharedPointer<QTcpSocket> socket;
-
-    void run();
 };
 
 #endif // CLIENT_H
