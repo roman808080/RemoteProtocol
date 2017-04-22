@@ -27,7 +27,6 @@ int Server::write(DataOut& data)
     QByteArray qbytearray;
     qint32 size = sizeof(data);
 
-    qDebug() << "server side. size struct: " << size;
     ConvertorData::data_to_qbytearray(&data, qbytearray, size);
 
     out << (quint32)0;
@@ -60,8 +59,6 @@ int Server::read(DataIn& data)
     if(readByte == -1)
         return -1;
 
-    qDebug() << "all " << size << " read " << readByte;
-
     ConvertorData::qbytearray_to_data(dataArray, &data, size);
     return 0;
 }
@@ -72,11 +69,10 @@ void Server::exchange()
     DataIn nextMessage;
     read(nextMessage);
 
-    qDebug() << nextMessage.array;
     // after write our console answer
     DataOut answer;
     int i = 0;
-    qDebug() << "write our answer";
+
     for(char c: "Answer"){
         answer.array[i] = c;
         i++;

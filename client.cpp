@@ -40,7 +40,6 @@ int Client::read(DataOut& data)
     QDataStream in;
     in.setDevice(socket.data());
     in.setVersion(QDataStream::Qt_5_4);
-    qDebug() << "i was here";
 
     if(!size && socket->bytesAvailable() >= sizeof(quint32))
         in >> size;
@@ -50,10 +49,8 @@ int Client::read(DataOut& data)
         return 0;
 
     QByteArray dataArray = socket->readAll();
-    qDebug() << "we read " << dataArray.size() << " we need " << size;
 
     ConvertorData::qbytearray_to_data(dataArray, &data, size);
-    qDebug() << data.array << "here2\n";
 
     startExchange();
 
@@ -63,9 +60,8 @@ int Client::read(DataOut& data)
 void Client::startExchange()
 {
     size = 0;
-    std::cout << "Input text\n";
     DataIn data;
-    std::cin >> data.array;
+//    std::cin >> data.array;
     write(data);
 }
 
