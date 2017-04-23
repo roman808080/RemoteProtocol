@@ -72,12 +72,6 @@ void Server::exchange()
 
     // after write our console answer
     DataOut answer;
-    int i = 0;
-
-    for(char c: "Answer"){
-        answer.array[i] = c;
-        i++;
-    }
     write(answer);
 }
 

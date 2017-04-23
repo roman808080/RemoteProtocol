@@ -60,8 +60,8 @@ int ServerConsole::writeInputToConsole(DataIn& data)
     DWORD dwTmp;
 
     dwTmp = 0;
-    WriteConsoleInput(hConIn, &data.inputRecords[0], SIZE_INPUT_RECORDS, &dwTmp);
-    Sleep(1000);
+    WriteConsoleInput(hConIn, &data.inputRecords/*[0]*/, SIZE_INPUT_RECORDS, &dwTmp);
+//    Sleep(1000);
 
     return 0;
 }

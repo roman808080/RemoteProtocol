@@ -47,13 +47,19 @@ ClientConsole::ClientConsole()
 int ClientConsole::readInputFromConsole(DataIn& data)
 {
     //temporary
-    std::wstring str = L"chcp 65001";
-    wchars2records(str, data.inputRecords);
-//    INPUT_RECORD* ir = wchars2records(str);
-//    for(int i=0; i<str.size()+1; i++)
-//    {
-//        data.inputRecords[i] = ir[i];
-//    }
+//    std::wstring str = L"chcp 65001";
+//    wchars2records(str, data.inputRecords);
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
+    HANDLE inputHandle = GetStdHandle(STD_INPUT_HANDLE);
+    INPUT_RECORD inputRecord;
+    DWORD events = 0;
+
+    Sleep(10);
+    ZeroMemory(&inputRecord, sizeof(inputRecord));
+    ReadConsoleInput(inputHandle, &inputRecord, 1, &events);
+
+    data.inputRecords = inputRecord;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
 }
 
 int ClientConsole::writeOutputToConsole(DataOut& data)
