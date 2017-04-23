@@ -67,6 +67,7 @@ void Client::endExchange()
 {
     DataOut data;
     read(data);
+    clientConsole.writeOutputToConsole(data);
     startExchange();
 }
 

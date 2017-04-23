@@ -64,5 +64,9 @@ int ClientConsole::readInputFromConsole(DataIn& data)
 
 int ClientConsole::writeOutputToConsole(DataOut& data)
 {
-    //pass
+    WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
+                       &data.charInfos[0],
+                       { SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_WIDTH },
+                       { 0, 0 },
+                       &data.srctReadRect);
 }

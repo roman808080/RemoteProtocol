@@ -36,7 +36,8 @@ int Server::write(DataOut& data)
     out << (quint32)(block.size() - sizeof(quint32));
 
     qint64 x = 0;
-    while (x < block.size()) {
+    while (x < block.size())
+    {
         qint64 y = socket->write(block);
         x += y;
     }
@@ -72,6 +73,7 @@ void Server::exchange()
 
     // after write our console answer
     DataOut answer;
+    serverConsole.readOutputFromConsole(answer);
     write(answer);
 }
 
