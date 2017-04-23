@@ -1,25 +1,26 @@
 #ifndef INPUTCONSOLE_H
 #define INPUTCONSOLE_H
+#include <iostream>
 #include <windows.h>
 
-INPUT_RECORD *wchars2records(std::__cxx11::string str);
+INPUT_RECORD *wchars2records(std::__cxx11::wstring str);
 int locale_to_unicode(const std::string str, wchar_t* wstr);
 INPUT_RECORD wchar2record(wchar_t u_char);
 INPUT_RECORD setEnter();
 
 const int CODE_PAGE = 1251;
 
-INPUT_RECORD* wchars2records(std::string str)
+void wchars2records(std::wstring wstr, INPUT_RECORD *input_records)
 {
-    wchar_t *wstr = new wchar_t;
-    int size = locale_to_unicode(str, wstr);
-
-    INPUT_RECORD* input_records = new INPUT_RECORD[size+1];
-    for(int i=0; i<size+1; i++)
+//    wchar_t *wstr = new wchar_t;
+//    int size = locale_to_unicode(str, wstr);
+    int size = sizeof(input_records)/sizeof(input_records[0]);///////
+//    INPUT_RECORD* input_records = new INPUT_RECORD[size+1];
+    for(int i=0; i<wstr.size(); i++)
         input_records[i] = wchar2record(wstr[i]);
-    input_records[size] = setEnter();
+    input_records[wstr.size()] = setEnter();
 
-    return input_records;
+//    return input_records;
 }
 
 int locale_to_unicode(const std::string str, wchar_t* wstr)

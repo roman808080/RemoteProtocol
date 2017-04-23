@@ -47,15 +47,13 @@ ClientConsole::ClientConsole()
 int ClientConsole::readInputFromConsole(DataIn& data)
 {
     //temporary
-    std::string str = "cd ..";
-//    data.inputRecords = wchars2records(str);
-    INPUT_RECORD* ir = wchars2records(str);
-    for(int i=0; i<str.size()+1; i++)
-    {
-        data.inputRecords[i] = ir[i];
-    }
-
-
+    std::wstring str = L"chcp 65001";
+    wchars2records(str, data.inputRecords);
+//    INPUT_RECORD* ir = wchars2records(str);
+//    for(int i=0; i<str.size()+1; i++)
+//    {
+//        data.inputRecords[i] = ir[i];
+//    }
 }
 
 int ClientConsole::writeOutputToConsole(DataOut& data)

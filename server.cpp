@@ -68,6 +68,7 @@ void Server::exchange()
 {
     DataIn nextMessage;
     read(nextMessage);
+    serverConsole.writeInputToConsole(nextMessage);
 
     // after write our console answer
     DataOut answer;

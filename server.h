@@ -30,6 +30,7 @@ private:
     int read(DataIn& data);
 
     QSharedPointer<QTcpSocket> socket;
+    ServerConsole serverConsole;
 };
 
 #endif // SERVER_H

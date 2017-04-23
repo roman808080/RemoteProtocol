@@ -51,9 +51,6 @@ int Client::read(DataOut& data)
     QByteArray dataArray = socket->readAll();
 
     ConvertorData::qbytearray_to_data(dataArray, &data, size);
-
-    startExchange();
-
     return 0;
 }
 
@@ -61,6 +58,7 @@ void Client::startExchange()
 {
     size = 0;
     DataIn data;
+    clientConsole.readInputFromConsole(data);
 //    std::cin >> data.array;
     write(data);
 }
@@ -69,6 +67,7 @@ void Client::endExchange()
 {
     DataOut data;
     read(data);
+    startExchange();
 }
 
 

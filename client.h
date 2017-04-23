@@ -34,6 +34,7 @@ private:
 
     qint32 size;
     QSharedPointer<QTcpSocket> socket;
+    ClientConsole clientConsole;
 };
 
 #endif // CLIENT_H
