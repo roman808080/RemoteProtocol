@@ -13,7 +13,7 @@ struct DataOut
     SMALL_RECT srctReadRect = {0};
     COORD position = {0};
 //    CHAR_INFO charInfos[SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH] = {};
-    std::vector<CHAR_INFO> inputRecords;
+    std::vector<CHAR_INFO> charInfos;
 };
 
 struct DataIn

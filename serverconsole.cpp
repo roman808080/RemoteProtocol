@@ -78,6 +78,7 @@ int ServerConsole::readOutputFromConsole(DataOut& data)
     data.position = bufferInfo.dwCursorPosition;
 
     ZeroMemory(&data.charInfos, sizeof(CHAR_INFO) * SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
+
     if(!ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
                            &data.charInfos[0],
                            {SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_LENGTH},

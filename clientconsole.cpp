@@ -78,7 +78,7 @@ int ClientConsole::readInputFromConsole(DataIn& data)
 
 int ClientConsole::writeOutputToConsole(DataOut& data)
 {
-    data.inputRecords.resize(SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH);
+    data.charInfos.resize(SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH);
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
                        { SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_WIDTH },

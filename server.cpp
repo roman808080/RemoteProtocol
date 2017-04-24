@@ -10,7 +10,7 @@ Server::Server(QSharedPointer<QTcpSocket> socket)
     connect(this->socket.data(), SIGNAL(disconnected()),
             this, SLOT(closedConnection()));
     connect(this->socket.data(), SIGNAL(readyRead()),
-            this, SLOT(exchange()));
+            this, SLOT(startExchange()));
 }
 
 Server::~Server()
@@ -65,18 +65,20 @@ int Server::read(DataIn& data)
 }
 
 
-void Server::exchange()
+void Server::startExchange()
 {
     DataOut answer;
     serverConsole.readOutputFromConsole(answer);
     write(answer);
+}
 
+void Server::endExchange()
+{
     DataIn nextMessage;
     read(nextMessage);
     serverConsole.writeInputToConsole(nextMessage);
 
-    // after write our console answer
-
+    startExchange();
 }
 
 void Server::sendConnectError(QAbstractSocket::SocketError e)

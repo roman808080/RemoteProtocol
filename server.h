@@ -23,7 +23,8 @@ public:
 public slots:
     void sendConnectError(QAbstractSocket::SocketError e);
     void closedConnection();
-    void exchange();
+    void startExchange();
+    void endExchange();
 
 private:
     int write(DataOut& data);

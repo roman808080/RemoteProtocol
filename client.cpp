@@ -8,7 +8,8 @@ Client::Client(QSharedPointer<QTcpSocket> socket)
     connect(this->socket.data(), SIGNAL(disconnected()),
             this, SLOT(closedConnection()));
 
-    connect(this->socket.data(), SIGNAL(readyRead()), this, SLOT(endExchange()));
+//    connect(this->socket.data(), SIGNAL(readyRead()), this, SLOT(endExchange()));
+    connect(this->socket.data(), SIGNAL(readyRead()), this, SLOT(startExchange()));
 }
 
 Client::~Client()
@@ -59,7 +60,8 @@ void Client::startExchange()
     DataOut data;
     read(data);
     clientConsole.writeOutputToConsole(data);
-    startExchange();
+//    startExchange();
+    endExchange();
 }
 
 void Client::endExchange()
