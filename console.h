@@ -1,23 +1,25 @@
-#ifndef CLIENTCONSOLE_H
-#define CLIENTCONSOLE_H
-
+#ifndef CONSOLE_H
+#define CONSOLE_H
 #include <iostream>
 #include <windows.h>
 
 #include "datastruct.h"
-//#include "inputconsole.h"
 
-class ClientConsole
+class Console
 {
 public:
-    ClientConsole();
+    Console();
+    ~Console();
+
     int readInputFromConsole(DataIn &data);
     int writeOutputToConsole(DataOut &data);
+
+    int writeInputToConsole(DataIn& data);
+    int readOutputFromConsole(DataOut& data);
 
 private:
     DWORD dwProcessId;
     DWORD dwErrorId;
-    std::wstring path;
 };
 
-#endif // CLIENTCONSOLE_H
+#endif // CONSOLE_H

@@ -1,13 +1,12 @@
-#include "clientconsole.h"
+#include "console.h"
 #include "inputconsole.h"
 
-ClientConsole::ClientConsole()
+Console::Console()
 {
     FreeConsole();
 
     dwProcessId = 0 ;
     dwErrorId = 0;
-    path = L"cmd.exe";
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -23,7 +22,7 @@ ClientConsole::ClientConsole()
        sizeof(security), NULL, TRUE
      };
 
-    if(CreateProcess(NULL, (LPWSTR)path.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
+    if(CreateProcess(NULL, (LPWSTR)L"cmd.exe", NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
     {
         dwProcessId = pi.dwProcessId;
     }
@@ -44,7 +43,19 @@ ClientConsole::ClientConsole()
     }
 }
 
-int ClientConsole::readInputFromConsole(DataIn& data)
+Console::~Console()
+{
+    printf("we are here\n");
+    HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwProcessId);
+    if (killed)
+    {
+        TerminateProcess(killed, 0);
+    }
+    //    CloseHandle( pi.hProcess );
+    //    CloseHandle( pi.hThread );
+}
+
+int Console::readInputFromConsole(DataIn& data)
 {
     //temporary
     std::wstring str = L"chcp 65001";
@@ -75,9 +86,11 @@ int ClientConsole::readInputFromConsole(DataIn& data)
     } while (data.inputRecords[0].EventType != KEY_EVENT && data.inputRecords[0].EventType != MOUSE_EVENT);
 
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
+
+    return 0;
 }
 
-int ClientConsole::writeOutputToConsole(DataOut& data)
+int Console::writeOutputToConsole(DataOut& data)
 {
     data.charInfos.resize(SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH);
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
@@ -85,4 +98,45 @@ int ClientConsole::writeOutputToConsole(DataOut& data)
                        { SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_WIDTH },
                        { 0, 0 },
                        &data.srctReadRect);
+
+    return 0;
+}
+
+int Console::writeInputToConsole(DataIn& data)
+{
+    HANDLE hConIn = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD dwTmp;
+
+    dwTmp = 0;
+    BOOL statusWrite;
+    statusWrite = WriteConsoleInput(hConIn, &data.inputRecords[0], data.inputRecords.size(), &dwTmp);
+    if(!statusWrite)
+        throw std::runtime_error("WriteConsoleInput failed.");
+//    Sleep(1000);
+
+    return 0;
+}
+
+int Console::readOutputFromConsole(DataOut& data)
+{
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo = {0};
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
+
+    data.srctReadRect = bufferInfo.srWindow;
+    data.position = bufferInfo.dwCursorPosition;
+
+    ZeroMemory(&data.charInfos, sizeof(CHAR_INFO) * SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
+
+    if(!ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
+                           &data.charInfos[0],
+                           {SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_LENGTH},
+                           {0, 0},
+                           &bufferInfo.srWindow))
+    {
+         dwErrorId = GetLastError();
+         printf("CreateProcess failed (%d).\n", dwErrorId);
+         return -1;
+    }
+
+    return 0;
 }

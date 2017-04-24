@@ -67,8 +67,9 @@ int Server::read(DataIn& data)
 
 void Server::startExchange()
 {
+    printf("we are in server start exchange\n");
     DataOut answer;
-    serverConsole.readOutputFromConsole(answer);
+    console.readOutputFromConsole(answer);
     write(answer);
 }
 
@@ -76,7 +77,7 @@ void Server::endExchange()
 {
     DataIn nextMessage;
     read(nextMessage);
-    serverConsole.writeInputToConsole(nextMessage);
+    console.writeInputToConsole(nextMessage);
 
     startExchange();
 }

@@ -12,7 +12,7 @@
 
 #include "convertordata.h"
 #include "datastruct.h"
-#include "clientconsole.h"
+#include "console.h"
 
 class Client: QObject//: public QThread
 {
@@ -34,7 +34,7 @@ private:
 
     qint32 size;
     QSharedPointer<QTcpSocket> socket;
-    ClientConsole clientConsole;
+    Console console;
 };
 
 #endif // CLIENT_H

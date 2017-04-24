@@ -17,8 +17,7 @@ SOURCES += main.cpp \
     convertordata.cpp \
     client.cpp \
     server.cpp \
-    clientconsole.cpp \
-    serverconsole.cpp
+    console.cpp
 
 HEADERS += \
     peer.h \
@@ -29,6 +28,5 @@ HEADERS += \
     client.h \
     server.h \
     datastruct.h \
-    clientconsole.h \
-    serverconsole.h \
-    inputconsole.h
+    inputconsole.h \
+    console.h

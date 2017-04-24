@@ -59,7 +59,7 @@ void Client::startExchange()
 {
     DataOut data;
     read(data);
-    clientConsole.writeOutputToConsole(data);
+    console.writeOutputToConsole(data);
 //    startExchange();
     endExchange();
 }
@@ -68,7 +68,7 @@ void Client::endExchange()
 {
     size = 0;
     DataIn data;
-    clientConsole.readInputFromConsole(data);
+    console.readInputFromConsole(data);
 //    std::cin >> data.array;
     write(data);
 }

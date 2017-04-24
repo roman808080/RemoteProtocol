@@ -11,7 +11,7 @@
 
 #include "convertordata.h"
 #include "datastruct.h"
-#include "serverconsole.h"
+#include "console.h"
 
 class Server: public QObject
 {
@@ -31,7 +31,7 @@ private:
     int read(DataIn& data);
 
     QSharedPointer<QTcpSocket> socket;
-    ServerConsole serverConsole;
+    Console console;
 };
 
 #endif // SERVER_H
