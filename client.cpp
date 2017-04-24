@@ -56,19 +56,19 @@ int Client::read(DataOut& data)
 
 void Client::startExchange()
 {
+    DataOut data;
+    read(data);
+    clientConsole.writeOutputToConsole(data);
+    startExchange();
+}
+
+void Client::endExchange()
+{
     size = 0;
     DataIn data;
     clientConsole.readInputFromConsole(data);
 //    std::cin >> data.array;
     write(data);
-}
-
-void Client::endExchange()
-{
-    DataOut data;
-    read(data);
-    clientConsole.writeOutputToConsole(data);
-    startExchange();
 }
 
 

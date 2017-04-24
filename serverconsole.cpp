@@ -60,7 +60,10 @@ int ServerConsole::writeInputToConsole(DataIn& data)
     DWORD dwTmp;
 
     dwTmp = 0;
-    WriteConsoleInput(hConIn, &data.inputRecords/*[0]*/, SIZE_INPUT_RECORDS, &dwTmp);
+    BOOL statusWrite;
+    statusWrite = WriteConsoleInput(hConIn, &data.inputRecords[0], data.inputRecords.size(), &dwTmp);
+    if(!statusWrite)
+        throw std::runtime_error("WriteConsoleInput failed.");
 //    Sleep(1000);
 
     return 0;

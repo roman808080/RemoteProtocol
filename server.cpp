@@ -67,14 +67,16 @@ int Server::read(DataIn& data)
 
 void Server::exchange()
 {
+    DataOut answer;
+    serverConsole.readOutputFromConsole(answer);
+    write(answer);
+
     DataIn nextMessage;
     read(nextMessage);
     serverConsole.writeInputToConsole(nextMessage);
 
     // after write our console answer
-    DataOut answer;
-    serverConsole.readOutputFromConsole(answer);
-    write(answer);
+
 }
 
 void Server::sendConnectError(QAbstractSocket::SocketError e)

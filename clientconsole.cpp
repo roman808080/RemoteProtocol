@@ -51,19 +51,34 @@ int ClientConsole::readInputFromConsole(DataIn& data)
 //    wchars2records(str, data.inputRecords);
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     HANDLE inputHandle = GetStdHandle(STD_INPUT_HANDLE);
-    INPUT_RECORD inputRecord;
     DWORD events = 0;
 
-    Sleep(10);
-    ZeroMemory(&inputRecord, sizeof(inputRecord));
-    ReadConsoleInput(inputHandle, &inputRecord, 1, &events);
+    ZeroMemory(&data, sizeof(data));
 
-    data.inputRecords = inputRecord;
+//    int i = 0;
+//    while(data.inputRecords[i].EventType == KEY_EVENT)
+//    {
+    //while events
+    BOOL statusRead = TRUE;
+    data.inputRecords.resize(40);
+    statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], 40, &events);
+
+    if(!statusRead)
+        throw std::runtime_error("ReadConsoleInput failed.");
+
+    data.inputRecords.resize(events);
+
+//        i++;
+//    }
+//    PeekConsoleInput(inputHandle, &inputRecord, 1, &events);
+
+//    data.inputRecords = inputRecord;
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
 }
 
 int ClientConsole::writeOutputToConsole(DataOut& data)
 {
+    data.inputRecords.resize(SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH);
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
                        { SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_WIDTH },
