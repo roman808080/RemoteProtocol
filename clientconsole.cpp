@@ -47,32 +47,33 @@ ClientConsole::ClientConsole()
 int ClientConsole::readInputFromConsole(DataIn& data)
 {
     //temporary
-//    std::wstring str = L"chcp 65001";
-//    wchars2records(str, data.inputRecords);
+    std::wstring str = L"chcp 65001";
+
+    wchars2records(str, data.inputRecords);
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     HANDLE inputHandle = GetStdHandle(STD_INPUT_HANDLE);
     DWORD events = 0;
 
     ZeroMemory(&data, sizeof(data));
 
-//    int i = 0;
-//    while(data.inputRecords[i].EventType == KEY_EVENT)
-//    {
-    //while events
-    BOOL statusRead = TRUE;
-    data.inputRecords.resize(40);
-    statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], 40, &events);
+//////////////////////////////////////////////////////////////
+//    BOOL statusRead = TRUE;
+//    data.inputRecords.resize(40);
+//    statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], 1, &events);
 
-    if(!statusRead)
-        throw std::runtime_error("ReadConsoleInput failed.");
+//    if(!statusRead)
+//        throw std::runtime_error("ReadConsoleInput failed.");
 
-    data.inputRecords.resize(events);
+//    data.inputRecords.resize(events);
+///////////////////////////////////////////////////////////////
 
-//        i++;
-//    }
-//    PeekConsoleInput(inputHandle, &inputRecord, 1, &events);
+    do
+    {
+        Sleep(20);
+        ReadConsoleInput(inputHandle, &data.inputRecords[0], 1, &events);
 
-//    data.inputRecords = inputRecord;
+    } while (data.inputRecords[0].EventType != KEY_EVENT && data.inputRecords[0].EventType != MOUSE_EVENT);
+
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
 }
 

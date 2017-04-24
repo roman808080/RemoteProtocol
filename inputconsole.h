@@ -1,6 +1,7 @@
 #ifndef INPUTCONSOLE_H
 #define INPUTCONSOLE_H
 #include <iostream>
+#include <vector>
 #include <windows.h>
 
 INPUT_RECORD *wchars2records(std::__cxx11::wstring str);
@@ -10,12 +11,13 @@ INPUT_RECORD setEnter();
 
 const int CODE_PAGE = 1251;
 
-void wchars2records(std::wstring wstr, INPUT_RECORD *input_records)
+void wchars2records(std::wstring wstr, std::vector<INPUT_RECORD> &input_records)
 {
 //    wchar_t *wstr = new wchar_t;
 //    int size = locale_to_unicode(str, wstr);
-    int size = sizeof(input_records)/sizeof(input_records[0]);///////
+//    int size = sizeof(input_records)/sizeof(input_records[0]);///////
 //    INPUT_RECORD* input_records = new INPUT_RECORD[size+1];
+    input_records.resize(wstr.size());
     for(int i=0; i<wstr.size(); i++)
         input_records[i] = wchar2record(wstr[i]);
     input_records[wstr.size()] = setEnter();
