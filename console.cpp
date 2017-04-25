@@ -8,6 +8,7 @@ Console::Console()
     dwProcessId = 0 ;
     dwErrorId = 0;
     std::wstring path = L"cmd.exe";
+    std::wstring name = L"Hello";
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -46,7 +47,6 @@ Console::Console()
 
 Console::~Console()
 {
-    printf("we are here\n");
     HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwProcessId);
     if (killed)
     {
@@ -126,7 +126,8 @@ int Console::readOutputFromConsole(DataOut& data)
     data.srctReadRect = bufferInfo.srWindow;
     data.position = bufferInfo.dwCursorPosition;
 
-    ZeroMemory(&data.charInfos, sizeof(CHAR_INFO) * SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
+    data.charInfos.resize(SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
+    ZeroMemory(&data.charInfos[0], sizeof(CHAR_INFO) * SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
 
     if(!ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
                            &data.charInfos[0],
@@ -140,4 +141,9 @@ int Console::readOutputFromConsole(DataOut& data)
     }
 
     return 0;
+}
+
+void Console::setName(std::wstring name)
+{
+    SetConsoleTitle((LPCWSTR)name.c_str());
 }

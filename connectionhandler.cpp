@@ -15,6 +15,7 @@ ConnectionHandler::ConnectionHandler(QSharedPointer<QTcpSocket> socket)
     connect(this->socket.data(), SIGNAL(readyRead()), this, SLOT(readyRead()));
 
     readBufferSize = 0;
+    console.setName(L"Client");
 }
 
 ConnectionHandler::~ConnectionHandler()
@@ -25,18 +26,9 @@ ConnectionHandler::~ConnectionHandler()
 
 void ConnectionHandler::startServer()
 {
+    console.setName(L"Server");
     DataOut dataOut;
-//    console.readOutputFromConsole(dataOut);
-
-    std::string str = "hello client\n";
-    dataOut.example.resize(str.size() + 1);
-    int i = 0;
-    for(auto c : str)
-    {
-        dataOut.example[i] = c;
-        i++;
-    }
-
+    console.readOutputFromConsole(dataOut);
     write(dataOut);
 }
 
@@ -49,72 +41,28 @@ void ConnectionHandler::readyRead()
     qint32 type;
     in >> type;
 
-    if(type == CONSOLE_OUT)
+    if(type == CONSOLE_OUT)// client side
     {
         // read output for console and write to console
         readBufferSize = 0;
         DataOut dataOut;
         read(dataOut);
-
-        for(auto c: dataOut.example)
-        {
-            std::cout << c;
-        }
-        std::cout << std::endl;
-        qDebug() << "size example on client that read: " << dataOut.example.size();
-//        console.writeOutputToConsole(dataOut);
+        console.writeOutputToConsole(dataOut);
 
         // after read input for console and write to socket
         DataIn dataIn;
-//        console.readInputFromConsole(dataIn);
-
-        std::string str = "hello server\n";
-        dataIn.example.resize(str.size() + 1);
-        int i = 0;
-        for(auto c : str)
-        {
-            dataIn.example[i] = c;
-            i++;
-        }
-
+        console.readInputFromConsole(dataIn);
         write(dataIn);
-
-        Sleep(3000);
     }
     else if(type == CONSOLE_IN)
     {
         DataIn dataIn;
         read(dataIn);
-        for(auto c: dataIn.example)
-        {
-            std::cout << c;
-        }
-        std::cout << std::endl;
-
-//        console.writeInputToConsole(dataIn);
+        console.writeInputToConsole(dataIn);
 
         DataOut dataOut;
-//        console.readOutputFromConsole(dataOut);
-
-        std::string str = "hello client again\n";
-        dataOut.example.resize(str.size() + 1);
-        dataOut.charInfos.resize(100*100);
-        int i = 0;
-        for(auto c : str)
-        {
-            dataOut.example[i] = c;
-            i++;
-        }
-        qDebug() << "we are on server";
-        for(auto c: dataOut.example)
-        {
-            std::cout << c;
-        }
-        std::cout << std::endl;
-
+        console.readOutputFromConsole(dataOut);
         write(dataOut);
-
-        Sleep(3000);
     }
     else
     {
@@ -176,7 +124,6 @@ int ConnectionHandler::read(DataOut& data)
     if(socket->bytesAvailable() < readBufferSize)
         return 0;
 
-//    QByteArray dataArray = socket->readAll();
     qint32 sizeRect;
     qint32 sizePosition;
     qint32 sizeCharInfos;
@@ -188,15 +135,9 @@ int ConnectionHandler::read(DataOut& data)
     in >> sizeExample;
 
     QByteArray qbytearrayRect = socket->read(sizeRect);
-    qDebug() << "qbytearrayRect " << qbytearrayRect;
     QByteArray qbytearrayPosition = socket->read(sizePosition);
-    qDebug() << "qbytearrayPosition " << qbytearrayPosition;
     QByteArray qbytearrayCharInfos = socket->read(sizeCharInfos);
-    qDebug() << "qbytearrayCharInfos " << qbytearrayCharInfos;
     QByteArray qbytearrayExample = socket->read(sizeExample);
-    qDebug() << "qbytearrayExample " << qbytearrayExample;
-
-//    qDebug() << "readBufferSize = " << readBufferSize << " actual size " << dataArray.size();
 
     data.charInfos.resize(sizeCharInfos/sizeof(CHAR_INFO));
     data.example.resize(sizeExample/sizeof(char));
@@ -206,7 +147,6 @@ int ConnectionHandler::read(DataOut& data)
     ConvertorData::qbytearray_to_data(qbytearrayCharInfos, &data.charInfos[0], sizeCharInfos);
     ConvertorData::qbytearray_to_data(qbytearrayExample, &data.example[0], sizeExample);
 
-    qDebug() << "allSize: " << readBufferSize <<  " we read: "<< (qbytearrayRect.size() + qbytearrayPosition.size() + qbytearrayCharInfos.size() + qbytearrayExample.size());
     return 0;
 }
 
@@ -245,12 +185,9 @@ int ConnectionHandler::write(DataOut& data)
     block.append(qbytearrayCharInfos);
     block.append(qbytearrayExample);
 
-    qDebug() << block;
-
     out.device()->seek(0);
     out << (quint32)CONSOLE_OUT;
     out << (quint32)(block.size() - sizeof(quint32)*COUNT_QINT32);
-    qDebug() << "server side write size = " << block.size() - sizeof(quint32)*COUNT_QINT32;
 
     out << (quint32)sizeRect;
     out << (quint32)sizePosition;
@@ -310,7 +247,6 @@ int ConnectionHandler::read(DataIn& data)
     ConvertorData::qbytearray_to_data(qbytearrayInputRecords, &data.inputRecords[0], sizeInputRecords);
     ConvertorData::qbytearray_to_data(qbytearrayExample, &data.example[0], sizeExample);
 
-    qDebug() << "server side write size = " << allSize << "we read: " << (readByteRect + readByteInputRecords + readByteExample);
     return 0;
 }
 

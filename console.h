@@ -17,6 +17,8 @@ public:
     int writeInputToConsole(DataIn& data);
     int readOutputFromConsole(DataOut& data);
 
+    void setName(std::wstring name);
+
 private:
     DWORD dwProcessId;
     DWORD dwErrorId;
