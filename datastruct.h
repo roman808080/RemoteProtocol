@@ -13,14 +13,12 @@ struct DataOut
     SMALL_RECT srctReadRect = {0};
     COORD position = {0};
     std::vector<CHAR_INFO> charInfos;
-    std::vector<char> example;
 };
 
 struct DataIn
 {
     SMALL_RECT srctWriteRect = {0};
     std::vector<INPUT_RECORD> inputRecords;
-    std::vector<char> example;
 };
 
 #endif // DATASTRUCT_H
