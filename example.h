@@ -14,8 +14,7 @@
 #include "peer.h"
 #include "convertordata.h"
 #include "datastruct.h"
-#include "client.h"
-#include "server.h"
+#include "connectionhandler.h"
 
 class Example : public QObject
 {
@@ -34,8 +33,7 @@ public slots:
 
 private:
     TcpProtocol  remoteProtocol;
-    QScopedPointer<Client> client;
-    QScopedPointer<Server> server;
+    QScopedPointer<ConnectionHandler> connectionHandler;
 };
 
 #endif // EXAMPLE_H

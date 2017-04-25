@@ -15,8 +15,6 @@ SOURCES += main.cpp \
     udpprotocol.cpp \
     tcpprotocol.cpp \
     convertordata.cpp \
-    client.cpp \
-    server.cpp \
     console.cpp \
     connectionhandler.cpp
 
@@ -26,8 +24,6 @@ HEADERS += \
     udpprotocol.h \
     tcpprotocol.h \
     convertordata.h \
-    client.h \
-    server.h \
     datastruct.h \
     inputconsole.h \
     console.h \
