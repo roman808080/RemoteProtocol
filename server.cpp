@@ -48,7 +48,7 @@ int Server::read(DataIn& data)
 {
     QDataStream in;
     in.setDevice(socket.data());
-    in.setVersion(QDataStream::Qt_4_0);
+    in.setVersion(QDataStream::Qt_5_4);
 
     qint32 size;
     in >> size;

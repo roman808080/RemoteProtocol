@@ -21,7 +21,7 @@ int Client::write(DataIn& data)
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
+    out.setVersion(QDataStream::Qt_5_4);
 
     QByteArray qbytearray;
     qint32 size = sizeof(data);
@@ -57,6 +57,7 @@ int Client::read(DataOut& data)
 
 void Client::startExchange()
 {
+    size = 0;
     DataOut data;
     read(data);
     console.writeOutputToConsole(data);

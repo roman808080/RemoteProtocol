@@ -51,8 +51,8 @@ Console::~Console()
     {
         TerminateProcess(killed, 0);
     }
-    //    CloseHandle( pi.hProcess );
-    //    CloseHandle( pi.hThread );
+//        CloseHandle( pi.hProcess );
+//        CloseHandle( pi.hThread );
 }
 
 int Console::readInputFromConsole(DataIn& data)
