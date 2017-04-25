@@ -7,6 +7,7 @@ Console::Console()
 
     dwProcessId = 0 ;
     dwErrorId = 0;
+    std::wstring path = L"cmd.exe";
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -22,7 +23,7 @@ Console::Console()
        sizeof(security), NULL, TRUE
      };
 
-    if(CreateProcess(NULL, (LPWSTR)L"cmd.exe", NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
+    if(CreateProcess(NULL, (LPWSTR)path.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
     {
         dwProcessId = pi.dwProcessId;
     }
