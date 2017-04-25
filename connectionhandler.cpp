@@ -3,7 +3,7 @@
 #define CONSOLE_OUT 1
 #define CONSOLE_IN 2
 
-#define COUNT_QINT32 6
+#define COUNT_QINT32 5
 
 ConnectionHandler::ConnectionHandler(QSharedPointer<QTcpSocket> socket)
 {
