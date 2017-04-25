@@ -24,7 +24,17 @@ ConnectionHandler::~ConnectionHandler()
 void ConnectionHandler::startServer()
 {
     DataOut dataOut;
-    console.readOutputFromConsole(dataOut);
+//    console.readOutputFromConsole(dataOut);
+
+    std::string str = "hello client\n";
+    dataOut.example.resize(str.size() + 1);
+    int i = 0;
+    for(auto c : str)
+    {
+        dataOut.example[i] = c;
+        i++;
+    }
+
     write(dataOut);
 }
 
@@ -43,22 +53,59 @@ void ConnectionHandler::readyRead()
         readBufferSize = 0;
         DataOut dataOut;
         read(dataOut);
-        console.writeOutputToConsole(dataOut);
+
+        for(auto c: dataOut.example)
+        {
+            std::cout << c;
+        }
+        std::cout << std::endl;
+//        console.writeOutputToConsole(dataOut);
 
         // after read input for console and write to socket
         DataIn dataIn;
-        console.readInputFromConsole(dataIn);
+//        console.readInputFromConsole(dataIn);
+
+        std::string str = "hello server\n";
+        dataIn.example.resize(str.size() + 1);
+        int i = 0;
+        for(auto c : str)
+        {
+            dataIn.example[i] = c;
+            i++;
+        }
+
         write(dataIn);
+
+        Sleep(3000);
     }
     else if(type == CONSOLE_IN)
     {
         DataIn dataIn;
         read(dataIn);
-        console.writeInputToConsole(dataIn);
+
+        for(auto c: dataIn.example)
+        {
+            std::cout << c;
+        }
+        std::cout << std::endl;
+
+//        console.writeInputToConsole(dataIn);
 
         DataOut dataOut;
-        console.readOutputFromConsole(dataOut);
+//        console.readOutputFromConsole(dataOut);
+
+        std::string str = "hello client\n";
+        dataOut.example.resize(str.size() + 1);
+        int i = 0;
+        for(auto c : str)
+        {
+            dataOut.example[i] = c;
+            i++;
+        }
+
         write(dataOut);
+
+        Sleep(3000);
     }
     else
     {
@@ -74,7 +121,7 @@ int ConnectionHandler::write(DataIn& data)
     out.setVersion(QDataStream::Qt_5_4);
 
     QByteArray qbytearray;
-    qint32 size = sizeof(data);
+    qint32 size = sizeDataIn(data);//sizeof(data);
     ConvertorData::data_to_qbytearray(&data, qbytearray, size);
 
     out << (quint32)CONSOLE_IN;
@@ -103,6 +150,8 @@ int ConnectionHandler::read(DataOut& data)
 
     QByteArray dataArray = socket->readAll();
 
+    qDebug() << "readBufferSize = " << readBufferSize << " actual size " << dataArray.size();
+
     ConvertorData::qbytearray_to_data(dataArray, &data, readBufferSize);
     return 0;
 }
@@ -115,7 +164,7 @@ int ConnectionHandler::write(DataOut& data)
     out.setVersion(QDataStream::Qt_5_4);
 
     QByteArray qbytearray;
-    qint32 size = sizeof(data);
+    qint32 size = sizeDataOut(data);//sizeof(data);
 
     ConvertorData::data_to_qbytearray(&data, qbytearray, size);
 
@@ -126,6 +175,7 @@ int ConnectionHandler::write(DataOut& data)
     out.device()->seek(0);
     out << (quint32)CONSOLE_OUT;
     out << (quint32)(block.size() - sizeof(quint32) - sizeof(quint32));
+    qDebug() << "server side write size = " << block.size() - sizeof(quint32) - sizeof(quint32);
 
     qint64 x = 0;
     while (x < block.size())
@@ -155,6 +205,19 @@ int ConnectionHandler::read(DataIn& data)
 
     ConvertorData::qbytearray_to_data(dataArray, &data, size);
     return 0;
+}
+
+int ConnectionHandler::sizeDataOut(DataOut& data)
+{
+    //sizeof(object) + object.list.size() * sizeof(stored list type)
+    qDebug() << "in fun out " << (sizeof(data) + data.charInfos.capacity() * sizeof(CHAR_INFO) + data.example.capacity() * sizeof(char));
+    return sizeof(data) + data.charInfos.capacity() * sizeof(CHAR_INFO) + data.example.capacity() * sizeof(char);
+}
+
+int ConnectionHandler::sizeDataIn(DataIn& data)
+{
+    qDebug() << "in fun in " << (sizeof(data) + data.inputRecords.capacity() * sizeof(INPUT_RECORD) + data.example.capacity() * sizeof(char));
+    return sizeof(data) + data.inputRecords.capacity() * sizeof(INPUT_RECORD) + data.example.capacity() * sizeof(char);
 }
 
 void ConnectionHandler::sendConnectError(QAbstractSocket::SocketError e)

@@ -34,9 +34,12 @@ private:
     int write(DataOut& data);
     int read(DataIn& data);
 
+    int sizeDataOut(DataOut& data);
+    int sizeDataIn(DataIn& data);
+
     qint32 readBufferSize;
     QSharedPointer<QTcpSocket> socket;
-    Console console;
+//    Console console;
 };
 
 #endif // CONNECTIONHANDLER_H
