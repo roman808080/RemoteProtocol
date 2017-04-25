@@ -61,6 +61,7 @@ void ConnectionHandler::readyRead()
             std::cout << c;
         }
         std::cout << std::endl;
+        qDebug() << "size example on client that read: " << dataOut.example.size();
 //        console.writeOutputToConsole(dataOut);
 
         // after read input for console and write to socket
@@ -84,7 +85,6 @@ void ConnectionHandler::readyRead()
     {
         DataIn dataIn;
         read(dataIn);
-
         for(auto c: dataIn.example)
         {
             std::cout << c;
@@ -96,14 +96,21 @@ void ConnectionHandler::readyRead()
         DataOut dataOut;
 //        console.readOutputFromConsole(dataOut);
 
-        std::string str = "hello client\n";
+        std::string str = "hello client again\n";
         dataOut.example.resize(str.size() + 1);
+        dataOut.charInfos.resize(100*100);
         int i = 0;
         for(auto c : str)
         {
             dataOut.example[i] = c;
             i++;
         }
+        qDebug() << "we are on server";
+        for(auto c: dataOut.example)
+        {
+            std::cout << c;
+        }
+        std::cout << std::endl;
 
         write(dataOut);
 
@@ -118,15 +125,6 @@ void ConnectionHandler::readyRead()
 // client side
 int ConnectionHandler::write(DataIn& data)
 {
-//    SMALL_RECT srctWriteRect = {0};
-//    std::vector<INPUT_RECORD> inputRecords;
-//    std::vector<char> example;
-
-//    qint32 sizeRect = sizeof(data.srctReadRect);
-//    qint32 sizePosition = sizeof(data.position);
-//    qint32 sizeCharInfos = (int)data.charInfos.capacity() * sizeof(CHAR_INFO);
-//    qint32 sizeExample = (int)data.example.capacity() * sizeof(char);
-
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_4);
@@ -190,20 +188,25 @@ int ConnectionHandler::read(DataOut& data)
     in >> sizeExample;
 
     QByteArray qbytearrayRect = socket->read(sizeRect);
+    qDebug() << "qbytearrayRect " << qbytearrayRect;
     QByteArray qbytearrayPosition = socket->read(sizePosition);
+    qDebug() << "qbytearrayPosition " << qbytearrayPosition;
     QByteArray qbytearrayCharInfos = socket->read(sizeCharInfos);
+    qDebug() << "qbytearrayCharInfos " << qbytearrayCharInfos;
     QByteArray qbytearrayExample = socket->read(sizeExample);
+    qDebug() << "qbytearrayExample " << qbytearrayExample;
 
 //    qDebug() << "readBufferSize = " << readBufferSize << " actual size " << dataArray.size();
 
     data.charInfos.resize(sizeCharInfos/sizeof(CHAR_INFO));
     data.example.resize(sizeExample/sizeof(char));
 
-    ConvertorData::qbytearray_to_data(qbytearrayRect, &data.srctReadRect, readBufferSize);
-    ConvertorData::qbytearray_to_data(qbytearrayPosition, &data.position, readBufferSize);
-    ConvertorData::qbytearray_to_data(qbytearrayCharInfos, &data.charInfos[0], readBufferSize);
-    ConvertorData::qbytearray_to_data(qbytearrayExample, &data.example[0], readBufferSize);
+    ConvertorData::qbytearray_to_data(qbytearrayRect, &data.srctReadRect, sizeRect);
+    ConvertorData::qbytearray_to_data(qbytearrayPosition, &data.position, sizePosition);
+    ConvertorData::qbytearray_to_data(qbytearrayCharInfos, &data.charInfos[0], sizeCharInfos);
+    ConvertorData::qbytearray_to_data(qbytearrayExample, &data.example[0], sizeExample);
 
+    qDebug() << "allSize: " << readBufferSize <<  " we read: "<< (qbytearrayRect.size() + qbytearrayPosition.size() + qbytearrayCharInfos.size() + qbytearrayExample.size());
     return 0;
 }
 
@@ -237,15 +240,12 @@ int ConnectionHandler::write(DataOut& data)
     out << (quint32)0; // charInfos size
     out << (quint32)0; // example size
 
-//    SMALL_RECT srctReadRect = {0};
-//    COORD position = {0};
-//    std::vector<CHAR_INFO> charInfos;
-//    std::vector<char> example;
-
     block.append(qbytearrayRect);
     block.append(qbytearrayPosition);
     block.append(qbytearrayCharInfos);
     block.append(qbytearrayExample);
+
+    qDebug() << block;
 
     out.device()->seek(0);
     out << (quint32)CONSOLE_OUT;
@@ -293,16 +293,14 @@ int ConnectionHandler::read(DataIn& data)
     qbytearrayInputRecords.resize(sizeInputRecords);
     qbytearrayExample.resize(sizeExample);
 
-    int readByte;
-
-    readByte = in.readRawData(qbytearrayRect.data(), sizeRect);
-    if(readByte == -1)
+    int readByteRect = in.readRawData(qbytearrayRect.data(), sizeRect);
+    if(readByteRect == -1)
         return -1;
-    readByte = in.readRawData(qbytearrayInputRecords.data(), sizeInputRecords);
-    if(readByte == -1)
+    int readByteInputRecords = in.readRawData(qbytearrayInputRecords.data(), sizeInputRecords);
+    if(readByteInputRecords == -1)
         return -1;
-    readByte = in.readRawData(qbytearrayExample.data(), sizeExample);
-    if(readByte == -1)
+    int readByteExample = in.readRawData(qbytearrayExample.data(), sizeExample);
+    if(readByteExample == -1)
         return -1;
 
     data.inputRecords.resize(sizeInputRecords/sizeof(INPUT_RECORD));
@@ -312,57 +310,9 @@ int ConnectionHandler::read(DataIn& data)
     ConvertorData::qbytearray_to_data(qbytearrayInputRecords, &data.inputRecords[0], sizeInputRecords);
     ConvertorData::qbytearray_to_data(qbytearrayExample, &data.example[0], sizeExample);
 
+    qDebug() << "server side write size = " << allSize << "we read: " << (readByteRect + readByteInputRecords + readByteExample);
     return 0;
 }
-
-
-
-
-//    SMALL_RECT srctWriteRect = {0};
-//    std::vector<INPUT_RECORD> inputRecords;
-//    std::vector<char> example;
-
-//    qint32 sizeRect = sizeof(data.srctReadRect);
-//    qint32 sizePosition = sizeof(data.position);
-//    qint32 sizeCharInfos = (int)data.charInfos.capacity() * sizeof(CHAR_INFO);
-//    qint32 sizeExample = (int)data.example.capacity() * sizeof(char);
-
-//    QByteArray block;
-//    QDataStream out(&block, QIODevice::WriteOnly);
-//    out.setVersion(QDataStream::Qt_5_4);
-
-//    QByteArray qbytearrayRect;
-//    QByteArray qbytearrayInputRecords;
-//    QByteArray qbytearrayExample;
-
-//    qint32 sizeRect = sizeof(data.srctReadRect);
-//    qint32 sizeInputRecords = (int)data.inputRecords.capacity() * sizeof(INPUT_RECORD);
-//    qint32 sizeExample = (int)data.example.capacity() * sizeof(char);
-
-//    qint32 allSize = sizeRect + sizeInputRecords + sizeExample;
-
-//    ConvertorData::data_to_qbytearray(&data.srctWriteRect, qbytearrayRect, sizeRect);
-//    ConvertorData::data_to_qbytearray(&data.inputRecords[0], qbytearrayInputRecords, sizeInputRecords);
-//    ConvertorData::data_to_qbytearray(&data.example[0], qbytearrayExample, sizeExample);
-
-//    out << (quint32)CONSOLE_IN;
-//    out << allSize;
-
-//    out << sizeRect;
-//    out << sizeInputRecords;
-//    out << sizeExample;
-
-//    if(out.writeRawData(qbytearrayRect.data(), sizeRect) == -1)
-//        return -1;
-//    if(out.writeRawData(qbytearrayInputRecords.data(), sizeInputRecords) == -1)
-//        return -1;
-//    if(out.writeRawData(qbytearrayExample.data(), sizeExample) == -1)
-//        return -1;
-
-//    socket->write(block);
-//    socket->waitForBytesWritten();
-
-
 
 
 void ConnectionHandler::sendConnectError(QAbstractSocket::SocketError e)
