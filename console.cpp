@@ -101,26 +101,54 @@ int Console::readInputFromConsole(DataIn& data)
 
 int Console::writeOutputToConsole(DataOut& data)
 {
-    data.charInfos.resize(SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH);//?
+//    data.charInfos.resize(SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH);//?
+    HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    BOOL setCoorsor = 0;
+    setCoorsor = SetConsoleCursorPosition(hConOut, data.position);
+    if(!setCoorsor)
+        std::runtime_error("Set coorsor failed.");
+
+    BOOL setWindowInfo = 0;
+    setWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.srctReadRect);
+    if(!setWindowInfo)
+        std::runtime_error("Set windows info failed.");
+
+    data.srctReadRect.Right += 1;
+    data.srctReadRect.Left += 1;
+
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
                        { SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_WIDTH },
                        { 0, 0 },
                        &data.srctReadRect);
-
     return 0;
 }
 
 int Console::writeInputToConsole(DataIn& data)
 {
     HANDLE hConIn = GetStdHandle(STD_INPUT_HANDLE);
+    HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwTmp;
 
+    BOOL bScreenSize = 0;
+    bScreenSize = SetConsoleScreenBufferSize(hConOut, data.consoleScreenBufferInfo.dwSize);
+    if(!bScreenSize)
+        throw std::runtime_error("Set console screen buffer size failed.");
+
     dwTmp = 0;
-    BOOL statusWrite;
-    statusWrite = WriteConsoleInput(hConIn, &data.inputRecords[0], data.inputRecords.size(), &dwTmp);
+    BOOL statusWrite = 0;
+    statusWrite = WriteConsoleInput(hConIn,
+                                    &data.inputRecords[0],
+                                    data.inputRecords.size(),
+                                    &dwTmp);
     if(!statusWrite)
         throw std::runtime_error("WriteConsoleInput failed.");
+
+    BOOL bWindowInfo = 0;
+    bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.consoleScreenBufferInfo.srWindow);
+    if(!bWindowInfo)
+        throw std::runtime_error("Set position failed.");
 
     return 0;
 }
