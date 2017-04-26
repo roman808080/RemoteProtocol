@@ -59,41 +59,49 @@ Console::~Console()
 int Console::readInputFromConsole(DataIn& data)
 {
     //temporary
-    std::wstring str = L"chcp 65001";
-
-    wchars2records(str, data.inputRecords);
-    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
+//    std::wstring str = L"chcp 65001";
+//    data.inputRecords.resize(40);
+//    wchars2records(str, data.inputRecords);
+//    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     HANDLE inputHandle = GetStdHandle(STD_INPUT_HANDLE);
     DWORD events = 0;
 
-    ZeroMemory(&data, sizeof(data));
+//    ZeroMemory(&data, sizeof(data));
 
 //////////////////////////////////////////////////////////////
-//    BOOL statusRead = TRUE;
-//    data.inputRecords.resize(40);
-//    statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], 1, &events);
 
-//    if(!statusRead)
-//        throw std::runtime_error("ReadConsoleInput failed.");
+    while(!events)
+    {
+        BOOL statusRead = TRUE;
+        data.inputRecords.resize(40);
+        statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], 40, &events);
 
-//    data.inputRecords.resize(events);
+        if(!statusRead)
+            throw std::runtime_error("ReadConsoleInput failed.");
+
+        data.inputRecords.resize(events);
+    }
 ///////////////////////////////////////////////////////////////
 
-    do
-    {
-        Sleep(20);
-        ReadConsoleInput(inputHandle, &data.inputRecords[0], 1, &events);
 
-    } while (data.inputRecords[0].EventType != KEY_EVENT && data.inputRecords[0].EventType != MOUSE_EVENT);
+ /////////////////////////////////////////////////////////////////////////////////////////
+//    while (data.inputRecords[0].EventType != KEY_EVENT && data.inputRecords[0].EventType != MOUSE_EVENT)
+//    {
+//        Sleep(25);
+//        ReadConsoleInput(inputHandle, &data.inputRecords[0], 40, &events);
 
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
+//    }
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &data.consoleScreenBufferInfo);
+//    data.srctWriteRect = bufferInfo.srWindow;
 
     return 0;
 }
 
 int Console::writeOutputToConsole(DataOut& data)
 {
-    data.charInfos.resize(SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH);
+    data.charInfos.resize(SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH);//?
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
                        { SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_WIDTH },
@@ -113,7 +121,6 @@ int Console::writeInputToConsole(DataIn& data)
     statusWrite = WriteConsoleInput(hConIn, &data.inputRecords[0], data.inputRecords.size(), &dwTmp);
     if(!statusWrite)
         throw std::runtime_error("WriteConsoleInput failed.");
-//    Sleep(1000);
 
     return 0;
 }
@@ -127,7 +134,7 @@ int Console::readOutputFromConsole(DataOut& data)
     data.position = bufferInfo.dwCursorPosition;
 
     data.charInfos.resize(SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
-    ZeroMemory(&data.charInfos[0], sizeof(CHAR_INFO) * SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
+//    ZeroMemory(&data.charInfos[0], sizeof(CHAR_INFO) * SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
 
     if(!ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
                            &data.charInfos[0],

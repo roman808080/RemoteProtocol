@@ -17,7 +17,8 @@ struct DataOut
 
 struct DataIn
 {
-    SMALL_RECT srctWriteRect = {0};
+    CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo = {};
+//    SMALL_RECT srctWriteRect = {0};
     std::vector<INPUT_RECORD> inputRecords;
 };
 

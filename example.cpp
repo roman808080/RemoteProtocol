@@ -18,6 +18,7 @@ Example::~Example(){}
  }
 
 void Example::menu(){
+    qDebug() << sizeof(CONSOLE_SCREEN_BUFFER_INFO);
     int choice;
     std::cout << "Hello in menu\n ";
     std::cout << "Input 1 for create Server\n";

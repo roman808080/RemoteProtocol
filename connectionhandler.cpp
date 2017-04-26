@@ -77,24 +77,24 @@ int ConnectionHandler::write(DataIn& data)
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_4);
 
-    QByteArray qbytearrayRect;
+    QByteArray qbytearrayConsoleScreenBufferInfo;
     QByteArray qbytearrayInputRecords;
 
-    qint32 sizeRect = sizeof(data.srctWriteRect);
+    qint32 sizeConsoleScreenBufferInfo = sizeof(data.consoleScreenBufferInfo);
     qint32 sizeInputRecords = (int)data.inputRecords.capacity() * sizeof(INPUT_RECORD);
 
-    qint32 allSize = sizeRect + sizeInputRecords;
+    qint32 allSize = sizeConsoleScreenBufferInfo + sizeInputRecords;
 
-    ConvertorData::data_to_qbytearray(&data.srctWriteRect, qbytearrayRect, sizeRect);
+    ConvertorData::data_to_qbytearray(&data.consoleScreenBufferInfo, qbytearrayConsoleScreenBufferInfo, sizeConsoleScreenBufferInfo);
     ConvertorData::data_to_qbytearray(&data.inputRecords[0], qbytearrayInputRecords, sizeInputRecords);
 
     out << (quint32)CONSOLE_IN;
     out << allSize;
 
-    out << sizeRect;
+    out << sizeConsoleScreenBufferInfo;
     out << sizeInputRecords;
 
-    if(out.writeRawData(qbytearrayRect.data(), sizeRect) == -1)
+    if(out.writeRawData(qbytearrayConsoleScreenBufferInfo.data(), sizeConsoleScreenBufferInfo) == -1)
         return -1;
     if(out.writeRawData(qbytearrayInputRecords.data(), sizeInputRecords) == -1)
         return -1;
@@ -195,22 +195,22 @@ int ConnectionHandler::read(DataIn& data)
 
     qint32 allSize;
 
-    qint32 sizeRect;
+    qint32 sizeConsoleScreenBufferInfo;
     qint32 sizeInputRecords;
 
     in >> allSize;
 
-    in >> sizeRect;
+    in >> sizeConsoleScreenBufferInfo;
     in >> sizeInputRecords;
 
-    QByteArray qbytearrayRect;
+    QByteArray qbytearrayConsoleScreenBufferInfo;
     QByteArray qbytearrayInputRecords;
 
-    qbytearrayRect.resize(sizeRect);
+    qbytearrayConsoleScreenBufferInfo.resize(sizeConsoleScreenBufferInfo);
     qbytearrayInputRecords.resize(sizeInputRecords);
 
-    int readByteRect = in.readRawData(qbytearrayRect.data(), sizeRect);
-    if(readByteRect == -1)
+    int readByteConsoleScreenBufferInfo = in.readRawData(qbytearrayConsoleScreenBufferInfo.data(), sizeConsoleScreenBufferInfo);
+    if(readByteConsoleScreenBufferInfo == -1)
         return -1;
     int readByteInputRecords = in.readRawData(qbytearrayInputRecords.data(), sizeInputRecords);
     if(readByteInputRecords == -1)
@@ -218,7 +218,7 @@ int ConnectionHandler::read(DataIn& data)
 
     data.inputRecords.resize(sizeInputRecords/sizeof(INPUT_RECORD));
 
-    ConvertorData::qbytearray_to_data(qbytearrayRect, &data.srctWriteRect, sizeRect);
+    ConvertorData::qbytearray_to_data(qbytearrayConsoleScreenBufferInfo, &data.consoleScreenBufferInfo, sizeConsoleScreenBufferInfo);
     ConvertorData::qbytearray_to_data(qbytearrayInputRecords, &data.inputRecords[0], sizeInputRecords);
 
     return 0;
