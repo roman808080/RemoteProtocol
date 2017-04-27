@@ -102,11 +102,6 @@ int Console::readInputFromConsole(DataIn& data)
 
 int Console::writeOutputToConsole(DataOut& data)
 {
-//    data.charInfos.resize(SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH);//?
-//    if(!data.charInfos.size())
-//    {
-//        throw std::runtime_error("no one char infos for writing");
-//    }
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
     BOOL setCoorsor = 0;
@@ -147,10 +142,10 @@ int Console::writeInputToConsole(DataIn& data)
     if(!statusWrite)
         throw std::runtime_error("WriteConsoleInput failed.");
 
-//    BOOL bWindowInfo = 0;
-//    bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.consoleScreenBufferInfo.srWindow);
-//    if(!bWindowInfo)
-//        throw std::runtime_error("Set position failed.");
+    BOOL bWindowInfo = 0;
+    bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.consoleScreenBufferInfo.srWindow);
+    if(!bWindowInfo)
+        throw std::runtime_error("Set position failed.");
 
     return 0;
 }
