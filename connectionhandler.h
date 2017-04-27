@@ -37,6 +37,7 @@ private:
     qint32 readBufferSize;
     QSharedPointer<QTcpSocket> socket;
     Console console;
+    qint32 type;
 };
 
 #endif // CONNECTIONHANDLER_H

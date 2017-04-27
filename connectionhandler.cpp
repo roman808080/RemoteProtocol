@@ -15,6 +15,7 @@ ConnectionHandler::ConnectionHandler(QSharedPointer<QTcpSocket> socket)
     connect(this->socket.data(), SIGNAL(readyRead()), this, SLOT(readyRead()));
 
     readBufferSize = 0;
+    type = 0;
     console.setName(L"Client");
 }
 
@@ -38,15 +39,17 @@ void ConnectionHandler::readyRead()
     in.setDevice(socket.data());
     in.setVersion(QDataStream::Qt_5_4);
 
-    qint32 type;
-    in >> type;
+    if(!type)
+    {
+        in >> type;
+    }
 
     if(type == CONSOLE_OUT)// client side
     {
         // read output for console and write to console
-        readBufferSize = 0;
         DataOut dataOut;
-        read(dataOut);
+        if(read(dataOut) == -1)
+            return;
         console.writeOutputToConsole(dataOut);
 
         // after read input for console and write to socket
@@ -64,10 +67,9 @@ void ConnectionHandler::readyRead()
         console.readOutputFromConsole(dataOut);
         write(dataOut);
     }
-    else
-    {
-        throw std::runtime_error("Not correct type input or output for console");
-    }
+
+    readBufferSize = 0;
+    type = 0;
 }
 
 // client side
@@ -114,9 +116,9 @@ int ConnectionHandler::read(DataOut& data)
     if(!readBufferSize && socket->bytesAvailable() >= sizeof(quint32))
         in >> readBufferSize;
     if(!readBufferSize)
-        return 0;
+        return -1;
     if(socket->bytesAvailable() < readBufferSize)
-        return 0;
+        return -1;
 
     qint32 sizeRect;
     qint32 sizePosition;

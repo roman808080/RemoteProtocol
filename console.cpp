@@ -103,10 +103,10 @@ int Console::readInputFromConsole(DataIn& data)
 int Console::writeOutputToConsole(DataOut& data)
 {
 //    data.charInfos.resize(SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH);//?
-    if(!data.charInfos.size())
-    {
-        throw std::runtime_error("no one char infos for writing");
-    }
+//    if(!data.charInfos.size())
+//    {
+//        throw std::runtime_error("no one char infos for writing");
+//    }
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
     BOOL setCoorsor = 0;
