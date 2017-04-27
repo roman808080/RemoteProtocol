@@ -62,6 +62,8 @@ int Console::readInputFromConsole(DataIn& data)
 //    std::wstring str = L"chcp 65001";
 //    data.inputRecords.resize(40);
 //    wchars2records(str, data.inputRecords);
+
+
 //    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     HANDLE inputHandle = GetStdHandle(STD_INPUT_HANDLE);
     DWORD events = 0;
@@ -70,8 +72,8 @@ int Console::readInputFromConsole(DataIn& data)
 
 //////////////////////////////////////////////////////////////
 
-    while(!events)
-    {
+//    while(!events)
+//    {
         BOOL statusRead = TRUE;
         data.inputRecords.resize(40);
         statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], 40, &events);
@@ -80,7 +82,7 @@ int Console::readInputFromConsole(DataIn& data)
             throw std::runtime_error("ReadConsoleInput failed.");
 
         data.inputRecords.resize(events);
-    }
+//    }
 ///////////////////////////////////////////////////////////////
 
 
@@ -89,7 +91,6 @@ int Console::readInputFromConsole(DataIn& data)
 //    {
 //        Sleep(25);
 //        ReadConsoleInput(inputHandle, &data.inputRecords[0], 40, &events);
-
 //    }
     ///////////////////////////////////////////////////////////////////////////////////
 
@@ -102,6 +103,10 @@ int Console::readInputFromConsole(DataIn& data)
 int Console::writeOutputToConsole(DataOut& data)
 {
 //    data.charInfos.resize(SIZE_CHAR_INFO_LENGTH * SIZE_CHAR_INFO_WIDTH);//?
+    if(!data.charInfos.size())
+    {
+        throw std::runtime_error("no one char infos for writing");
+    }
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
     BOOL setCoorsor = 0;
@@ -113,9 +118,6 @@ int Console::writeOutputToConsole(DataOut& data)
     setWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.srctReadRect);
     if(!setWindowInfo)
         std::runtime_error("Set windows info failed.");
-
-    data.srctReadRect.Right += 1;
-    data.srctReadRect.Left += 1;
 
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
@@ -145,10 +147,10 @@ int Console::writeInputToConsole(DataIn& data)
     if(!statusWrite)
         throw std::runtime_error("WriteConsoleInput failed.");
 
-    BOOL bWindowInfo = 0;
-    bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.consoleScreenBufferInfo.srWindow);
-    if(!bWindowInfo)
-        throw std::runtime_error("Set position failed.");
+//    BOOL bWindowInfo = 0;
+//    bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.consoleScreenBufferInfo.srWindow);
+//    if(!bWindowInfo)
+//        throw std::runtime_error("Set position failed.");
 
     return 0;
 }
@@ -156,20 +158,27 @@ int Console::writeInputToConsole(DataIn& data)
 int Console::readOutputFromConsole(DataOut& data)
 {
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo = {0};
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
+    BOOL bCsbi = 0;
+    bCsbi = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
+    if(!bCsbi)
+    {
+        throw std::runtime_error("failed get console screen buffer info.");
+    }
 
     data.srctReadRect = bufferInfo.srWindow;
     data.position = bufferInfo.dwCursorPosition;
 
     data.charInfos.resize(SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
 //    ZeroMemory(&data.charInfos[0], sizeof(CHAR_INFO) * SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
-
-    if(!ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
-                           &data.charInfos[0],
-                           {SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_LENGTH},
-                           {0, 0},
-                           &bufferInfo.srWindow))
+    BOOL bReadConsole = 0;
+    bReadConsole = ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
+                                      &data.charInfos[0],
+                                      {SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_LENGTH},
+                                      {0, 0},
+                                      &bufferInfo.srWindow);
+    if(!bReadConsole)
     {
+         throw std::runtime_error("failed read from console.");
          dwErrorId = GetLastError();
          printf("CreateProcess failed (%d).\n", dwErrorId);
          return -1;
