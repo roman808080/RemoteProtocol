@@ -157,7 +157,7 @@ int Console::writeOutputToConsole(DataOut& data)
 
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
-                       { 100, data.srctReadRect.Right },
+                       {data.srctReadRect.Right + 1, data.srctReadRect.Bottom + 1},
                        { 0, 0 },
                        &data.srctReadRect);
     return 0;
@@ -204,20 +204,17 @@ int Console::readOutputFromConsole(DataOut& data)
     data.srctReadRect = bufferInfo.srWindow;
     data.position = bufferInfo.dwCursorPosition;
 
-    data.charInfos.resize(100 * data.srctReadRect.Right);
+    data.charInfos.resize((data.srctReadRect.Right + 1) * (data.srctReadRect.Bottom + 1));
 //    ZeroMemory(&data.charInfos[0], sizeof(CHAR_INFO) * SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
     BOOL bReadConsole = 0;
     bReadConsole = ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
                                       &data.charInfos[0],
-                                      {100, data.srctReadRect.Right},
+                                      {data.srctReadRect.Right + 1, data.srctReadRect.Bottom + 1},
                                       {0, 0},
                                       &bufferInfo.srWindow);
     if(!bReadConsole)
     {
          throw std::runtime_error("failed read from console.");
-         dwErrorId = GetLastError();
-         printf("CreateProcess failed (%d).\n", dwErrorId);
-         return -1;
     }
 
     return 0;
