@@ -157,7 +157,7 @@ int Console::writeOutputToConsole(DataOut& data)
 
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
-                       { SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_WIDTH },
+                       { 100, data.srctReadRect.Right },
                        { 0, 0 },
                        &data.srctReadRect);
     return 0;
@@ -204,12 +204,12 @@ int Console::readOutputFromConsole(DataOut& data)
     data.srctReadRect = bufferInfo.srWindow;
     data.position = bufferInfo.dwCursorPosition;
 
-    data.charInfos.resize(SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
+    data.charInfos.resize(100 * data.srctReadRect.Right);
 //    ZeroMemory(&data.charInfos[0], sizeof(CHAR_INFO) * SIZE_CHAR_INFO_WIDTH * SIZE_CHAR_INFO_LENGTH);
     BOOL bReadConsole = 0;
     bReadConsole = ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
                                       &data.charInfos[0],
-                                      {SIZE_CHAR_INFO_WIDTH, SIZE_CHAR_INFO_LENGTH},
+                                      {100, data.srctReadRect.Right},
                                       {0, 0},
                                       &bufferInfo.srWindow);
     if(!bReadConsole)
