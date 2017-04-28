@@ -24,7 +24,7 @@ public:
     Example();
     virtual ~Example();
     void menu();
-    void createClient(std::__cxx11::string ip, int port);
+    void createClient(std::string ip, int port);
     void createServer();
 
 public slots:

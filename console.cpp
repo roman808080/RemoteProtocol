@@ -1,6 +1,10 @@
 #include "console.h"
 #include "inputconsole.h"
 
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
+
 Console::Console()
 {
     FreeConsole();
@@ -70,8 +74,15 @@ int Console::readInputFromConsole(DataIn& data)
 
 //    ZeroMemory(&data, sizeof(data));
     //////////////////////////////////
-//    DWORD  fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
-//    SetConsoleMode(inputHandle, fdwMode);
+    DWORD fdwMode = ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
+    fdwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+//    DWORD  fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT |  ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    BOOL bMode = SetConsoleMode(inputHandle, fdwMode);
+    if(!bMode)
+    {
+        std::runtime_error("error with mode");
+    }
 //////////////////////////////////////////////////////////////
 //    switch( WaitForSingleObject(inputHandle, 20))
 //            {
@@ -90,18 +101,27 @@ int Console::readInputFromConsole(DataIn& data)
 //                break;
 //            }
 //////////////////////////////////////////////////////////////
-    BOOL statusUnread = TRUE;
-    statusUnread = GetNumberOfConsoleInputEvents(inputHandle, &unread);
-    if(!statusUnread)
-        throw std::runtime_error("GetNumberOfConsoleInputEvents failed.");
 
-    data.inputRecords.resize(unread);
+        Sleep(20);
+        SetConsoleCtrlHandler(
+          NULL,
+          TRUE
+        );
+        BOOL statusUnread = TRUE;
+        statusUnread = GetNumberOfConsoleInputEvents(inputHandle, &unread);
+        if(!statusUnread)
+            throw std::runtime_error("GetNumberOfConsoleInputEvents failed.");
 
-    BOOL statusRead = TRUE;
-    statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], unread, &events);
-    if(!statusRead)
-        throw std::runtime_error("ReadConsoleInput failed.");
-    data.inputRecords.resize(events);
+        data.inputRecords.resize(unread);
+
+//        if(unread)
+//        {
+            BOOL statusRead = TRUE;
+            statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], unread, &events);
+            if(!statusRead)
+                throw std::runtime_error("ReadConsoleInput failed.");
+//        }
+   // data.inputRecords.resize(events);
 
 //    INPUT_RECORD inputRecord = setEnter();
 //    DWORD dwSetEnter = 0;
@@ -134,7 +154,10 @@ int Console::readInputFromConsole(DataIn& data)
 //        ReadConsoleInput(inputHandle, &data.inputRecords[0], 40, &events);
 //    }while (data.inputRecords[0].EventType != KEY_EVENT && data.inputRecords[0].EventType != MOUSE_EVENT);
     ///////////////////////////////////////////////////////////////////////////////////
-
+    SetConsoleCtrlHandler(
+      NULL,
+      FALSE
+    );
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &data.consoleScreenBufferInfo);
 //    data.srctWriteRect = bufferInfo.srWindow;
 
@@ -147,13 +170,13 @@ int Console::writeOutputToConsole(DataOut& data)
 
     BOOL setCoorsor = 0;
     setCoorsor = SetConsoleCursorPosition(hConOut, data.position);
-    if(!setCoorsor)
-        std::runtime_error("Set coorsor failed.");
+//    if(!setCoorsor)
+//        std::runtime_error("Set coorsor failed.");
 
     BOOL setWindowInfo = 0;
     setWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.srctReadRect);
-    if(!setWindowInfo)
-        std::runtime_error("Set windows info failed.");
+//    if(!setWindowInfo)
+//        std::runtime_error("Set windows info failed.");
 
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
@@ -171,8 +194,8 @@ int Console::writeInputToConsole(DataIn& data)
 
     BOOL bScreenSize = 0;
     bScreenSize = SetConsoleScreenBufferSize(hConOut, data.consoleScreenBufferInfo.dwSize);
-    if(!bScreenSize)
-        throw std::runtime_error("Set console screen buffer size failed.");
+//    if(!bScreenSize)
+//        throw std::runtime_error("Set console screen buffer size failed.");
 
     dwTmp = 0;
     BOOL statusWrite = 0;
@@ -185,8 +208,8 @@ int Console::writeInputToConsole(DataIn& data)
 
     BOOL bWindowInfo = 0;
     bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.consoleScreenBufferInfo.srWindow);
-    if(!bWindowInfo)
-        throw std::runtime_error("Set position failed.");
+//    if(!bWindowInfo)
+//        throw std::runtime_error("Set position failed.");
 
     return 0;
 }

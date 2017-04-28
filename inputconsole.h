@@ -4,7 +4,7 @@
 #include <vector>
 #include <windows.h>
 
-INPUT_RECORD *wchars2records(std::__cxx11::wstring str);
+INPUT_RECORD *wchars2records(std::wstring str);
 int locale_to_unicode(const std::string str, wchar_t* wstr);
 INPUT_RECORD wchar2record(wchar_t u_char);
 INPUT_RECORD setEnter();

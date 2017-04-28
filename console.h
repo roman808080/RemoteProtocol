@@ -1,7 +1,10 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
+#include <stdio.h>
+#include <wchar.h>
 #include <iostream>
-#include <windows.h>
+#include <Windows.h>
+#include <winbase.h>
 
 #include "datastruct.h"
 
