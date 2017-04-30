@@ -4,10 +4,10 @@
 
 #include <QObject>
 
-#include <QtNetwork/QUdpSocket>
-#include <QtNetwork/QTcpSocket>
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QHostInfo>
+//#include <QTcpSocket>
+#include <QSslSocket>
+//#include <QTcpServer>
+#include <QHostInfo>
 #include <QScopedPointer>
 #include <QSharedPointer>
 #include <QHash>
@@ -16,6 +16,7 @@
 
 #include "peer.h"
 #include "connectionhandler.h"
+#include "qsslserver.h"
 
 class TcpProtocol : public QObject
 {
@@ -31,14 +32,15 @@ class TcpProtocol : public QObject
     public slots:
         void newIncomingConnection();
         void connected();
+        void sslErrors(QList<QSslError> ListError);
 
     signals:
-        void newOutConnection(QSharedPointer<QTcpSocket> mSock);
-        void newInConnection(QSharedPointer<QTcpSocket> mSock);
+        void newOutConnection(QSharedPointer<QSslSocket> mSock);
+        void newInConnection(QSharedPointer<QSslSocket> mSock);
 
     private:
-        QScopedPointer<QTcpServer> mTcpServer; // Socket TCP
-        QSharedPointer<QTcpSocket> mCurrentSocket; // Socket TCP current socket
+        QScopedPointer<QSslServer> mTcpServer; // Socket TCP
+        QSharedPointer<QSslSocket> mCurrentSocket; // Socket TCP current socket
         QList<QSharedPointer<ConnectionHandler>> connectionHandlers;
 
         //TCP port

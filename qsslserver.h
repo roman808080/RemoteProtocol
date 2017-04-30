@@ -13,6 +13,7 @@ class QSslServer: public QTcpServer
 public:
     QSslServer(QObject *parent);
     virtual ~QSslServer();
+    QSslSocket *nextPendingConnection();
 
 signals:
     void newEncryptedConnection();
@@ -21,6 +22,9 @@ signals:
 
 protected:
     virtual void incomingConnection(qintptr socketDescriptor);
+
+private:
+    QScopedPointer<QSslSocket> serverSocket;
 };
 
 #endif // QSSLSERVER_H

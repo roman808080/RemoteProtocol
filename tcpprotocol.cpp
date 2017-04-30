@@ -13,9 +13,10 @@ TcpProtocol::~TcpProtocol()
 
 void TcpProtocol::runTcpServer()
 {
-    mTcpServer.reset(new QTcpServer);
+    mTcpServer.reset(new QSslServer(this));
     mTcpServer->listen(QHostAddress::Any, mLocalTcpPort);
-    connect(mTcpServer.data(), SIGNAL(newConnection()), this, SLOT(newIncomingConnection()));
+    connect(mTcpServer.data(), SIGNAL(newEncryptedConnection()), this, SLOT(newIncomingConnection()));
+    connect(mTcpServer.data(), SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(sslErrors(QList<QSslError>)));
 }
 
 void TcpProtocol::setPort(qint16 tcp)
@@ -25,13 +26,15 @@ void TcpProtocol::setPort(qint16 tcp)
 
 void TcpProtocol::connectToServer(QString ip, int port)
 {
-    mCurrentSocket.reset(new QTcpSocket);
-    connect(mCurrentSocket.data(), SIGNAL(connected()), this, SLOT(connected()));
-    mCurrentSocket->connectToHost(ip, port);
+    mCurrentSocket.reset(new QSslSocket);
+    connect(mCurrentSocket.data(), SIGNAL(encrypted()), this, SLOT(connected()));
+//    mCurrentSocket->connectToHost(ip, port);
+    mCurrentSocket->connectToHostEncrypted(ip, port);
 }
 
 void TcpProtocol::newIncomingConnection()
 {
+    qDebug() << "new Incoming connection";
     if (!mTcpServer->hasPendingConnections()) return;
 
     mCurrentSocket.reset(mTcpServer->nextPendingConnection());
@@ -48,4 +51,13 @@ void TcpProtocol::connected()
     connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
 
     emit newOutConnection(mCurrentSocket);
+}
+
+void TcpProtocol::sslErrors(QList<QSslError> ListError)
+{
+    qDebug() << "error";
+    for(auto qsslerror:ListError)
+    {
+        qDebug() << qsslerror;
+    }
 }

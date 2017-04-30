@@ -11,7 +11,7 @@ ConnectionHandler::ConnectionHandler()
     type = 0;
 }
 
-ConnectionHandler::ConnectionHandler(QSharedPointer<QTcpSocket> socket)
+ConnectionHandler::ConnectionHandler(QSharedPointer<QSslSocket> socket)
 {
     setSocket(socket);
 
@@ -38,7 +38,7 @@ void ConnectionHandler::startClient()
     console.startClient();
 }
 
-void ConnectionHandler::setSocket(QSharedPointer<QTcpSocket> socket)
+void ConnectionHandler::setSocket(QSharedPointer<QSslSocket> socket)
 {
     this->socket.reset(socket.data());
     connect(this->socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
@@ -117,7 +117,8 @@ int ConnectionHandler::write(DataIn& data)
         return -1;
 
     socket->write(block);
-    socket->waitForBytesWritten();
+//    socket->waitForBytesWritten();
+    socket->waitForEncrypted();
     return 0;
 }
 

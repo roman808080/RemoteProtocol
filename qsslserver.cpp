@@ -1,7 +1,8 @@
 #include "qsslserver.h"
 
 QSslServer::QSslServer(QObject *parent) :
-    QTcpServer(parent)
+    QTcpServer(parent),
+    serverSocket(NULL)
 {
 }
 
@@ -9,11 +10,18 @@ QSslServer::~QSslServer()
 {
 }
 
+QSslSocket *QSslServer::nextPendingConnection()
+{
+    return static_cast<QSslSocket *>(QTcpServer::nextPendingConnection());
+}
+
 void QSslServer::incomingConnection(qintptr socketDescriptor)
 {
-    QScopedPointer<QSslSocket> serverSocket(new QSslSocket);
+//    QScopedPointer<QSslSocket> serverSocket(new QSslSocket);
+    serverSocket.reset(new QSslSocket);
     if (serverSocket->setSocketDescriptor(socketDescriptor))
     {
+        qDebug() << "qssl";
         addPendingConnection(serverSocket.data());
 
         connect(serverSocket.data(), &QSslSocket::peerVerifyError, this, &QSslServer::peerVerifyError);
