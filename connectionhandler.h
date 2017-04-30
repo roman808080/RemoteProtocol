@@ -18,6 +18,7 @@ public:
     ~ConnectionHandler();
 
     void startServer();
+    void startClient();
 
 public slots:
     void sendConnectError(QAbstractSocket::SocketError e);

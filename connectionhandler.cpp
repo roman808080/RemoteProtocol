@@ -16,7 +16,6 @@ ConnectionHandler::ConnectionHandler(QSharedPointer<QTcpSocket> socket)
 
     readBufferSize = 0;
     type = 0;
-    console.setName(L"Client");
 }
 
 ConnectionHandler::~ConnectionHandler()
@@ -27,10 +26,15 @@ ConnectionHandler::~ConnectionHandler()
 
 void ConnectionHandler::startServer()
 {
-    console.setName(L"Server");
+    console.startServer();
     DataOut dataOut;
     console.readOutputFromConsole(dataOut);
     write(dataOut);
+}
+
+void ConnectionHandler::startClient()
+{
+    console.startClient();
 }
 
 void ConnectionHandler::readyRead()

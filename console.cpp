@@ -5,12 +5,30 @@
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
 #endif
 
+#ifndef ENABLE_VIRTUAL_TERMINAL_INPUT
+#define ENABLE_VIRTUAL_TERMINAL_INPUT 0x0200
+#endif
+
 Console::Console()
 {
-    FreeConsole();
-
     dwProcessId = 0 ;
     dwErrorId = 0;
+}
+
+Console::~Console()
+{
+    HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwProcessId);
+    if (killed)
+    {
+        TerminateProcess(killed, 0);
+    }
+//        CloseHandle( pi.hProcess );
+//        CloseHandle( pi.hThread );
+}
+
+void Console::startServer()
+{
+    FreeConsole();
     std::wstring path = L"cmd.exe";
 
     STARTUPINFO si;
@@ -46,22 +64,17 @@ Console::Console()
         printf( "AttachConsole failed (%d).\n", dwErrorId);
         return;
     }
+
+    setName(L"Server");
 }
 
-Console::~Console()
+void Console::startClient()
 {
-    HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwProcessId);
-    if (killed)
-    {
-        TerminateProcess(killed, 0);
-    }
-//        CloseHandle( pi.hProcess );
-//        CloseHandle( pi.hThread );
+    setName(L"Client");
 }
 
 int Console::readInputFromConsole(DataIn& data)
 {
-    //temporary
 //    std::wstring str = L" chcp 65001";
     data.inputRecords.resize(40);
 //    wchars2records(str, data.inputRecords);
@@ -74,39 +87,13 @@ int Console::readInputFromConsole(DataIn& data)
 
 //    ZeroMemory(&data, sizeof(data));
     //////////////////////////////////
-    DWORD fdwMode = ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
-    fdwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-//    DWORD  fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT |  ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    DWORD fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
     BOOL bMode = SetConsoleMode(inputHandle, fdwMode);
     if(!bMode)
     {
         std::runtime_error("error with mode");
     }
-//////////////////////////////////////////////////////////////
-//    switch( WaitForSingleObject(inputHandle, 20))
-//            {
-//            case( WAIT_TIMEOUT ):
-//                break; // return from this function to allow thread to terminate
-//            case( WAIT_OBJECT_0 ):
-//                    // clear events
-//                    BOOL statusRead = TRUE;
-//                    data.inputRecords.resize(40);
-//                    statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], 40, &events);
-
-//                    if(!statusRead)
-//                        throw std::runtime_error("ReadConsoleInput failed.");
-
-//                    data.inputRecords.resize(events);
-//                break;
-//            }
-//////////////////////////////////////////////////////////////
-
         Sleep(20);
-        SetConsoleCtrlHandler(
-          NULL,
-          TRUE
-        );
         BOOL statusUnread = TRUE;
         statusUnread = GetNumberOfConsoleInputEvents(inputHandle, &unread);
         if(!statusUnread)
@@ -123,43 +110,7 @@ int Console::readInputFromConsole(DataIn& data)
 //        }
    // data.inputRecords.resize(events);
 
-//    INPUT_RECORD inputRecord = setEnter();
-//    DWORD dwSetEnter = 0;
-//    WriteConsoleInput(inputHandle, &inputRecord, 1, &dwSetEnter);
-
-//////////////////////////////////////////////////////////////
-//    while(!events)
-//    {
-
-//        DWORD  fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
-//        SetConsoleMode(inputHandle, fdwMode);
-//            ErrorExit("SetConsoleMode");
-
-//        BOOL statusRead = TRUE;
-//        data.inputRecords.resize(40);
-//        statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], 1, &events);
-
-//        if(!statusRead)
-//            throw std::runtime_error("ReadConsoleInput failed.");
-
-//        data.inputRecords.resize(events);
-//    }
-///////////////////////////////////////////////////////////////
-
-
- /////////////////////////////////////////////////////////////////////////////////////////
-//    do
-//    {
-//        Sleep(20);
-//        ReadConsoleInput(inputHandle, &data.inputRecords[0], 40, &events);
-//    }while (data.inputRecords[0].EventType != KEY_EVENT && data.inputRecords[0].EventType != MOUSE_EVENT);
-    ///////////////////////////////////////////////////////////////////////////////////
-    SetConsoleCtrlHandler(
-      NULL,
-      FALSE
-    );
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &data.consoleScreenBufferInfo);
-//    data.srctWriteRect = bufferInfo.srWindow;
 
     return 0;
 }

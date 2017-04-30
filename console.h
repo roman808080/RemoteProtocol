@@ -13,6 +13,8 @@ class Console
 public:
     Console();
     ~Console();
+    void startServer();
+    void startClient();
 
     int readInputFromConsole(DataIn &data);
     int writeOutputToConsole(DataOut &data);
