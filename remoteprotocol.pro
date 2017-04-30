@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     tcpprotocol.cpp \
     convertordata.cpp \
     console.cpp \
-    connectionhandler.cpp
+    connectionhandler.cpp \
+    qsslserver.cpp
 
 HEADERS += \
     peer.h \
@@ -27,4 +28,5 @@ HEADERS += \
     datastruct.h \
     inputconsole.h \
     console.h \
-    connectionhandler.h
+    connectionhandler.h \
+    qsslserver.h
