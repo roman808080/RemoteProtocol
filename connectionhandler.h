@@ -14,11 +14,13 @@ class ConnectionHandler:QObject
 {
     Q_OBJECT
 public:
+    ConnectionHandler();
     ConnectionHandler(QSharedPointer<QTcpSocket> socket);
     ~ConnectionHandler();
 
     void startServer();
     void startClient();
+    void setSocket(QSharedPointer<QTcpSocket> socket);
 
 public slots:
     void sendConnectError(QAbstractSocket::SocketError e);

@@ -33,7 +33,8 @@ public slots:
 
 private:
     TcpProtocol  remoteProtocol;
-    QScopedPointer<ConnectionHandler> connectionHandler;
+//    QScopedPointer<ConnectionHandler> connectionHandler;
+    ConnectionHandler connectionHandler;
 };
 
 #endif // EXAMPLE_H

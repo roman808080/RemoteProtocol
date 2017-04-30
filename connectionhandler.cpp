@@ -5,14 +5,15 @@
 
 #define COUNT_QINT32 5
 
+ConnectionHandler::ConnectionHandler()
+{
+    readBufferSize = 0;
+    type = 0;
+}
+
 ConnectionHandler::ConnectionHandler(QSharedPointer<QTcpSocket> socket)
 {
-    this->socket.reset(socket.data());
-    connect(this->socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
-            this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
-    connect(this->socket.data(), SIGNAL(disconnected()),
-            this, SLOT(closedConnection()));
-    connect(this->socket.data(), SIGNAL(readyRead()), this, SLOT(readyRead()));
+    setSocket(socket);
 
     readBufferSize = 0;
     type = 0;
@@ -35,6 +36,16 @@ void ConnectionHandler::startServer()
 void ConnectionHandler::startClient()
 {
     console.startClient();
+}
+
+void ConnectionHandler::setSocket(QSharedPointer<QTcpSocket> socket)
+{
+    this->socket.reset(socket.data());
+    connect(this->socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
+    connect(this->socket.data(), SIGNAL(disconnected()),
+            this, SLOT(closedConnection()));
+    connect(this->socket.data(), SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
 
 void ConnectionHandler::readyRead()

@@ -8,13 +8,16 @@ Example::~Example(){}
 
  void Example::newInConnection(QSharedPointer<QTcpSocket> socket){
      std::cout << "Server have new connection from client\n";
-     connectionHandler.reset(new ConnectionHandler(socket));
-     connectionHandler->startServer();
+//     connectionHandler.reset(new ConnectionHandler(socket));
+//     connectionHandler->startServer();
+     connectionHandler.setSocket(socket);
+     connectionHandler.startServer();
  }
 
  void Example::newOutConnection(QSharedPointer<QTcpSocket> socket){
+     connectionHandler.setSocket(socket);
      std::cout << "Client have new connection with server\n";
-     connectionHandler.reset(new ConnectionHandler(socket));
+//     connectionHandler.reset(new ConnectionHandler(socket));
  }
 
 void Example::menu(){
