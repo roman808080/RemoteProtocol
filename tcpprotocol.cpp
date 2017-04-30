@@ -23,20 +23,29 @@ void TcpProtocol::setPort(qint16 tcp)
     mLocalTcpPort = tcp;
 }
 
-void TcpProtocol::newOutcomingConnection(QString ip, int port)
+void TcpProtocol::connectToServer(QString ip, int port)
 {
-//    QSharedPointer<QTcpSocket> mCurrentSocket(new QTcpSocket);
     mCurrentSocket.reset(new QTcpSocket);
+    connect(mCurrentSocket.data(), SIGNAL(connected()), this, SLOT(connected()));
     mCurrentSocket->connectToHost(ip, port);
-//    connect(mCurrentSocket.data(), SIGNAL(disconnected()), this, SLOT(closedConnectionTmp()), Qt::QueuedConnection);
-    emit newOutConnection(mCurrentSocket);
 }
 
 void TcpProtocol::newIncomingConnection()
 {
     if (!mTcpServer->hasPendingConnections()) return;
-//    QSharedPointer<QTcpSocket> mCurrentSocket(new QTcpSocket);
+
     mCurrentSocket.reset(mTcpServer->nextPendingConnection());
-//    connect(mCurrentSocket.data(), SIGNAL(disconnected()), this, SLOT(closedConnectionTmp()), Qt::QueuedConnection);
+    connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
+    connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
+    connectionHandlers.at(connectionHandlers.size() - 1)->startServer();
+
     emit newInConnection(mCurrentSocket);
+}
+
+void TcpProtocol::connected()
+{
+    connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
+    connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
+
+    emit newOutConnection(mCurrentSocket);
 }

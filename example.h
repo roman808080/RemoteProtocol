@@ -30,16 +30,8 @@ public:
     void createClient(std::string ip, int port);
     void createServer();
 
-public slots:
-    void newInConnection(QSharedPointer<QTcpSocket> socket);
-    void newOutConnection(QSharedPointer<QTcpSocket> socket);
-
 private:
     TcpProtocol  remoteProtocol;
-//    QScopedPointer<ConnectionHandler> connectionHandler;
-//    ConnectionHandler connectionHandler;
-//    QList<ConnectionHandler> connectionHandlers;
-    QList<QSharedPointer<ConnectionHandler>> connectionHandlers;
 };
 
 #endif // EXAMPLE_H

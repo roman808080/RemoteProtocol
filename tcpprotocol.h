@@ -15,6 +15,7 @@
 #include <QDataStream>
 
 #include "peer.h"
+#include "connectionhandler.h"
 
 class TcpProtocol : public QObject
 {
@@ -25,11 +26,11 @@ class TcpProtocol : public QObject
         virtual ~TcpProtocol();
         void runTcpServer();
         void setPort(qint16 tcp);
-        void sendText(QString ipDest, qint16 port, QString text);
+        void connectToServer(QString ip, int port);
 
     public slots:
         void newIncomingConnection();
-        void newOutcomingConnection(QString ip, int port);
+        void connected();
 
     signals:
         void newOutConnection(QSharedPointer<QTcpSocket> mSock);
@@ -38,6 +39,7 @@ class TcpProtocol : public QObject
     private:
         QScopedPointer<QTcpServer> mTcpServer; // Socket TCP
         QSharedPointer<QTcpSocket> mCurrentSocket; // Socket TCP current socket
+        QList<QSharedPointer<ConnectionHandler>> connectionHandlers;
 
         //TCP port
         qint16 mLocalTcpPort;
