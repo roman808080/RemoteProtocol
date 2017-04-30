@@ -30,16 +30,13 @@ class TcpProtocol : public QObject
     public slots:
         void newIncomingConnection();
         void newOutcomingConnection(QString ip, int port);
-        void closedConnection();
-        void closedConnectionTmp();
-        void sendConnectError(QAbstractSocket::SocketError);
 
     signals:
         void newOutConnection(QSharedPointer<QTcpSocket> mSock);
         void newInConnection(QSharedPointer<QTcpSocket> mSock);
 
     private:
-        QScopedPointer<QTcpServer> mTcpServer; // Socket UDP
+        QScopedPointer<QTcpServer> mTcpServer; // Socket TCP
         QSharedPointer<QTcpSocket> mCurrentSocket; // Socket TCP current socket
 
         //TCP port

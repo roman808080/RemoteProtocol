@@ -19,7 +19,7 @@ void QSslServer::incomingConnection(qintptr socketDescriptor)
         connect(serverSocket.data(), &QSslSocket::peerVerifyError, this, &QSslServer::peerVerifyError);
         typedef void (QSslSocket::* sslErrorsSignal)(const QList<QSslError> &);
         connect(serverSocket.data(), static_cast<sslErrorsSignal>(&QSslSocket::sslErrors), this, &QSslServer::sslErrors);
-        connect(serverSocket.data(), &QSslSocket::encrypted, this, &QSslServer::encrypted);
+        connect(serverSocket.data(), &QSslSocket::encrypted, this, &QSslServer::newEncryptedConnection);
 
         serverSocket->startServerEncryption();
     }

@@ -15,7 +15,7 @@ public:
     virtual ~QSslServer();
 
 signals:
-    void encrypted();
+    void newEncryptedConnection();
     void peerVerifyError(const QSslError &error);
     void sslErrors(const QList<QSslError> &errors);
 
