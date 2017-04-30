@@ -1,6 +1,8 @@
 #include "example.h"
 
-Example::Example(){
+Example::Example()
+//    :connectionHandlers(new QList<ConnectionHandler>())
+{
     QObject::connect(&remoteProtocol, &TcpProtocol::newInConnection, this, &Example::newInConnection);
 }
 
@@ -8,16 +10,19 @@ Example::~Example(){}
 
  void Example::newInConnection(QSharedPointer<QTcpSocket> socket){
      std::cout << "Server have new connection from client\n";
-//     connectionHandler.reset(new ConnectionHandler(socket));
-//     connectionHandler->startServer();
-     connectionHandler.setSocket(socket);
-     connectionHandler.startServer();
+     connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
+     connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(socket);
+     connectionHandlers.at(connectionHandlers.size() - 1)->startServer();
+
+//     connectionHandler.setSocket(socket);
+//     connectionHandler.startServer();
  }
 
  void Example::newOutConnection(QSharedPointer<QTcpSocket> socket){
-     connectionHandler.setSocket(socket);
+     connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
+     connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(socket);
+//     connectionHandler.setSocket(socket);
      std::cout << "Client have new connection with server\n";
-//     connectionHandler.reset(new ConnectionHandler(socket));
  }
 
 void Example::menu(){

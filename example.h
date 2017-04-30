@@ -6,6 +6,9 @@
 #include <QTcpSocket>
 #include <QDataStream>
 #include <QThread>
+#include <QList>
+#include <QScopedPointer>
+#include <QSharedPointer>
 
 #include <iostream>
 #include <windows.h>
@@ -34,7 +37,9 @@ public slots:
 private:
     TcpProtocol  remoteProtocol;
 //    QScopedPointer<ConnectionHandler> connectionHandler;
-    ConnectionHandler connectionHandler;
+//    ConnectionHandler connectionHandler;
+//    QList<ConnectionHandler> connectionHandlers;
+    QList<QSharedPointer<ConnectionHandler>> connectionHandlers;
 };
 
 #endif // EXAMPLE_H

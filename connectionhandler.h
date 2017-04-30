@@ -10,7 +10,7 @@
 #include "console.h"
 #include "convertordata.h"
 
-class ConnectionHandler:QObject
+class ConnectionHandler:public QObject
 {
     Q_OBJECT
 public:
