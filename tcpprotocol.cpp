@@ -16,7 +16,10 @@ void TcpProtocol::runTcpServer()
     mTcpServer.reset(new QSslServer(this));
     mTcpServer->listen(QHostAddress::Any, mLocalTcpPort);
     connect(mTcpServer.data(), SIGNAL(newEncryptedConnection()), this, SLOT(newIncomingConnection()));
+    connect(mTcpServer.data(), &QSslServer::peerVerifyError, this, &TcpProtocol::peerVerifyError);
     connect(mTcpServer.data(), SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(sslErrors(QList<QSslError>)));
+    connect(mTcpServer.data(), SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
 }
 
 void TcpProtocol::setPort(qint16 tcp)
@@ -60,4 +63,13 @@ void TcpProtocol::sslErrors(QList<QSslError> ListError)
     {
         qDebug() << qsslerror;
     }
+}
+
+void TcpProtocol::peerVerifyError(){
+    qDebug() << "peerVerifyError";
+}
+
+void TcpProtocol::sendConnectError(QAbstractSocket::SocketError e)
+{
+    qDebug() << e;
 }

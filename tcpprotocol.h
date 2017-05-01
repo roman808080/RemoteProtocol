@@ -33,6 +33,8 @@ class TcpProtocol : public QObject
         void newIncomingConnection();
         void connected();
         void sslErrors(QList<QSslError> ListError);
+        void peerVerifyError();
+        void sendConnectError(QAbstractSocket::SocketError e);
 
     signals:
         void newOutConnection(QSharedPointer<QSslSocket> mSock);
