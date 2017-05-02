@@ -62,10 +62,12 @@ int main(int argc, char *argv[])
         unsigned long cryptoGModule = 0x02;
 
         // Keys exchanger for Alice
-        DiffieHellmanKeysExchanger<PModuleLength> aliceExchanger(cryptoPModule, cryptoGModule);
+        DiffieHellmanKeysExchanger<PModuleLength> aliceExchanger;
+        aliceExchanger.InitDiffieHellmanKeysExchanger(cryptoPModule, cryptoGModule);
 
         // Keys exchanger for Bob
-        DiffieHellmanKeysExchanger<PModuleLength> bobExchanger(cryptoPModule, cryptoGModule);
+        DiffieHellmanKeysExchanger<PModuleLength> bobExchanger;
+        bobExchanger.InitDiffieHellmanKeysExchanger(cryptoPModule, cryptoGModule);
 
         // Generation of exchange keys for Alice and Bob
         std::cout << "\nGeneration of exchange key for Alice...\n";

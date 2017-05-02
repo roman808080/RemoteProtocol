@@ -37,11 +37,6 @@ ConnectionHandler::~ConnectionHandler()
 
 void ConnectionHandler::startServer()
 {
-//    console.startServer();
-//    DataOut dataOut;
-//    console.readOutputFromConsole(dataOut);
-//    write(dataOut);
-
     exchanger.InitDiffieHellmanKeysExchanger(cryptoPModule, cryptoGModule);
     std::vector<char> exchangeKey;
     exchanger.GenerateExchangeData(exchangeKey);
@@ -127,7 +122,7 @@ void ConnectionHandler::readyRead()
 }
 
 // exchange key
-int ConnectionHandler::write(std::vector<char> keyExchange, int code)
+int ConnectionHandler::write(std::vector<char>& keyExchange, int code)
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
@@ -144,13 +139,13 @@ int ConnectionHandler::write(std::vector<char> keyExchange, int code)
         return -1;
 
     socket->write(block);
-//    socket->waitForBytesWritten();
+    socket->waitForBytesWritten();
 
     return 0;
 }
 
 // exchange key
-int ConnectionHandler::read(std::vector<char> keyExchange)
+int ConnectionHandler::read(std::vector<char>& keyExchange)
 {
     QDataStream in;
     in.setDevice(socket.data());

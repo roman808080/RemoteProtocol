@@ -33,8 +33,8 @@ public slots:
 
 private:
     //exchange key
-    int write(std::vector<char> keyExchange, int code);
-    int read(std::vector<char> keyExchange);
+    int write(std::vector<char>& keyExchange, int code);
+    int read(std::vector<char>& keyExchange);
 
     // client side
     int write(DataIn& data);
