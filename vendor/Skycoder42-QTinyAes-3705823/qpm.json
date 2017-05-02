@@ -1,0 +1,23 @@
+{
+  "name": "de.skycoder42.qtinyaes",
+  "description": "A Qt-Wrapper for the AES-implementation kokke/tiny-AES128-C",
+  "author": {
+	"name": "Skycoder",
+	"email": "skycoder42.de@gmx.de"
+  },
+  "repository": {
+	"type": "GITHUB",
+	"url": "https://github.com/Skycoder42/QTinyAes.git"
+  },
+  "version": {
+	"label": "1.0.4",
+	"revision": "",
+	"fingerprint": ""
+  },
+  "dependencies": [
+	"de.skycoder42.kokke.tiny-aes128-c@1.0.1"
+  ],
+  "license": "BSD_3_CLAUSE",
+  "pri_filename": "de_skycoder42_qtinyaes.pri",
+  "webpage": "https://github.com/Skycoder42/QTinyAes"
+}

@@ -28,3 +28,5 @@ HEADERS += \
     inputconsole.h \
     console.h \
     connectionhandler.h
+
+include(vendor/vendor.pri)
