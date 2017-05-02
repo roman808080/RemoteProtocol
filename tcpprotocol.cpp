@@ -18,7 +18,7 @@ void TcpProtocol::runTcpServer()
     connect(mTcpServer.data(), SIGNAL(newEncryptedConnection()), this, SLOT(newIncomingConnection()));
     connect(mTcpServer.data(), &QSslServer::peerVerifyError, this, &TcpProtocol::peerVerifyError);
     connect(mTcpServer.data(), SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(sslErrors(QList<QSslError>)));
-    connect(mTcpServer.data(), SIGNAL(error(QAbstractSocket::SocketError)),
+    connect(mTcpServer.data(), SIGNAL(acceptError(QAbstractSocket::SocketError)),
             this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
 }
 
