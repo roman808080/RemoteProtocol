@@ -8,6 +8,7 @@
 #include "tcpprotocol.h"
 #include "peer.h"
 #include "example.h"
+#include "ulong.h"
 
 int main(int argc, char *argv[])
 {

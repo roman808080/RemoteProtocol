@@ -27,6 +27,7 @@ HEADERS += \
     datastruct.h \
     inputconsole.h \
     console.h \
-    connectionhandler.h
+    connectionhandler.h \
+    ulong.h
 
 include(vendor/vendor.pri)
