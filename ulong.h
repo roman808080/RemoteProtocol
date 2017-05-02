@@ -1,6 +1,11 @@
 #ifndef ULONG_H
 #define ULONG_H
 
+#include "windows.h"
+#include "wincrypt.h"
+#include "tchar.h"
+#include "vector"
+
 template<size_t Dimension> class ULong
 {
 public:

@@ -1,7 +1,9 @@
 #include "connectionhandler.h"
 
-#define CONSOLE_OUT 1
-#define CONSOLE_IN 2
+#define INIT_KEY_SERVER 1
+#define INIT_KEY_CLIENT 2
+#define CONSOLE_OUT 3
+#define CONSOLE_IN 4
 
 #define COUNT_QINT32 5
 
@@ -9,6 +11,14 @@ ConnectionHandler::ConnectionHandler()
 {
     readBufferSize = 0;
     type = 0;
+
+    unsigned char buffer[MODULE_LENGTH] = {0x01, 0x45, 0x76, 0x87,
+                                           0x99, 0x12, 0x11, 0x90,
+                                           0x65, 0x65, 0x33, 0x17,
+                                           0x82, 0x50, 0x71, 0x03
+                                           };
+    cryptoPModule = std::vector<char>((char*)buffer, (char*)buffer + MODULE_LENGTH);
+    cryptoGModule = 0x02;
 }
 
 ConnectionHandler::ConnectionHandler(QSharedPointer<QTcpSocket> socket)
@@ -27,10 +37,15 @@ ConnectionHandler::~ConnectionHandler()
 
 void ConnectionHandler::startServer()
 {
-    console.startServer();
-    DataOut dataOut;
-    console.readOutputFromConsole(dataOut);
-    write(dataOut);
+//    console.startServer();
+//    DataOut dataOut;
+//    console.readOutputFromConsole(dataOut);
+//    write(dataOut);
+
+    exchanger.InitDiffieHellmanKeysExchanger(cryptoPModule, cryptoGModule);
+    std::vector<char> exchangeKey;
+    exchanger.GenerateExchangeData(exchangeKey);
+    write(exchangeKey, INIT_KEY_SERVER);
 }
 
 void ConnectionHandler::startClient()
@@ -59,7 +74,31 @@ void ConnectionHandler::readyRead()
         in >> type;
     }
 
-    if(type == CONSOLE_OUT)// client side
+    if(type == INIT_KEY_SERVER)
+    {
+        std::vector<char> keyExchange;
+        read(keyExchange);
+
+        exchanger.InitDiffieHellmanKeysExchanger(cryptoPModule, cryptoGModule);
+        std::vector<char> exchangeKey;
+        exchanger.GenerateExchangeData(exchangeKey);
+        write(exchangeKey, INIT_KEY_CLIENT);
+
+        exchanger.CompleteExchangeData(keyExchange, key);
+    }
+    else if(type == INIT_KEY_CLIENT)
+    {
+        std::vector<char> keyExchange;
+        read(keyExchange);
+
+        exchanger.CompleteExchangeData(keyExchange, key);
+
+        console.startServer();
+        DataOut dataOut;
+        console.readOutputFromConsole(dataOut);
+        write(dataOut);
+    }
+    else if(type == CONSOLE_OUT)// client side
     {
         // read output for console and write to console
         DataOut dataOut;
@@ -85,6 +124,52 @@ void ConnectionHandler::readyRead()
 
     readBufferSize = 0;
     type = 0;
+}
+
+// exchange key
+int ConnectionHandler::write(std::vector<char> keyExchange, int code)
+{
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_4);
+
+    QByteArray qbytearray;
+    qint32 size = (int)keyExchange.capacity() * sizeof(char);
+    ConvertorData::data_to_qbytearray(&keyExchange[0], qbytearray, size);
+
+    out << (quint32)code;
+    out << size;
+
+    if(out.writeRawData(qbytearray.data(), size) == -1)
+        return -1;
+
+    socket->write(block);
+//    socket->waitForBytesWritten();
+
+    return 0;
+}
+
+// exchange key
+int ConnectionHandler::read(std::vector<char> keyExchange)
+{
+    QDataStream in;
+    in.setDevice(socket.data());
+    in.setVersion(QDataStream::Qt_5_4);
+
+    qint32 size;
+    QByteArray qbytearray;
+
+    in >> size;
+    qbytearray.resize(size);
+
+    int readByte = in.readRawData(qbytearray.data(), size);
+    if(readByte == -1)
+        return -1;
+
+    keyExchange.resize(size/sizeof(char));
+    ConvertorData::qbytearray_to_data(qbytearray, &keyExchange[0], size);
+
+    return 0;
 }
 
 // client side

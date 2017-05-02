@@ -9,6 +9,9 @@
 #include "datastruct.h"
 #include "console.h"
 #include "convertordata.h"
+#include "diffiehellmankeysexchanger.h"
+
+#define MODULE_LENGTH 16
 
 class ConnectionHandler:public QObject
 {
@@ -29,6 +32,10 @@ public slots:
     void readyRead();
 
 private:
+    //exchange key
+    int write(std::vector<char> keyExchange, int code);
+    int read(std::vector<char> keyExchange);
+
     // client side
     int write(DataIn& data);
     int read(DataOut& data);
@@ -38,9 +45,13 @@ private:
     int read(DataIn& data);
 
     qint32 readBufferSize;
-    QSharedPointer<QTcpSocket> socket;
-    Console console;
     qint32 type;
+    std::vector<char> cryptoPModule;
+    unsigned long cryptoGModule;
+    Console console;
+    QSharedPointer<QTcpSocket> socket;
+    DiffieHellmanKeysExchanger<MODULE_LENGTH> exchanger;
+    std::vector<char> key;
 };
 
 #endif // CONNECTIONHANDLER_H

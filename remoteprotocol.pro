@@ -28,6 +28,7 @@ HEADERS += \
     inputconsole.h \
     console.h \
     connectionhandler.h \
-    ulong.h
+    ulong.h \
+    diffiehellmankeysexchanger.h
 
 include(vendor/vendor.pri)
