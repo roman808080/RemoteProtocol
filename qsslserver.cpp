@@ -69,6 +69,7 @@ QSslSocket *QSslServer::nextPendingConnection()
 void QSslServer::incomingConnection(qintptr socket)
 {
     QSslSocket *pSslSocket = new QSslSocket();
+    pSslSocket->ignoreSslErrors();
 
     if (Q_LIKELY(pSslSocket)) {
         pSslSocket->setSslConfiguration(m_sslConfiguration);
@@ -80,6 +81,9 @@ void QSslServer::incomingConnection(qintptr socket)
             connect(pSslSocket, static_cast<sslErrorsSignal>(&QSslSocket::sslErrors),
                     this, &QSslServer::sslErrors);
             connect(pSslSocket, &QSslSocket::encrypted, this, &QSslServer::newEncryptedConnection);
+            connect(pSslSocket, &QSslSocket::encrypted, this, &QSslServer::newEncryptedConnection);
+            connect(pSslSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
+                [=](QAbstractSocket::SocketError socketError){ qDebug() << "error " << socketError; });
 
             addPendingConnection(pSslSocket);
 
