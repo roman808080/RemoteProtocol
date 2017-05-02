@@ -1,8 +1,7 @@
 #ifndef CONNECTIONHANDLER_H
 #define CONNECTIONHANDLER_H
 #include <QObject>
-//#include <QTcpSocket>
-#include <QSslSocket>
+#include <QTcpSocket>
 #include <QDataStream>
 
 #include <exception>
@@ -16,12 +15,12 @@ class ConnectionHandler:public QObject
     Q_OBJECT
 public:
     ConnectionHandler();
-    ConnectionHandler(QSharedPointer<QSslSocket> socket);
+    ConnectionHandler(QSharedPointer<QTcpSocket> socket);
     ~ConnectionHandler();
 
     void startServer();
     void startClient();
-    void setSocket(QSharedPointer<QSslSocket> socket);
+    void setSocket(QSharedPointer<QTcpSocket> socket);
 
 public slots:
     void sendConnectError(QAbstractSocket::SocketError e);
@@ -39,7 +38,7 @@ private:
     int read(DataIn& data);
 
     qint32 readBufferSize;
-    QSharedPointer<QSslSocket> socket;
+    QSharedPointer<QTcpSocket> socket;
     Console console;
     qint32 type;
 };

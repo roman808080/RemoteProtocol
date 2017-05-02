@@ -7,7 +7,6 @@ Example::~Example(){}
 
 void Example::menu()
 {
-    std::cout << QSslSocket::supportsSsl() << std::endl;
     int choice;
     std::cout << "Hello in menu\n ";
     std::cout << "Input 1 for create Server\n";
