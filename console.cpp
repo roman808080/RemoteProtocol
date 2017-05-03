@@ -1,5 +1,4 @@
 #include "console.h"
-#include "inputconsole.h"
 
 #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
@@ -26,6 +25,7 @@ Console::~Console()
 
 void Console::startServer(LPWSTR desktopName)
 {
+    HWND programName = GetConsoleWindow();
     if(desktopName)
         CreateDesktopW(desktopName, 0, 0, 0, GENERIC_ALL, 0);
 
@@ -67,6 +67,12 @@ void Console::startServer(LPWSTR desktopName)
     }
 
     setName(L"Server");
+
+//    HWND programName = GetConsoleWindow();
+    if(programName)
+    {
+        ShowWindow(programName, SW_SHOW);
+    }
 }
 
 void Console::startClient()
