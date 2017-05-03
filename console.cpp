@@ -22,12 +22,12 @@ Console::~Console()
     {
         TerminateProcess(killed, 0);
     }
-//        CloseHandle( pi.hProcess );
-//        CloseHandle( pi.hThread );
 }
 
 void Console::startServer()
 {
+    HDESK desktop = CreateDesktopW(L"MYDESKTOP", 0, 0, 0, GENERIC_ALL, 0);
+
     FreeConsole();
     std::wstring path = L"cmd.exe";
 
@@ -38,8 +38,7 @@ void Console::startServer()
     ZeroMemory(&pi, sizeof(pi));
 
     si.cb = sizeof(si);
-//    si.wShowWindow = SW_SHOW;// show main window maybe
-//    si.wShowWindow = SW_MINIMIZE;
+    si.lpDesktop = L"MYDESKTOP";
 
     SECURITY_ATTRIBUTES security = {
        sizeof(security), NULL, TRUE
@@ -75,11 +74,6 @@ void Console::startClient()
 
 int Console::readInputFromConsole(DataIn& data)
 {
-//    std::wstring str = L" chcp 65001";
-    data.inputRecords.resize(40);
-//    wchars2records(str, data.inputRecords);
-
-
 //    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     HANDLE inputHandle = GetStdHandle(STD_INPUT_HANDLE);
     DWORD events = 0;
@@ -93,22 +87,21 @@ int Console::readInputFromConsole(DataIn& data)
     {
         std::runtime_error("error with mode");
     }
-//        Sleep(20);
-        BOOL statusUnread = TRUE;
-        statusUnread = GetNumberOfConsoleInputEvents(inputHandle, &unread);
-        if(!statusUnread)
-            throw std::runtime_error("GetNumberOfConsoleInputEvents failed.");
+    Sleep(20);
+    BOOL statusUnread = TRUE;
+    statusUnread = GetNumberOfConsoleInputEvents(inputHandle, &unread);
+    if(!statusUnread)
+        throw std::runtime_error("GetNumberOfConsoleInputEvents failed.");
 
-        data.inputRecords.resize(unread);
+    data.inputRecords.resize(unread);
 
-//        if(unread)
-//        {
-            BOOL statusRead = TRUE;
-            statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], unread, &events);
-            if(!statusRead)
-                throw std::runtime_error("ReadConsoleInput failed.");
-//        }
-   // data.inputRecords.resize(events);
+    if(unread)
+    {
+        BOOL statusRead = TRUE;
+        statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], unread, &events);
+        if(!statusRead)
+            throw std::runtime_error("ReadConsoleInput failed.");
+    }
 
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &data.consoleScreenBufferInfo);
 
