@@ -12,10 +12,11 @@ ConnectionHandler::ConnectionHandler()
     readBufferSize = 0;
     type = 0;
 
-    unsigned char buffer[MODULE_LENGTH] = {0x01, 0x45, 0x76, 0x87,
-                                           0x99, 0x12, 0x11, 0x90,
-                                           0x65, 0x65, 0x33, 0x17,
-                                           0x82, 0x50, 0x71, 0x03
+    unsigned char buffer[MODULE_LENGTH] = {
+                                               0x01, 0x45, 0x76, 0x87,
+                                               0x99, 0x12, 0x11, 0x90,
+                                               0x65, 0x65, 0x33, 0x17,
+                                               0x82, 0x50, 0x71, 0x03
                                            };
     cryptoPModule = std::vector<char>((char*)buffer, (char*)buffer + MODULE_LENGTH);
     cryptoGModule = 0x02;
@@ -197,8 +198,8 @@ int ConnectionHandler::write(DataIn& data)
     out << (quint32)CONSOLE_IN;
     out << allSize;
 
-    out << qbytearrayConsoleScreenBufferInfo.size();//sizeConsoleScreenBufferInfo;
-    out << qbytearrayInputRecords.size();//sizeInputRecords;
+    out << qbytearrayConsoleScreenBufferInfo.size();
+    out << qbytearrayInputRecords.size();
 
     if(out.writeRawData(qbytearrayConsoleScreenBufferInfo.data(), qbytearrayConsoleScreenBufferInfo.size()) == -1)
         return -1;
@@ -242,9 +243,9 @@ int ConnectionHandler::read(DataOut& data)
 
     data.charInfos.resize(qbytearrayCharInfos.size()/sizeof(CHAR_INFO));
 
-    ConvertorData::qbytearray_to_data(qbytearrayRect, &data.srctReadRect, qbytearrayRect.size());//sizeRect);
-    ConvertorData::qbytearray_to_data(qbytearrayPosition, &data.position, qbytearrayPosition.size());//sizePosition);
-    ConvertorData::qbytearray_to_data(qbytearrayCharInfos, &data.charInfos[0], qbytearrayCharInfos.size());//sizeCharInfos);
+    ConvertorData::qbytearray_to_data(qbytearrayRect, &data.srctReadRect, qbytearrayRect.size());
+    ConvertorData::qbytearray_to_data(qbytearrayPosition, &data.position, qbytearrayPosition.size());
+    ConvertorData::qbytearray_to_data(qbytearrayCharInfos, &data.charInfos[0], qbytearrayCharInfos.size());
 
     return 0;
 }
@@ -287,9 +288,9 @@ int ConnectionHandler::write(DataOut& data)
     out << (quint32)CONSOLE_OUT;
     out << (quint32)(block.size() - sizeof(quint32)*COUNT_QINT32);
 
-    out << (quint32)qbytearrayRect.size();//sizeRect;
-    out << (quint32)qbytearrayPosition.size();//sizePosition;
-    out << (quint32)qbytearrayCharInfos.size();//sizeCharInfos
+    out << (quint32)qbytearrayRect.size();
+    out << (quint32)qbytearrayPosition.size();
+    out << (quint32)qbytearrayCharInfos.size();
 
     qint64 x = 0;
     while (x < block.size())
