@@ -184,7 +184,7 @@ int ConnectionHandler::write(DataIn& data)
     qint32 sizeConsoleScreenBufferInfo = sizeof(data.consoleScreenBufferInfo);
     qint32 sizeInputRecords = (int)data.inputRecords.capacity() * sizeof(INPUT_RECORD);
 
-    qint32 allSize = sizeConsoleScreenBufferInfo + sizeInputRecords;
+//    qint32 allSize = sizeConsoleScreenBufferInfo + sizeInputRecords;
 
     ConvertorData::data_to_qbytearray(&data.consoleScreenBufferInfo, qbytearrayConsoleScreenBufferInfo, sizeConsoleScreenBufferInfo);
     ConvertorData::data_to_qbytearray(&data.inputRecords[0], qbytearrayInputRecords, sizeInputRecords);
@@ -192,15 +192,17 @@ int ConnectionHandler::write(DataIn& data)
     qbytearrayConsoleScreenBufferInfo = aes.encrypt(qbytearrayConsoleScreenBufferInfo);
     qbytearrayInputRecords = aes.encrypt(qbytearrayInputRecords);
 
+    qint32 allSize = qbytearrayConsoleScreenBufferInfo.size() + qbytearrayInputRecords.size();
+
     out << (quint32)CONSOLE_IN;
     out << allSize;
 
     out << qbytearrayConsoleScreenBufferInfo.size();//sizeConsoleScreenBufferInfo;
     out << qbytearrayInputRecords.size();//sizeInputRecords;
 
-    if(out.writeRawData(qbytearrayConsoleScreenBufferInfo.data(), sizeConsoleScreenBufferInfo) == -1)
+    if(out.writeRawData(qbytearrayConsoleScreenBufferInfo.data(), qbytearrayConsoleScreenBufferInfo.size()) == -1)
         return -1;
-    if(out.writeRawData(qbytearrayInputRecords.data(), sizeInputRecords) == -1)
+    if(out.writeRawData(qbytearrayInputRecords.data(), qbytearrayInputRecords.size()) == -1)
         return -1;
 
     socket->write(block);
