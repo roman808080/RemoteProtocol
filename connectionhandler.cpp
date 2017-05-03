@@ -195,8 +195,8 @@ int ConnectionHandler::write(DataIn& data)
     out << (quint32)CONSOLE_IN;
     out << allSize;
 
-    out << sizeConsoleScreenBufferInfo;
-    out << sizeInputRecords;
+    out << qbytearrayConsoleScreenBufferInfo.size();//sizeConsoleScreenBufferInfo;
+    out << qbytearrayInputRecords.size();//sizeInputRecords;
 
     if(out.writeRawData(qbytearrayConsoleScreenBufferInfo.data(), sizeConsoleScreenBufferInfo) == -1)
         return -1;
@@ -234,15 +234,15 @@ int ConnectionHandler::read(DataOut& data)
     QByteArray qbytearrayPosition = socket->read(sizePosition);
     QByteArray qbytearrayCharInfos = socket->read(sizeCharInfos);
 
-    data.charInfos.resize(sizeCharInfos/sizeof(CHAR_INFO));
-
     qbytearrayRect = aes.decrypt(qbytearrayRect);
     qbytearrayPosition = aes.decrypt(qbytearrayPosition);
     qbytearrayCharInfos = aes.decrypt(qbytearrayCharInfos);
 
-    ConvertorData::qbytearray_to_data(qbytearrayRect, &data.srctReadRect, sizeRect);
-    ConvertorData::qbytearray_to_data(qbytearrayPosition, &data.position, sizePosition);
-    ConvertorData::qbytearray_to_data(qbytearrayCharInfos, &data.charInfos[0], sizeCharInfos);
+    data.charInfos.resize(qbytearrayCharInfos.size()/sizeof(CHAR_INFO));
+
+    ConvertorData::qbytearray_to_data(qbytearrayRect, &data.srctReadRect, qbytearrayRect.size());//sizeRect);
+    ConvertorData::qbytearray_to_data(qbytearrayPosition, &data.position, qbytearrayPosition.size());//sizePosition);
+    ConvertorData::qbytearray_to_data(qbytearrayCharInfos, &data.charInfos[0], qbytearrayCharInfos.size());//sizeCharInfos);
 
     return 0;
 }
@@ -269,7 +269,6 @@ int ConnectionHandler::write(DataOut& data)
     qbytearrayRect = aes.encrypt(qbytearrayRect);
     qbytearrayPosition = aes.encrypt(qbytearrayPosition);
     qbytearrayCharInfos = aes.encrypt(qbytearrayCharInfos);
-    int allah = qbytearrayCharInfos.size();
 
     out << (quint32)0; // type
     out << (quint32)0; // all size
@@ -286,9 +285,9 @@ int ConnectionHandler::write(DataOut& data)
     out << (quint32)CONSOLE_OUT;
     out << (quint32)(block.size() - sizeof(quint32)*COUNT_QINT32);
 
-    out << (quint32)sizeRect;
-    out << (quint32)sizePosition;
-    out << (quint32)sizeCharInfos;
+    out << (quint32)qbytearrayRect.size();//sizeRect;
+    out << (quint32)qbytearrayPosition.size();//sizePosition;
+    out << (quint32)qbytearrayCharInfos.size();//sizeCharInfos
 
     qint64 x = 0;
     while (x < block.size())
@@ -329,13 +328,13 @@ int ConnectionHandler::read(DataIn& data)
     if(readByteInputRecords == -1)
         return -1;
 
-    data.inputRecords.resize(sizeInputRecords/sizeof(INPUT_RECORD));
-
     qbytearrayConsoleScreenBufferInfo = aes.decrypt(qbytearrayConsoleScreenBufferInfo);
     qbytearrayInputRecords = aes.decrypt(qbytearrayInputRecords);
 
-    ConvertorData::qbytearray_to_data(qbytearrayConsoleScreenBufferInfo, &data.consoleScreenBufferInfo, sizeConsoleScreenBufferInfo);
-    ConvertorData::qbytearray_to_data(qbytearrayInputRecords, &data.inputRecords[0], sizeInputRecords);
+    data.inputRecords.resize(qbytearrayInputRecords.size()/sizeof(INPUT_RECORD));
+
+    ConvertorData::qbytearray_to_data(qbytearrayConsoleScreenBufferInfo, &data.consoleScreenBufferInfo, qbytearrayConsoleScreenBufferInfo.size());
+    ConvertorData::qbytearray_to_data(qbytearrayInputRecords, &data.inputRecords[0], qbytearrayInputRecords.size());
 
     return 0;
 }
