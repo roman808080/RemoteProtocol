@@ -93,7 +93,7 @@ int Console::readInputFromConsole(DataIn& data)
     {
         std::runtime_error("error with mode");
     }
-        Sleep(20);
+//        Sleep(20);
         BOOL statusUnread = TRUE;
         statusUnread = GetNumberOfConsoleInputEvents(inputHandle, &unread);
         if(!statusUnread)
