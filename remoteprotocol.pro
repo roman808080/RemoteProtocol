@@ -25,7 +25,6 @@ HEADERS += \
     tcpprotocol.h \
     convertordata.h \
     datastruct.h \
-    inputconsole.h \
     console.h \
     connectionhandler.h \
     ulong.h \

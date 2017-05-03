@@ -24,9 +24,10 @@ Console::~Console()
     }
 }
 
-void Console::startServer()
+void Console::startServer(LPWSTR desktopName)
 {
-    HDESK desktop = CreateDesktopW(L"MYDESKTOP", 0, 0, 0, GENERIC_ALL, 0);
+    if(desktopName)
+        CreateDesktopW(desktopName, 0, 0, 0, GENERIC_ALL, 0);
 
     FreeConsole();
     std::wstring path = L"cmd.exe";
@@ -38,7 +39,8 @@ void Console::startServer()
     ZeroMemory(&pi, sizeof(pi));
 
     si.cb = sizeof(si);
-    si.lpDesktop = L"MYDESKTOP";
+    if(desktopName)
+        si.lpDesktop = desktopName;
 
     SECURITY_ATTRIBUTES security = {
        sizeof(security), NULL, TRUE

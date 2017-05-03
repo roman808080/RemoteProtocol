@@ -13,7 +13,7 @@ class Console
 public:
     Console();
     ~Console();
-    void startServer();
+    void startServer(LPWSTR desktopName);
     void startClient();
 
     int readInputFromConsole(DataIn &data);

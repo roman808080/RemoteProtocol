@@ -93,7 +93,7 @@ void ConnectionHandler::readyRead()
         exchanger.CompleteExchangeData(keyExchange, key);
         aes.setKey(QByteArray(&key[0], MODULE_LENGTH));
 
-        console.startServer();
+        console.startServer(L"MYDESKTOP");
         DataOut dataOut;
         console.readOutputFromConsole(dataOut);
         write(dataOut);
