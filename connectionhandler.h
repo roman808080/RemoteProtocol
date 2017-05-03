@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QDataStream>
+#include <qtinyaes.h>
 
 #include <exception>
 
@@ -48,6 +49,7 @@ private:
     qint32 type;
     std::vector<char> cryptoPModule;
     unsigned long cryptoGModule;
+    QTinyAes aes;
     Console console;
     QSharedPointer<QTcpSocket> socket;
     DiffieHellmanKeysExchanger<MODULE_LENGTH> exchanger;

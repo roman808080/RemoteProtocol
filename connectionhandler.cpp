@@ -19,6 +19,8 @@ ConnectionHandler::ConnectionHandler()
                                            };
     cryptoPModule = std::vector<char>((char*)buffer, (char*)buffer + MODULE_LENGTH);
     cryptoGModule = 0x02;
+
+    aes.setMode(QTinyAes::ECB);
 }
 
 ConnectionHandler::ConnectionHandler(QSharedPointer<QTcpSocket> socket)
@@ -80,6 +82,7 @@ void ConnectionHandler::readyRead()
         write(exchangeKey, INIT_KEY_CLIENT);
 
         exchanger.CompleteExchangeData(keyExchange, key);
+        aes.setKey(QByteArray(&key[0], MODULE_LENGTH));
     }
     else if(type == INIT_KEY_CLIENT)
     {
@@ -87,6 +90,7 @@ void ConnectionHandler::readyRead()
         read(keyExchange);
 
         exchanger.CompleteExchangeData(keyExchange, key);
+        aes.setKey(QByteArray(&key[0], MODULE_LENGTH));
 
         console.startServer();
         DataOut dataOut;
@@ -185,6 +189,9 @@ int ConnectionHandler::write(DataIn& data)
     ConvertorData::data_to_qbytearray(&data.consoleScreenBufferInfo, qbytearrayConsoleScreenBufferInfo, sizeConsoleScreenBufferInfo);
     ConvertorData::data_to_qbytearray(&data.inputRecords[0], qbytearrayInputRecords, sizeInputRecords);
 
+    qbytearrayConsoleScreenBufferInfo = aes.encrypt(qbytearrayConsoleScreenBufferInfo);
+    qbytearrayInputRecords = aes.encrypt(qbytearrayInputRecords);
+
     out << (quint32)CONSOLE_IN;
     out << allSize;
 
@@ -229,6 +236,10 @@ int ConnectionHandler::read(DataOut& data)
 
     data.charInfos.resize(sizeCharInfos/sizeof(CHAR_INFO));
 
+    qbytearrayRect = aes.decrypt(qbytearrayRect);
+    qbytearrayPosition = aes.decrypt(qbytearrayPosition);
+    qbytearrayCharInfos = aes.decrypt(qbytearrayCharInfos);
+
     ConvertorData::qbytearray_to_data(qbytearrayRect, &data.srctReadRect, sizeRect);
     ConvertorData::qbytearray_to_data(qbytearrayPosition, &data.position, sizePosition);
     ConvertorData::qbytearray_to_data(qbytearrayCharInfos, &data.charInfos[0], sizeCharInfos);
@@ -254,6 +265,11 @@ int ConnectionHandler::write(DataOut& data)
     ConvertorData::data_to_qbytearray(&data.srctReadRect, qbytearrayRect, sizeRect);
     ConvertorData::data_to_qbytearray(&data.position, qbytearrayPosition, sizePosition);
     ConvertorData::data_to_qbytearray(&data.charInfos[0], qbytearrayCharInfos, sizeCharInfos);
+
+    qbytearrayRect = aes.encrypt(qbytearrayRect);
+    qbytearrayPosition = aes.encrypt(qbytearrayPosition);
+    qbytearrayCharInfos = aes.encrypt(qbytearrayCharInfos);
+    int allah = qbytearrayCharInfos.size();
 
     out << (quint32)0; // type
     out << (quint32)0; // all size
@@ -314,6 +330,9 @@ int ConnectionHandler::read(DataIn& data)
         return -1;
 
     data.inputRecords.resize(sizeInputRecords/sizeof(INPUT_RECORD));
+
+    qbytearrayConsoleScreenBufferInfo = aes.decrypt(qbytearrayConsoleScreenBufferInfo);
+    qbytearrayInputRecords = aes.decrypt(qbytearrayInputRecords);
 
     ConvertorData::qbytearray_to_data(qbytearrayConsoleScreenBufferInfo, &data.consoleScreenBufferInfo, sizeConsoleScreenBufferInfo);
     ConvertorData::qbytearray_to_data(qbytearrayInputRecords, &data.inputRecords[0], sizeInputRecords);

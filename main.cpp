@@ -113,9 +113,9 @@ int main(int argc, char *argv[])
     PrintBuffer(re);
     aes.setKey(re);// 128 bit key -> QTinyAes::KEYSIZES must contain the size
 //    aes.setIv("random_iv_128bit");//QTinyAes::BLOCKSIZE
-
+    QByteArray first = "very big text";
     QByteArray cipher = aes.encrypt("very big text");
-    qDebug() << aes.decrypt(cipher);
+    QByteArray third = aes.decrypt(cipher);
 
 
 
