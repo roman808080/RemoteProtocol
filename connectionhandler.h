@@ -23,7 +23,6 @@ public:
     ~ConnectionHandler();
 
     void startServer();
-    void startClient();
     void setSocket(QSharedPointer<QTcpSocket> socket);
 
 public slots:

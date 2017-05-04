@@ -1,4 +1,6 @@
+#include <vector>
 #include "example.h"
+#include "randomkeygenerator.h"
 
 Example::Example()
 {}
@@ -7,6 +9,15 @@ Example::~Example(){}
 
 void Example::menu()
 {
+    std::vector<char> keyVector;
+    generateRandomKey(keyVector, 8);
+
+    for(auto symbol: keyVector)
+    {
+        std::cout << symbol;
+    }
+    std::cout << "\n";
+
     int choice;
     std::cout << "Hello in menu\n ";
     std::cout << "Input 1 for create Server\n";

@@ -46,11 +46,6 @@ void ConnectionHandler::startServer()
     write(exchangeKey, INIT_KEY_SERVER);
 }
 
-void ConnectionHandler::startClient()
-{
-    console.startClient();
-}
-
 void ConnectionHandler::setSocket(QSharedPointer<QTcpSocket> socket)
 {
     this->socket.reset(socket.data());

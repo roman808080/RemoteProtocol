@@ -28,6 +28,7 @@ HEADERS += \
     console.h \
     connectionhandler.h \
     ulong.h \
-    diffiehellmankeysexchanger.h
+    diffiehellmankeysexchanger.h \
+    randomkeygenerator.h
 
 include(vendor/vendor.pri)
