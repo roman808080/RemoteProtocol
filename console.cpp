@@ -69,6 +69,11 @@ void Console::startServer(LPWSTR desktopName)
     setName(L"Server");
 }
 
+void Console::startServer()
+{
+    startServer(NULL);
+}
+
 int Console::readInputFromConsole(DataIn& data)
 {
     HANDLE inputHandle = GetStdHandle(STD_INPUT_HANDLE);

@@ -51,7 +51,7 @@ void ConnectionHandler::startServer()
 
 void ConnectionHandler::setSocket(QSharedPointer<QTcpSocket> socket)
 {
-    this->socket.reset(socket.data());
+    this->socket = socket;
     connect(this->socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
     connect(this->socket.data(), SIGNAL(disconnected()),

@@ -14,6 +14,7 @@ public:
     Console();
     ~Console();
     void startServer(LPWSTR desktopName);
+    void startServer();
 
     int readInputFromConsole(DataIn &data);
     int writeOutputToConsole(DataOut &data);
