@@ -78,12 +78,12 @@ int Console::readInputFromConsole(DataIn& data)
     DWORD events = 0;
     DWORD unread = 0;
 
-    DWORD fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
-    BOOL bMode = SetConsoleMode(inputHandle, fdwMode);
-    if(!bMode)
-    {
-        std::runtime_error("error with mode");
-    }
+//    DWORD fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
+//    BOOL bMode = SetConsoleMode(inputHandle, fdwMode);
+//    if(!bMode)
+//    {
+//        std::runtime_error("error with mode");
+//    }
 
     BOOL statusUnread = TRUE;
     statusUnread = GetNumberOfConsoleInputEvents(inputHandle, &unread);
