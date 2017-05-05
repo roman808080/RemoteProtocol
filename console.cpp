@@ -118,7 +118,8 @@ int Console::writeOutputToConsole(DataOut& data)
 
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
-                       {data.srctReadRect.Right + 1, data.srctReadRect.Bottom + 1},
+                       //{data.srctReadRect.Right + 1, data.srctReadRect.Bottom + 100},
+                       {data.size.X, data.size.Y},
                        { 0, 0 },
                        &data.srctReadRect);
     return 0;
@@ -164,12 +165,14 @@ int Console::readOutputFromConsole(DataOut& data)
 
     data.srctReadRect = bufferInfo.srWindow;
     data.position = bufferInfo.dwCursorPosition;
+    data.size = bufferInfo.dwSize;
 
-    data.charInfos.resize((data.srctReadRect.Right + 1) * (data.srctReadRect.Bottom + 1));
+    data.charInfos.resize(data.size.X * data.size.Y);//((data.srctReadRect.Right + 1) * (data.srctReadRect.Bottom + 1));
     BOOL bReadConsole = 0;
     bReadConsole = ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
                                       &data.charInfos[0],
-                                      {data.srctReadRect.Right + 1, data.srctReadRect.Bottom + 1},
+                                      {data.size.X, data.size.Y},
+                                      //{data.srctReadRect.Right + 1, data.srctReadRect.Bottom + 100},
                                       {0, 0},
                                       &bufferInfo.srWindow);
     if(!bReadConsole)

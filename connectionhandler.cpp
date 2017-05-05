@@ -122,7 +122,7 @@ void ConnectionHandler::readyRead()
         }
         authorization = true;
 
-        console.startServer(L"MYDESKTOP");
+        console.startServer(/*L"MYDESKTOP"*/);
         DataOut dataOut;
         console.readOutputFromConsole(dataOut);
         write(dataOut);
@@ -323,24 +323,29 @@ int ConnectionHandler::read(DataOut& data)
 
     qint32 sizeRect;
     qint32 sizePosition;
+    qint32 sizeSize;
     qint32 sizeCharInfos;
 
     in >> sizeRect;
     in >> sizePosition;
+    in >> sizeSize;
     in >> sizeCharInfos;
 
     QByteArray qbytearrayRect = socket->read(sizeRect);
     QByteArray qbytearrayPosition = socket->read(sizePosition);
+    QByteArray qbytearraySize = socket->read(sizeSize);
     QByteArray qbytearrayCharInfos = socket->read(sizeCharInfos);
 
     qbytearrayRect = aes.decrypt(qbytearrayRect);
     qbytearrayPosition = aes.decrypt(qbytearrayPosition);
+    qbytearraySize =  aes.decrypt(qbytearraySize);
     qbytearrayCharInfos = aes.decrypt(qbytearrayCharInfos);
 
     data.charInfos.resize(qbytearrayCharInfos.size()/sizeof(CHAR_INFO));
 
     ConvertorData::qbytearray_to_data(qbytearrayRect, &data.srctReadRect, qbytearrayRect.size());
     ConvertorData::qbytearray_to_data(qbytearrayPosition, &data.position, qbytearrayPosition.size());
+    ConvertorData::qbytearray_to_data(qbytearraySize, &data.size, qbytearraySize.size());
     ConvertorData::qbytearray_to_data(qbytearrayCharInfos, &data.charInfos[0], qbytearrayCharInfos.size());
 
     return 0;

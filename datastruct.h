@@ -12,6 +12,7 @@ struct DataOut
 {
     SMALL_RECT srctReadRect = {0};
     COORD position = {0};
+    COORD size = {0};
     std::vector<CHAR_INFO> charInfos;
 };
 
