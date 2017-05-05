@@ -24,6 +24,7 @@ public:
 
     void startServer();
     void setSocket(QSharedPointer<QTcpSocket> socket);
+    void setPassword(std::vector<char> password);
 
 public slots:
     void sendConnectError(QAbstractSocket::SocketError e);
@@ -48,11 +49,13 @@ private:
     qint32 type;
     std::vector<char> cryptoPModule;
     unsigned long cryptoGModule;
+    bool authorization;
     QTinyAes aes;
     Console console;
     QSharedPointer<QTcpSocket> socket;
     DiffieHellmanKeysExchanger<MODULE_LENGTH> exchanger;
     std::vector<char> key;
+    std::vector<char> password;
 };
 
 #endif // CONNECTIONHANDLER_H

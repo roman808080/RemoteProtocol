@@ -23,6 +23,11 @@ void TcpProtocol::setPort(qint16 tcp)
     mLocalTcpPort = tcp;
 }
 
+void TcpProtocol::setPassword(std::vector<char> password)
+{
+    this->password = password;
+}
+
 void TcpProtocol::connectToServer(QString ip, int port)
 {
     mCurrentSocket.reset(new QTcpSocket);
@@ -37,6 +42,7 @@ void TcpProtocol::newIncomingConnection()
     mCurrentSocket.reset(mTcpServer->nextPendingConnection());
     connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
     connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
+    connectionHandlers.at(connectionHandlers.size() - 1)->setPassword(password);
     connectionHandlers.at(connectionHandlers.size() - 1)->startServer();
 
     emit newInConnection(mCurrentSocket);

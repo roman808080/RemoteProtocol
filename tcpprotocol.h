@@ -26,6 +26,7 @@ class TcpProtocol : public QObject
         virtual ~TcpProtocol();
         void runTcpServer();
         void setPort(qint16 tcp);
+        void setPassword(std::vector<char> password);
         void connectToServer(QString ip, int port);
 
     public slots:
@@ -40,6 +41,8 @@ class TcpProtocol : public QObject
         QScopedPointer<QTcpServer> mTcpServer; // Socket TCP
         QSharedPointer<QTcpSocket> mCurrentSocket; // Socket TCP current socket
         QList<QSharedPointer<ConnectionHandler>> connectionHandlers;
+
+        std::vector<char> password;
 
         //TCP port
         qint16 mLocalTcpPort;

@@ -2,8 +2,10 @@
 
 #define INIT_KEY_SERVER 1
 #define INIT_KEY_CLIENT 2
-#define CONSOLE_OUT 3
-#define CONSOLE_IN 4
+#define REQUEST_PASSWORD 3
+#define GET_PASSWORD 4
+#define CONSOLE_OUT 5
+#define CONSOLE_IN 6
 
 #define COUNT_QINT32 5
 
@@ -20,6 +22,7 @@ ConnectionHandler::ConnectionHandler()
                                            };
     cryptoPModule = std::vector<char>((char*)buffer, (char*)buffer + MODULE_LENGTH);
     cryptoGModule = 0x02;
+    authorization = false;
 
     aes.setMode(QTinyAes::ECB);
 }
@@ -56,6 +59,11 @@ void ConnectionHandler::setSocket(QSharedPointer<QTcpSocket> socket)
     connect(this->socket.data(), SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
 
+void ConnectionHandler::setPassword(std::vector<char> password)
+{
+    this->password = password;
+}
+
 void ConnectionHandler::readyRead()
 {
     QDataStream in;
@@ -88,6 +96,32 @@ void ConnectionHandler::readyRead()
         exchanger.CompleteExchangeData(keyExchange, key);
         aes.setKey(QByteArray(&key[0], MODULE_LENGTH));
 
+        std::vector<char> temp;
+        temp.resize(1);
+        write(temp, REQUEST_PASSWORD);
+    }
+    else if(type == REQUEST_PASSWORD)
+    {
+        std::vector<char> temp;
+        read(temp);
+
+        std::string str;
+        std::cin >> str;
+        std::vector<char> passwordVector(str.begin(), str.end());
+        write(passwordVector, GET_PASSWORD);
+    }
+    else if(type == GET_PASSWORD)
+    {
+        std::vector<char> passwordFromClient;
+        read(passwordFromClient);
+
+        if(!equal(password.begin(), password.end(), passwordFromClient.begin()))
+        {
+            closedConnection();
+            return;
+        }
+        authorization = true;
+
         console.startServer(L"MYDESKTOP");
         DataOut dataOut;
         console.readOutputFromConsole(dataOut);
@@ -108,6 +142,9 @@ void ConnectionHandler::readyRead()
     }
     else if(type == CONSOLE_IN)
     {
+        if(!authorization)
+            return;
+
         DataIn dataIn;
         read(dataIn);
         console.writeInputToConsole(dataIn);
@@ -179,8 +216,6 @@ int ConnectionHandler::write(DataIn& data)
 
     qint32 sizeConsoleScreenBufferInfo = sizeof(data.consoleScreenBufferInfo);
     qint32 sizeInputRecords = (int)data.inputRecords.capacity() * sizeof(INPUT_RECORD);
-
-//    qint32 allSize = sizeConsoleScreenBufferInfo + sizeInputRecords;
 
     ConvertorData::data_to_qbytearray(&data.consoleScreenBufferInfo, qbytearrayConsoleScreenBufferInfo, sizeConsoleScreenBufferInfo);
     ConvertorData::data_to_qbytearray(&data.inputRecords[0], qbytearrayInputRecords, sizeInputRecords);

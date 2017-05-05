@@ -29,6 +29,7 @@ void Example::menu()
     if(choice == 1){
         std::cout << "You're choice is server\n";
         remoteProtocol.runTcpServer();
+        remoteProtocol.setPassword(keyVector);
     }
     else if(choice == 2)
     {
