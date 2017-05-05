@@ -96,28 +96,28 @@ void ConnectionHandler::readyRead()
         exchanger.CompleteExchangeData(keyExchange, key);
         aes.setKey(QByteArray(&key[0], MODULE_LENGTH));
 
-        std::vector<char> temp;
-        temp.resize(1);
-        write(temp, REQUEST_PASSWORD);
+        write(REQUEST_PASSWORD);
     }
     else if(type == REQUEST_PASSWORD)
     {
-        std::vector<char> temp;
-        read(temp);
-
         std::string str;
+        std::cout << "Input password\n";
         std::cin >> str;
         std::vector<char> passwordVector(str.begin(), str.end());
-        write(passwordVector, GET_PASSWORD);
+        writePassword(passwordVector, GET_PASSWORD);
     }
     else if(type == GET_PASSWORD)
     {
         std::vector<char> passwordFromClient;
-        read(passwordFromClient);
+        readPassword(passwordFromClient);
 
         if(!equal(password.begin(), password.end(), passwordFromClient.begin()))
         {
-            closedConnection();
+            write(REQUEST_PASSWORD);
+
+            readBufferSize = 0;
+            type = 0;
+
             return;
         }
         authorization = true;
@@ -203,6 +203,72 @@ int ConnectionHandler::read(std::vector<char>& keyExchange)
 
     return 0;
 }
+
+// write request
+int ConnectionHandler::write(int code)
+{
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_4);
+
+    out << (quint32)code;
+
+    socket->write(block);
+    socket->waitForBytesWritten();
+
+    return 0;
+}
+
+// send password
+int ConnectionHandler::writePassword(std::vector<char>& keyExchange, int code)
+{
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_4);
+
+    QByteArray qbytearray;
+    qint32 size = (int)keyExchange.capacity() * sizeof(char);
+    ConvertorData::data_to_qbytearray(&keyExchange[0], qbytearray, size);
+
+    qbytearray = aes.encrypt(qbytearray);
+
+    out << (quint32)code;
+    out << qbytearray.size();
+
+    if(out.writeRawData(qbytearray.data(), qbytearray.size()) == -1)
+        return -1;
+
+    socket->write(block);
+    socket->waitForBytesWritten();
+
+    return 0;
+}
+
+// read password
+int ConnectionHandler::readPassword(std::vector<char>& keyExchange)
+{
+    QDataStream in;
+    in.setDevice(socket.data());
+    in.setVersion(QDataStream::Qt_5_4);
+
+    qint32 size;
+    QByteArray qbytearray;
+
+    in >> size;
+    qbytearray.resize(size);
+
+    int readByte = in.readRawData(qbytearray.data(), size);
+    if(readByte == -1)
+        return -1;
+
+    qbytearray = aes.decrypt(qbytearray);
+    keyExchange.resize(qbytearray.size()/sizeof(char));
+
+    ConvertorData::qbytearray_to_data(qbytearray, &keyExchange[0], qbytearray.size());
+
+    return 0;
+}
+
 
 // client side
 int ConnectionHandler::write(DataIn& data)

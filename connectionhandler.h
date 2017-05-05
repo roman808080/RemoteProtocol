@@ -34,8 +34,12 @@ public slots:
 
 private:
     //exchange key
+    int write(int code);
     int write(std::vector<char>& keyExchange, int code);
     int read(std::vector<char>& keyExchange);
+
+    int writePassword(std::vector<char>& keyExchange, int code);
+    int readPassword(std::vector<char>& keyExchange);
 
     // client side
     int write(DataIn& data);

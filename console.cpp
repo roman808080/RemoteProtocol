@@ -25,10 +25,8 @@ Console::~Console()
 
 void Console::startServer(LPWSTR desktopName)
 {
-    HWND programName = GetConsoleWindow();
     if(desktopName)
         CreateDesktopW(desktopName, 0, 0, 0, GENERIC_ALL, 0);
-
     FreeConsole();
     std::wstring path = L"cmd.exe";
 
