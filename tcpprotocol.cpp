@@ -30,7 +30,7 @@ void TcpProtocol::setPassword(std::vector<char> password)
 
 void TcpProtocol::connectToServer(QString ip, int port)
 {
-    mCurrentSocket.reset(new QTcpSocket);
+    mCurrentSocket = QSharedPointer<QTcpSocket>(new QTcpSocket);
     connect(mCurrentSocket.data(), SIGNAL(connected()), this, SLOT(connected()));
     mCurrentSocket->connectToHost(ip, port);
 }
@@ -39,7 +39,7 @@ void TcpProtocol::newIncomingConnection()
 {
     if (!mTcpServer->hasPendingConnections()) return;
 
-    mCurrentSocket.reset(mTcpServer->nextPendingConnection());
+    mCurrentSocket = QSharedPointer<QTcpSocket>(mTcpServer->nextPendingConnection());
     connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
     connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
     connectionHandlers.at(connectionHandlers.size() - 1)->setPassword(password);
