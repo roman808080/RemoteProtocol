@@ -7,7 +7,7 @@
 #define CONSOLE_OUT 5
 #define CONSOLE_IN 6
 
-#define COUNT_QINT32 5
+#define COUNT_QINT32 6
 
 ConnectionHandler::ConnectionHandler()
 {
@@ -323,44 +323,33 @@ int ConnectionHandler::read(DataOut& data)
 
     qint32 sizeRect;
     qint32 sizePosition;
-//    qint32 sizeSize;
+    qint32 sizeSize;
     qint32 sizeCharInfos;
 
     in >> sizeRect;
     in >> sizePosition;
-//    in >> sizeSize;
+    in >> sizeSize;
     in >> sizeCharInfos;
 
-//    QByteArray qbaRect = socket->read(sizeRect);
-//    QByteArray qbaPosition = socket->read(sizePosition);
-////    QByteArray qbaSize = socket->read(sizeSize);
-//    QByteArray qbaCharInfos = socket->read(sizeCharInfos);
     QByteArray allQba =  socket->readAll();
-
-//    qbaRect = aes.decrypt(qbaRect);
-//    qbaPosition = aes.decrypt(qbaPosition);
-////    qbaSize =  aes.decrypt(qbaSize);
-//    qbaCharInfos = aes.decrypt(qbaCharInfos);
     allQba = aes.decrypt(allQba);
 
     data.charInfos.resize(sizeCharInfos/sizeof(CHAR_INFO));
 
-//    QByteArrayData allQbaData = allQba
     int pos = 0;
     ConvertorData::qbytearray_to_data(allQba.mid(pos, sizeRect), &data.srctReadRect, sizeRect);
-//    allQba.chop(sizeRect);
     pos += sizeRect;
     ConvertorData::qbytearray_to_data(allQba.mid(pos, sizePosition), &data.position, sizePosition);
-//    allQba.chop(sizePosition);
     pos += sizePosition;
-////    ConvertorData::qbytearray_to_data(qbaSize, &data.size, qbaSize.size());
+    ConvertorData::qbytearray_to_data(allQba.mid(pos, sizeSize), &data.size, sizeSize);
+    pos += sizeSize;
     ConvertorData::qbytearray_to_data(allQba.mid(pos, sizeCharInfos), &data.charInfos[0], sizeCharInfos);
     pos += sizeCharInfos;
 
     return 0;
 }
 
-// server side////// partly rewrite
+// server side
 int ConnectionHandler::write(DataOut& data)
 {
     QByteArray block;
@@ -369,30 +358,22 @@ int ConnectionHandler::write(DataOut& data)
 
     QByteArray qbaAll;
     QByteArray arrayQba[COUNT_QINT32-2];
-//    QByteArray qbaRect;
-//    QByteArray qbaPosition;
-////    QByteArray qbaSize;
-//    QByteArray qbaCharInfos;
 
     qint32 sizeRect = sizeof(data.srctReadRect);
     qint32 sizePosition = sizeof(data.position);
-////    qint32 sizeSize = sizeof(data.size);
+    qint32 sizeSize = sizeof(data.size);
     qint32 sizeCharInfos = (int)data.charInfos.capacity() * sizeof(CHAR_INFO);
 
 
     ConvertorData::data_to_qbytearray(&data.srctReadRect, arrayQba[0], sizeRect);
     ConvertorData::data_to_qbytearray(&data.position, arrayQba[1], sizePosition);
-//    ConvertorData::data_to_qbytearray(&data.size, qbaSize, sizeSize);
-    ConvertorData::data_to_qbytearray(&data.charInfos[0], arrayQba[2], sizeCharInfos);
+    ConvertorData::data_to_qbytearray(&data.size, arrayQba[2], sizeSize);
+    ConvertorData::data_to_qbytearray(&data.charInfos[0], arrayQba[3], sizeCharInfos);
     for(int i=0; i<COUNT_QINT32-2; i++)
     {
         qbaAll.append(arrayQba[i]);
     }
 
-//    qbaRect = aes.encrypt(qbaRect);
-//    qbaPosition = aes.encrypt(qbaPosition);
-////    qbaSize = aes.encrypt(qbaSize);
-//    qbaCharInfos = aes.encrypt(qbaCharInfos);
     qbaAll = aes.encrypt(qbaAll);
 
     out << (quint32)0; // type
@@ -400,13 +381,8 @@ int ConnectionHandler::write(DataOut& data)
 
     out << (quint32)0; // srctReadRect size
     out << (quint32)0; // position size
-//    out << (quint32)0; // size
+    out << (quint32)0; // size
     out << (quint32)0; // charInfos size
-
-//    block.append(qbaRect);
-//    block.append(qbaPosition);
-////    block.append(qbaSize);
-//    block.append(qbaCharInfos);
 
     block.append(qbaAll);
 
@@ -416,7 +392,7 @@ int ConnectionHandler::write(DataOut& data)
 
     out << (quint32)sizeRect;
     out << (quint32)sizePosition;
-//    out << (quint32)qbaSize.size();
+    out << (quint32)sizeSize;
     out << (quint32)sizeCharInfos;
 
     qint64 x = 0;
