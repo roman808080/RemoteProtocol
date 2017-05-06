@@ -345,13 +345,17 @@ int ConnectionHandler::read(DataOut& data)
 
     data.charInfos.resize(sizeCharInfos/sizeof(CHAR_INFO));
 
-    ConvertorData::qbytearray_to_data(allQba, &data.srctReadRect, sizeRect);
-    allQba.chop(sizeRect);
-    ConvertorData::qbytearray_to_data(allQba, &data.position, sizePosition);
-    allQba.chop(sizePosition);
+//    QByteArrayData allQbaData = allQba
+    int pos = 0;
+    ConvertorData::qbytearray_to_data(allQba.mid(pos, sizeRect), &data.srctReadRect, sizeRect);
+//    allQba.chop(sizeRect);
+    pos += sizeRect;
+    ConvertorData::qbytearray_to_data(allQba.mid(pos, sizePosition), &data.position, sizePosition);
+//    allQba.chop(sizePosition);
+    pos += sizePosition;
 ////    ConvertorData::qbytearray_to_data(qbaSize, &data.size, qbaSize.size());
-    ConvertorData::qbytearray_to_data(allQba, &data.charInfos[0], sizeCharInfos);
-    allQba.chop(sizeCharInfos);
+    ConvertorData::qbytearray_to_data(allQba.mid(pos, sizeCharInfos), &data.charInfos[0], sizeCharInfos);
+    pos += sizeCharInfos;
 
     return 0;
 }
