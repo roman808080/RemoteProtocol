@@ -306,14 +306,10 @@ int ConnectionHandler::read(DataOut& data)
     if(socket->bytesAvailable() < readBufferSize)
         return -1;
 
-    qint32 sizeRect;
-    qint32 sizePosition;
-    qint32 sizeSize;
+    qint32 sizeSt;
     qint32 sizeCharInfos;
 
-    in >> sizeRect;
-    in >> sizePosition;
-    in >> sizeSize;
+    in >> sizeSt;
     in >> sizeCharInfos;
 
     QByteArray qbaAll =  socket->readAll();
@@ -322,12 +318,8 @@ int ConnectionHandler::read(DataOut& data)
     data.charInfos.resize(sizeCharInfos/sizeof(CHAR_INFO));
 
     int pos = 0;
-    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeRect), &data.srctReadRect, sizeRect);
-    pos += sizeRect;
-    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizePosition), &data.position, sizePosition);
-    pos += sizePosition;
-    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeSize), &data.size, sizeSize);
-    pos += sizeSize;
+    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeSt), &data.st, sizeSt);
+    pos += sizeSt;
     ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeCharInfos), &data.charInfos[0], sizeCharInfos);
     pos += sizeCharInfos;
 
@@ -342,42 +334,31 @@ int ConnectionHandler::write(DataOut& data)
     out.setVersion(QDataStream::Qt_5_4);
 
     QByteArray qbaAll;
-    QByteArray arrayQba[COUNT_QINT32-2];
+    int count = 2;
+    QByteArray arrayQba[count];
 
-    qint32 sizeRect = sizeof(data.srctReadRect);
-    qint32 sizePosition = sizeof(data.position);
-    qint32 sizeSize = sizeof(data.size);
+    qint32 sizeSt = sizeof(data.st);
     qint32 sizeCharInfos = (int)data.charInfos.capacity() * sizeof(CHAR_INFO);
 
-
-    ConvertorData::data_to_qbytearray(&data.srctReadRect, arrayQba[0], sizeRect);
-    ConvertorData::data_to_qbytearray(&data.position, arrayQba[1], sizePosition);
-    ConvertorData::data_to_qbytearray(&data.size, arrayQba[2], sizeSize);
-    ConvertorData::data_to_qbytearray(&data.charInfos[0], arrayQba[3], sizeCharInfos);
-    for(int i=0; i<COUNT_QINT32-2; i++)
-    {
+    ConvertorData::data_to_qbytearray(&data.st, arrayQba[0], sizeSt);
+    ConvertorData::data_to_qbytearray(&data.charInfos[0], arrayQba[1], sizeCharInfos);
+    for(int i=0; i<count; i++)
         qbaAll.append(arrayQba[i]);
-    }
-
     qbaAll = aes.encrypt(qbaAll);
 
     out << (quint32)0; // type
     out << (quint32)0; // all size
 
-    out << (quint32)0; // srctReadRect size
-    out << (quint32)0; // position size
-    out << (quint32)0; // size
+    out << (quint32)0; // st size
     out << (quint32)0; // charInfos size
 
     block.append(qbaAll);
 
     out.device()->seek(0);
     out << (quint32)CONSOLE_OUT;
-    out << (quint32)(block.size() - sizeof(quint32)*COUNT_QINT32);
+    out << (quint32)(block.size() - sizeof(quint32)*(count+2));
 
-    out << (quint32)sizeRect;
-    out << (quint32)sizePosition;
-    out << (quint32)sizeSize;
+    out << (quint32)sizeSt;
     out << (quint32)sizeCharInfos;
 
     qint64 x = 0;
@@ -410,7 +391,6 @@ int ConnectionHandler::read(DataIn& data)
     ConvertorData::qbytearray_to_data(qba, &data, qba.size());
     return 0;
 }
-
 
 void ConnectionHandler::sendConnectError(QAbstractSocket::SocketError e)
 {

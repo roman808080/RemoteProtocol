@@ -114,21 +114,21 @@ int Console::writeOutputToConsole(DataOut& data)
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
     BOOL setCoorsor = 0;
-    setCoorsor = SetConsoleCursorPosition(hConOut, data.position);
+    setCoorsor = SetConsoleCursorPosition(hConOut, data.st.position);
 //    if(!setCoorsor) ////
 //        std::runtime_error("Set coorsor failed.");
 
     BOOL setWindowInfo = 0;
-    setWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.srctReadRect);
+    setWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.st.srctReadRect);
 //    if(!setWindowInfo) ////
 //        std::runtime_error("Set windows info failed.");
 
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
-                       {data.srctReadRect.Right + 1, 30},//data.srctReadRect.Bottom + 1},
+                       {data.st.srctReadRect.Right + 1, 30},//data.srctReadRect.Bottom + 1},
 //                       {data.size.X, data.size.Y},
                        { 0, 0 },
-                       &data.srctReadRect);
+                       &data.st.srctReadRect);
     return 0;
 }
 
@@ -174,16 +174,16 @@ int Console::readOutputFromConsole(DataOut& data)
         throw std::runtime_error("failed get console screen buffer info.");
     }
 
-    data.srctReadRect = bufferInfo.srWindow;
-    data.position = bufferInfo.dwCursorPosition;
-    data.size = bufferInfo.dwSize;
+    data.st.srctReadRect = bufferInfo.srWindow;
+    data.st.position = bufferInfo.dwCursorPosition;
+    data.st.size = bufferInfo.dwSize;
 
-    data.charInfos.resize/*(data.size.X * data.size.Y);*/((data.srctReadRect.Right + 1) * 30); //(data.srctReadRect.Bottom + 1));
+    data.charInfos.resize/*(data.size.X * data.size.Y);*/((data.st.srctReadRect.Right + 1) * 30); //(data.srctReadRect.Bottom + 1));
     BOOL bReadConsole = 0;
     bReadConsole = ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
                                       &data.charInfos[0],
 //                                      {data.size.X, data.size.Y},
-                                      {data.srctReadRect.Right + 1, 30},//data.srctReadRect.Bottom + 1},
+                                      {data.st.srctReadRect.Right + 1, 30},//data.srctReadRect.Bottom + 1},
                                       {0, 0},
                                       &bufferInfo.srWindow);
     if(!bReadConsole)

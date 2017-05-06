@@ -8,11 +8,19 @@
 #define SIZE_CHAR_INFO_LENGTH 100
 #define SIZE_INPUT_RECORDS 40
 
-struct DataOut
+struct DataStaticOut
 {
     SMALL_RECT srctReadRect = {0};
     COORD position = {0};
     COORD size = {0};
+};
+
+struct DataOut
+{
+//    SMALL_RECT srctReadRect = {0};
+//    COORD position = {0};
+//    COORD size = {0};
+    DataStaticOut st;
     std::vector<CHAR_INFO> charInfos;
 };
 
