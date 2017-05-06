@@ -91,11 +91,11 @@ int Console::readInputFromConsole(DataIn& data)
         throw std::runtime_error("GetNumberOfConsoleInputEvents failed.");
 
     data.inputRecords.resize(unread);
-
     BOOL statusRead = TRUE;
     statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], unread, &events);
     if(!statusRead)
         throw std::runtime_error("ReadConsoleInput failed.");
+
 
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &data.consoleScreenBufferInfo);
 
@@ -118,8 +118,8 @@ int Console::writeOutputToConsole(DataOut& data)
 
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
-                       //{data.srctReadRect.Right + 1, data.srctReadRect.Bottom + 100},
-                       {data.size.X, data.size.Y},
+                       {data.srctReadRect.Right + 1, data.srctReadRect.Bottom + 1},
+//                       {data.size.X, data.size.Y},
                        { 0, 0 },
                        &data.srctReadRect);
     return 0;
@@ -167,12 +167,12 @@ int Console::readOutputFromConsole(DataOut& data)
     data.position = bufferInfo.dwCursorPosition;
     data.size = bufferInfo.dwSize;
 
-    data.charInfos.resize(data.size.X * data.size.Y);//((data.srctReadRect.Right + 1) * (data.srctReadRect.Bottom + 1));
+    data.charInfos.resize/*(data.size.X * data.size.Y);*/((data.srctReadRect.Right + 1) * (data.srctReadRect.Bottom + 1));
     BOOL bReadConsole = 0;
     bReadConsole = ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
                                       &data.charInfos[0],
-                                      {data.size.X, data.size.Y},
-                                      //{data.srctReadRect.Right + 1, data.srctReadRect.Bottom + 100},
+//                                      {data.size.X, data.size.Y},
+                                      {data.srctReadRect.Right + 1, data.srctReadRect.Bottom + 1},
                                       {0, 0},
                                       &bufferInfo.srWindow);
     if(!bReadConsole)
