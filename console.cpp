@@ -78,12 +78,12 @@ int Console::readInputFromConsole(DataIn& data)
     DWORD events = 0;
     DWORD unread = 0;
 
-//    DWORD fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
-//    BOOL bMode = SetConsoleMode(inputHandle, fdwMode);
-//    if(!bMode)
-//    {
-//        std::runtime_error("error with mode");
-//    }
+    DWORD fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
+    BOOL bMode = SetConsoleMode(inputHandle, fdwMode);
+    if(!bMode)
+    {
+        std::runtime_error("error with mode");
+    }
 //    if(unread)
 //    {
     BOOL statusUnread = TRUE;
@@ -150,7 +150,7 @@ int Console::writeInputToConsole(DataIn& data)
     if(!statusWrite)
         throw std::runtime_error("WriteConsoleInput failed.");
 
-    BOOL bWindowInfo = 0;
+//    BOOL bWindowInfo = 0;
 //    bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.consoleScreenBufferInfo.srWindow);
 //    if(!bWindowInfo) ///
 //        throw std::runtime_error("Set position failed.");
