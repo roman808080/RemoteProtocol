@@ -331,52 +331,65 @@ int ConnectionHandler::read(DataOut& data)
 //    in >> sizeSize;
     in >> sizeCharInfos;
 
-    QByteArray qbaRect = socket->read(sizeRect);
-    QByteArray qbaPosition = socket->read(sizePosition);
-//    QByteArray qbaSize = socket->read(sizeSize);
-    QByteArray qbaCharInfos = socket->read(sizeCharInfos);
+//    QByteArray qbaRect = socket->read(sizeRect);
+//    QByteArray qbaPosition = socket->read(sizePosition);
+////    QByteArray qbaSize = socket->read(sizeSize);
+//    QByteArray qbaCharInfos = socket->read(sizeCharInfos);
+    QByteArray allQba =  socket->readAll();
 
-    qbaRect = aes.decrypt(qbaRect);
-    qbaPosition = aes.decrypt(qbaPosition);
-//    qbaSize =  aes.decrypt(qbaSize);
-    qbaCharInfos = aes.decrypt(qbaCharInfos);
+//    qbaRect = aes.decrypt(qbaRect);
+//    qbaPosition = aes.decrypt(qbaPosition);
+////    qbaSize =  aes.decrypt(qbaSize);
+//    qbaCharInfos = aes.decrypt(qbaCharInfos);
+    allQba = aes.decrypt(allQba);
 
-    data.charInfos.resize(qbaCharInfos.size()/sizeof(CHAR_INFO));
+    data.charInfos.resize(sizeCharInfos/sizeof(CHAR_INFO));
 
-    ConvertorData::qbytearray_to_data(qbaRect, &data.srctReadRect, qbaRect.size());
-    ConvertorData::qbytearray_to_data(qbaPosition, &data.position, qbaPosition.size());
-//    ConvertorData::qbytearray_to_data(qbaSize, &data.size, qbaSize.size());
-    ConvertorData::qbytearray_to_data(qbaCharInfos, &data.charInfos[0], qbaCharInfos.size());
+    ConvertorData::qbytearray_to_data(allQba, &data.srctReadRect, sizeRect);
+    allQba.chop(sizeRect);
+    ConvertorData::qbytearray_to_data(allQba, &data.position, sizePosition);
+    allQba.chop(sizePosition);
+////    ConvertorData::qbytearray_to_data(qbaSize, &data.size, qbaSize.size());
+    ConvertorData::qbytearray_to_data(allQba, &data.charInfos[0], sizeCharInfos);
+    allQba.chop(sizeCharInfos);
 
     return 0;
 }
 
-// server side
+// server side////// partly rewrite
 int ConnectionHandler::write(DataOut& data)
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_4);
 
-    QByteArray qbaRect;
-    QByteArray qbaPosition;\
-//    QByteArray qbaSize;
-    QByteArray qbaCharInfos;
+    QByteArray qbaAll;
+    QByteArray arrayQba[COUNT_QINT32-2];
+//    QByteArray qbaRect;
+//    QByteArray qbaPosition;
+////    QByteArray qbaSize;
+//    QByteArray qbaCharInfos;
 
     qint32 sizeRect = sizeof(data.srctReadRect);
     qint32 sizePosition = sizeof(data.position);
-//    qint32 sizeSize = sizeof(data.size);
+////    qint32 sizeSize = sizeof(data.size);
     qint32 sizeCharInfos = (int)data.charInfos.capacity() * sizeof(CHAR_INFO);
 
-    ConvertorData::data_to_qbytearray(&data.srctReadRect, qbaRect, sizeRect);
-    ConvertorData::data_to_qbytearray(&data.position, qbaPosition, sizePosition);
-//    ConvertorData::data_to_qbytearray(&data.size, qbaSize, sizeSize);
-    ConvertorData::data_to_qbytearray(&data.charInfos[0], qbaCharInfos, sizeCharInfos);
 
-    qbaRect = aes.encrypt(qbaRect);
-    qbaPosition = aes.encrypt(qbaPosition);
-//    qbaSize = aes.encrypt(qbaSize);
-    qbaCharInfos = aes.encrypt(qbaCharInfos);
+    ConvertorData::data_to_qbytearray(&data.srctReadRect, arrayQba[0], sizeRect);
+    ConvertorData::data_to_qbytearray(&data.position, arrayQba[1], sizePosition);
+//    ConvertorData::data_to_qbytearray(&data.size, qbaSize, sizeSize);
+    ConvertorData::data_to_qbytearray(&data.charInfos[0], arrayQba[2], sizeCharInfos);
+    for(int i=0; i<COUNT_QINT32-2; i++)
+    {
+        qbaAll.append(arrayQba[i]);
+    }
+
+//    qbaRect = aes.encrypt(qbaRect);
+//    qbaPosition = aes.encrypt(qbaPosition);
+////    qbaSize = aes.encrypt(qbaSize);
+//    qbaCharInfos = aes.encrypt(qbaCharInfos);
+    qbaAll = aes.encrypt(qbaAll);
 
     out << (quint32)0; // type
     out << (quint32)0; // all size
@@ -386,19 +399,21 @@ int ConnectionHandler::write(DataOut& data)
 //    out << (quint32)0; // size
     out << (quint32)0; // charInfos size
 
-    block.append(qbaRect);
-    block.append(qbaPosition);
-//    block.append(qbaSize);
-    block.append(qbaCharInfos);
+//    block.append(qbaRect);
+//    block.append(qbaPosition);
+////    block.append(qbaSize);
+//    block.append(qbaCharInfos);
+
+    block.append(qbaAll);
 
     out.device()->seek(0);
     out << (quint32)CONSOLE_OUT;
     out << (quint32)(block.size() - sizeof(quint32)*COUNT_QINT32);
 
-    out << (quint32)qbaRect.size();
-    out << (quint32)qbaPosition.size();
+    out << (quint32)sizeRect;
+    out << (quint32)sizePosition;
 //    out << (quint32)qbaSize.size();
-    out << (quint32)qbaCharInfos.size();
+    out << (quint32)sizeCharInfos;
 
     qint64 x = 0;
     while (x < block.size())
