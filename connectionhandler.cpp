@@ -346,20 +346,13 @@ int ConnectionHandler::write(DataOut& data)
         qbaAll.append(arrayQba[i]);
     qbaAll = aes.encrypt(qbaAll);
 
-    out << (quint32)0; // type
-    out << (quint32)0; // all size
+    out << (quint32)CONSOLE_OUT; // type
+    out << (quint32)qbaAll.size(); // all size
 
-    out << (quint32)0; // st size
-    out << (quint32)0; // charInfos size
+    out << (quint32)sizeSt; // st size
+    out << (quint32)sizeCharInfos; // charInfos size
 
     block.append(qbaAll);
-
-    out.device()->seek(0);
-    out << (quint32)CONSOLE_OUT;
-    out << (quint32)(block.size() - sizeof(quint32)*(count+2));
-
-    out << (quint32)sizeSt;
-    out << (quint32)sizeCharInfos;
 
     qint64 x = 0;
     while (x < block.size())
