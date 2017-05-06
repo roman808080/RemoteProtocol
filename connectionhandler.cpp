@@ -277,27 +277,27 @@ int ConnectionHandler::write(DataIn& data)
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_4);
 
-    QByteArray qbaConsoleScreenBufferInfo;
+    QByteArray qbaCsbi;
     QByteArray qbaInputRecords;
 
-    qint32 sizeConsoleScreenBufferInfo = sizeof(data.consoleScreenBufferInfo);
+    qint32 sizeCsbi = sizeof(data.consoleScreenBufferInfo);
     qint32 sizeInputRecords = (int)data.inputRecords.capacity() * sizeof(INPUT_RECORD);
 
-    ConvertorData::data_to_qbytearray(&data.consoleScreenBufferInfo, qbaConsoleScreenBufferInfo, sizeConsoleScreenBufferInfo);
+    ConvertorData::data_to_qbytearray(&data.consoleScreenBufferInfo, qbaCsbi, sizeCsbi);
     ConvertorData::data_to_qbytearray(&data.inputRecords[0], qbaInputRecords, sizeInputRecords);
 
-    qbaConsoleScreenBufferInfo = aes.encrypt(qbaConsoleScreenBufferInfo);
+    qbaCsbi = aes.encrypt(qbaCsbi);
     qbaInputRecords = aes.encrypt(qbaInputRecords);
 
-    qint32 allSize = qbaConsoleScreenBufferInfo.size() + qbaInputRecords.size();
+    qint32 allSize = qbaCsbi.size() + qbaInputRecords.size();
 
     out << (quint32)CONSOLE_IN;
     out << allSize;
 
-    out << qbaConsoleScreenBufferInfo.size();
+    out << qbaCsbi.size();
     out << qbaInputRecords.size();
 
-    if(out.writeRawData(qbaConsoleScreenBufferInfo.data(), qbaConsoleScreenBufferInfo.size()) == -1)
+    if(out.writeRawData(qbaCsbi.data(), qbaCsbi.size()) == -1)
         return -1;
     if(out.writeRawData(qbaInputRecords.data(), qbaInputRecords.size()) == -1)
         return -1;
@@ -418,33 +418,33 @@ int ConnectionHandler::read(DataIn& data)
 
     qint32 allSize;
 
-    qint32 sizeConsoleScreenBufferInfo;
+    qint32 sizeCsbi;
     qint32 sizeInputRecords;
 
     in >> allSize;
 
-    in >> sizeConsoleScreenBufferInfo;
+    in >> sizeCsbi;
     in >> sizeInputRecords;
 
-    QByteArray qbaConsoleScreenBufferInfo;
+    QByteArray qbaCsbi;
     QByteArray qbaInputRecords;
 
-    qbaConsoleScreenBufferInfo.resize(sizeConsoleScreenBufferInfo);
+    qbaCsbi.resize(sizeCsbi);
     qbaInputRecords.resize(sizeInputRecords);
 
-    int readByteConsoleScreenBufferInfo = in.readRawData(qbaConsoleScreenBufferInfo.data(), sizeConsoleScreenBufferInfo);
+    int readByteConsoleScreenBufferInfo = in.readRawData(qbaCsbi.data(), sizeCsbi);
     if(readByteConsoleScreenBufferInfo == -1)
         return -1;
     int readByteInputRecords = in.readRawData(qbaInputRecords.data(), sizeInputRecords);
     if(readByteInputRecords == -1)
         return -1;
 
-    qbaConsoleScreenBufferInfo = aes.decrypt(qbaConsoleScreenBufferInfo);
+    qbaCsbi = aes.decrypt(qbaCsbi);
     qbaInputRecords = aes.decrypt(qbaInputRecords);
 
     data.inputRecords.resize(qbaInputRecords.size()/sizeof(INPUT_RECORD));
 
-    ConvertorData::qbytearray_to_data(qbaConsoleScreenBufferInfo, &data.consoleScreenBufferInfo, qbaConsoleScreenBufferInfo.size());
+    ConvertorData::qbytearray_to_data(qbaCsbi, &data.consoleScreenBufferInfo, qbaCsbi.size());
     ConvertorData::qbytearray_to_data(qbaInputRecords, &data.inputRecords[0], qbaInputRecords.size());
 
     return 0;
