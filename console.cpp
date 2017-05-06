@@ -151,7 +151,7 @@ int Console::writeInputToConsole(DataIn& data)
         throw std::runtime_error("WriteConsoleInput failed.");
 
     BOOL bWindowInfo = 0;
-    bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.consoleScreenBufferInfo.srWindow);
+//    bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.consoleScreenBufferInfo.srWindow);
 //    if(!bWindowInfo) ///
 //        throw std::runtime_error("Set position failed.");
 
