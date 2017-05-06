@@ -277,6 +277,7 @@ int ConnectionHandler::write(DataIn& data)
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_4);
 
+    QByteArray qbaAll;
     QByteArray qbaCsbi;
     QByteArray qbaInputRecords;
 
@@ -286,10 +287,12 @@ int ConnectionHandler::write(DataIn& data)
     ConvertorData::data_to_qbytearray(&data.consoleScreenBufferInfo, qbaCsbi, sizeCsbi);
     ConvertorData::data_to_qbytearray(&data.inputRecords[0], qbaInputRecords, sizeInputRecords);
 
-    qbaCsbi = aes.encrypt(qbaCsbi);
-    qbaInputRecords = aes.encrypt(qbaInputRecords);
+    qbaAll.append(qbaCsbi);
+    qbaAll.append(qbaInputRecords);
 
-    qint32 allSize = qbaCsbi.size() + qbaInputRecords.size();
+    qbaAll = aes.encrypt(qbaAll);
+
+    qint32 allSize = qbaAll.size();//qbaCsbi.size() + qbaInputRecords.size();
 
     out << (quint32)CONSOLE_IN;
     out << allSize;
@@ -297,9 +300,7 @@ int ConnectionHandler::write(DataIn& data)
     out << qbaCsbi.size();
     out << qbaInputRecords.size();
 
-    if(out.writeRawData(qbaCsbi.data(), qbaCsbi.size()) == -1)
-        return -1;
-    if(out.writeRawData(qbaInputRecords.data(), qbaInputRecords.size()) == -1)
+    if(out.writeRawData(qbaAll.data(), qbaAll.size()) == -1)
         return -1;
 
     socket->write(block);
@@ -331,19 +332,19 @@ int ConnectionHandler::read(DataOut& data)
     in >> sizeSize;
     in >> sizeCharInfos;
 
-    QByteArray allQba =  socket->readAll();
-    allQba = aes.decrypt(allQba);
+    QByteArray qbaAll =  socket->readAll();
+    qbaAll = aes.decrypt(qbaAll);
 
     data.charInfos.resize(sizeCharInfos/sizeof(CHAR_INFO));
 
     int pos = 0;
-    ConvertorData::qbytearray_to_data(allQba.mid(pos, sizeRect), &data.srctReadRect, sizeRect);
+    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeRect), &data.srctReadRect, sizeRect);
     pos += sizeRect;
-    ConvertorData::qbytearray_to_data(allQba.mid(pos, sizePosition), &data.position, sizePosition);
+    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizePosition), &data.position, sizePosition);
     pos += sizePosition;
-    ConvertorData::qbytearray_to_data(allQba.mid(pos, sizeSize), &data.size, sizeSize);
+    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeSize), &data.size, sizeSize);
     pos += sizeSize;
-    ConvertorData::qbytearray_to_data(allQba.mid(pos, sizeCharInfos), &data.charInfos[0], sizeCharInfos);
+    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeCharInfos), &data.charInfos[0], sizeCharInfos);
     pos += sizeCharInfos;
 
     return 0;
@@ -412,35 +413,28 @@ int ConnectionHandler::read(DataIn& data)
     in.setVersion(QDataStream::Qt_5_4);
 
     qint32 allSize;
-
     qint32 sizeCsbi;
     qint32 sizeInputRecords;
 
     in >> allSize;
-
     in >> sizeCsbi;
     in >> sizeInputRecords;
 
-    QByteArray qbaCsbi;
-    QByteArray qbaInputRecords;
-
-    qbaCsbi.resize(sizeCsbi);
-    qbaInputRecords.resize(sizeInputRecords);
-
-    int readByteConsoleScreenBufferInfo = in.readRawData(qbaCsbi.data(), sizeCsbi);
-    if(readByteConsoleScreenBufferInfo == -1)
-        return -1;
-    int readByteInputRecords = in.readRawData(qbaInputRecords.data(), sizeInputRecords);
-    if(readByteInputRecords == -1)
+    QByteArray qbaAll;
+    qbaAll.resize(allSize);
+    int readBytes = in.readRawData(qbaAll.data(), allSize);
+    if(readBytes == -1)
         return -1;
 
-    qbaCsbi = aes.decrypt(qbaCsbi);
-    qbaInputRecords = aes.decrypt(qbaInputRecords);
+    qbaAll = aes.decrypt(qbaAll);
 
-    data.inputRecords.resize(qbaInputRecords.size()/sizeof(INPUT_RECORD));
+    data.inputRecords.resize(sizeInputRecords/sizeof(INPUT_RECORD));
 
-    ConvertorData::qbytearray_to_data(qbaCsbi, &data.consoleScreenBufferInfo, qbaCsbi.size());
-    ConvertorData::qbytearray_to_data(qbaInputRecords, &data.inputRecords[0], qbaInputRecords.size());
+    int pos = 0;
+    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeCsbi), &data.consoleScreenBufferInfo, sizeCsbi);
+    pos += sizeCsbi;
+    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeInputRecords), &data.inputRecords[0], sizeInputRecords);
+    pos += sizeInputRecords;
 
     return 0;
 }
