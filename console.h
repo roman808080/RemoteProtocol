@@ -23,10 +23,12 @@ public:
     int readOutputFromConsole(DataOut& data);
 
     void setName(std::wstring name);
+    bool changedServerCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi);
 
 private:
     DWORD dwProcessId;
     DWORD dwErrorId;
+    CONSOLE_SCREEN_BUFFER_INFO lastServerCSBI;
 };
 
 #endif // CONSOLE_H

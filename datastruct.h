@@ -20,8 +20,7 @@ struct DataIn
 {
     CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo = {};
     bool windowChanged;
-//    SMALL_RECT srctWriteRect = {0};
-    std::vector<INPUT_RECORD> inputRecords;
+    INPUT_RECORD inputRecord;
 };
 
 #endif // DATASTRUCT_H

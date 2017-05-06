@@ -277,30 +277,14 @@ int ConnectionHandler::write(DataIn& data)
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_4);
 
-    QByteArray qbaAll;
-    QByteArray qbaCsbi;
-    QByteArray qbaInputRecords;
-
-    qint32 sizeCsbi = sizeof(data.consoleScreenBufferInfo);
-    qint32 sizeInputRecords = (int)data.inputRecords.capacity() * sizeof(INPUT_RECORD);
-
-    ConvertorData::data_to_qbytearray(&data.consoleScreenBufferInfo, qbaCsbi, sizeCsbi);
-    ConvertorData::data_to_qbytearray(&data.inputRecords[0], qbaInputRecords, sizeInputRecords);
-
-    qbaAll.append(qbaCsbi);
-    qbaAll.append(qbaInputRecords);
-
-    qbaAll = aes.encrypt(qbaAll);
-
-    qint32 allSize = qbaAll.size();//qbaCsbi.size() + qbaInputRecords.size();
+    QByteArray qba;
+    ConvertorData::data_to_qbytearray(&data, qba, sizeof(data));
+    qba = aes.encrypt(qba);
 
     out << (quint32)CONSOLE_IN;
-    out << allSize;
+    out << qba.size();
 
-    out << qbaCsbi.size();
-    out << qbaInputRecords.size();
-
-    if(out.writeRawData(qbaAll.data(), qbaAll.size()) == -1)
+    if(out.writeRawData(qba.data(), qba.size()) == -1)
         return -1;
 
     socket->write(block);
@@ -412,30 +396,18 @@ int ConnectionHandler::read(DataIn& data)
     in.setDevice(socket.data());
     in.setVersion(QDataStream::Qt_5_4);
 
-    qint32 allSize;
-    qint32 sizeCsbi;
-    qint32 sizeInputRecords;
+    qint32 size;
+    in >> size;
 
-    in >> allSize;
-    in >> sizeCsbi;
-    in >> sizeInputRecords;
+    QByteArray qba;
+    qba.resize(size);
 
-    QByteArray qbaAll;
-    qbaAll.resize(allSize);
-    int readBytes = in.readRawData(qbaAll.data(), allSize);
+    int readBytes = in.readRawData(qba.data(), size);
     if(readBytes == -1)
         return -1;
 
-    qbaAll = aes.decrypt(qbaAll);
-
-    data.inputRecords.resize(sizeInputRecords/sizeof(INPUT_RECORD));
-
-    int pos = 0;
-    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeCsbi), &data.consoleScreenBufferInfo, sizeCsbi);
-    pos += sizeCsbi;
-    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeInputRecords), &data.inputRecords[0], sizeInputRecords);
-    pos += sizeInputRecords;
-
+    qba = aes.decrypt(qba);
+    ConvertorData::qbytearray_to_data(qba, &data, qba.size());
     return 0;
 }
 
