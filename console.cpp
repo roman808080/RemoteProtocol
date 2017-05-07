@@ -106,6 +106,7 @@ int Console::readInputFromConsole(DataIn& data)
 
 int Console::writeOutputToConsole(DataOut& data)
 {
+    SMALL_RECT writeArea{0, 0, data.st.size.X - 1, data.st.size.Y - 1};
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
     BOOL setCoorsor = 0;
@@ -120,10 +121,11 @@ int Console::writeOutputToConsole(DataOut& data)
 
     WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
                        &data.charInfos[0],
-                       {data.st.srctReadRect.Right + 1, 30},//data.srctReadRect.Bottom + 1},
+                       {data.st.srctReadRect.Right + 1, data.st.srctReadRect.Bottom + 1},
 //                       {data.size.X, data.size.Y},
                        { 0, 0 },
-                       &data.st.srctReadRect);
+                       &writeArea);
+                       //&data.st.srctReadRect);
     return 0;
 }
 
@@ -171,15 +173,17 @@ int Console::readOutputFromConsole(DataOut& data)
     data.st.srctReadRect = bufferInfo.srWindow;
     data.st.position = bufferInfo.dwCursorPosition;
     data.st.size = bufferInfo.dwSize;
+    SMALL_RECT writeArea{0, 0, data.st.size.X - 1, data.st.size.Y - 1};
 
-    data.charInfos.resize/*(data.size.X * data.size.Y);*/((data.st.srctReadRect.Right + 1) * 30); //(data.srctReadRect.Bottom + 1));
+    data.charInfos.resize/*(data.size.X * data.size.Y);*/((data.st.srctReadRect.Right + 1) * (data.st.srctReadRect.Bottom + 1)); //(data.srctReadRect.Bottom + 1));
     BOOL bReadConsole = 0;
     bReadConsole = ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
                                       &data.charInfos[0],
 //                                      {data.size.X, data.size.Y},
-                                      {data.st.srctReadRect.Right + 1, 30},//data.srctReadRect.Bottom + 1},
+                                      {data.st.srctReadRect.Right + 1, data.st.srctReadRect.Bottom + 1},
                                       {0, 0},
-                                      &bufferInfo.srWindow);
+                                      &writeArea);
+                                      //&bufferInfo.srWindow);
     if(!bReadConsole)
     {
          throw std::runtime_error("failed read from console.");
