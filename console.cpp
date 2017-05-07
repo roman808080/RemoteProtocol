@@ -106,7 +106,7 @@ int Console::readInputFromConsole(DataIn& data)
 
 int Console::writeOutputToConsole(DataOut& data)
 {
-    SMALL_RECT writeArea{0, 0, data.st.size.X, data.st.size.Y};
+    SMALL_RECT writeArea{0, 0, data.st.size.X - 1, data.st.size.Y - 1};
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
     BOOL setCoorsor = 0;
@@ -119,14 +119,13 @@ int Console::writeOutputToConsole(DataOut& data)
 //    if(!setWindowInfo) ////
 //        std::runtime_error("Set windows info failed.");
 
-    if(data.st.changedCharInfos)
-    {
-        WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
-                           &data.charInfos[0],
-                           data.st.writeTo,
-                           data.st.writeFrom,
-                           &writeArea);
-    }
+    WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
+                       &data.charInfos[0],
+                       {data.st.srctReadRect.Right + 1, data.st.srctReadRect.Bottom + 1},
+//                       {data.size.X, data.size.Y},
+                       { 0, 0 },
+                       &writeArea);
+                       //&data.st.srctReadRect);
     return 0;
 }
 
@@ -163,8 +162,7 @@ int Console::writeInputToConsole(DataIn& data)
 
 int Console::readOutputFromConsole(DataOut& data)
 {
-    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
-    SMALL_RECT writeArea{0, 0, data.st.size.X, data.st.size.Y};
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo = {0};
     BOOL bCsbi = 0;
     bCsbi = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
     if(!bCsbi)
@@ -175,47 +173,21 @@ int Console::readOutputFromConsole(DataOut& data)
     data.st.srctReadRect = bufferInfo.srWindow;
     data.st.position = bufferInfo.dwCursorPosition;
     data.st.size = bufferInfo.dwSize;
+    SMALL_RECT writeArea{0, 0, data.st.size.X - 1, data.st.size.Y - 1};
 
-    if(lastServerCharInfos.size() == 0)
-    {
-        lastServerCharInfos.resize((data.st.size.X - 1) * (data.st.size.Y - 1));
-        BOOL bReadConsole = 0;
-
-        bReadConsole = ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
-                                          &lastServerCharInfos[0],
-                                          {data.st.size.X - 1, data.st.size.Y - 1},
-                                          {0, 0},
-                                          &writeArea);
-        if(!bReadConsole)
-        {
-             dwErrorId = GetLastError();
-             throw std::runtime_error("failed read from console.");
-        }
-
-        std::vector<CHAR_INFO>::const_iterator first = lastServerCharInfos.begin();
-        std::vector<CHAR_INFO>::const_iterator last = lastServerCharInfos.begin()+(data.st.srctReadRect.Right+1)*(data.st.srctReadRect.Bottom+1);
-        data.charInfos = std::vector<CHAR_INFO>(first, last);
-
-        data.st.writeFrom = {0, 0};
-        data.st.writeTo = {data.st.size.X - 1, data.st.size.Y - 1};
-
-        return 0;
-    }
-
-    std::vector<CHAR_INFO> tempServerCharInfos;
-    tempServerCharInfos.resize((data.st.size.X - 1) * (data.st.size.Y - 1));
+    data.charInfos.resize/*(data.size.X * data.size.Y);*/((data.st.srctReadRect.Right + 1) * (data.st.srctReadRect.Bottom + 1)); //(data.srctReadRect.Bottom + 1));
     BOOL bReadConsole = 0;
-
     bReadConsole = ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
-                                      &tempServerCharInfos[0],
-                                      {data.st.size.X - 1, data.st.size.Y - 1},
+                                      &data.charInfos[0],
+//                                      {data.size.X, data.size.Y},
+                                      {data.st.srctReadRect.Right + 1, data.st.srctReadRect.Bottom + 1},
                                       {0, 0},
                                       &writeArea);
+                                      //&bufferInfo.srWindow);
     if(!bReadConsole)
     {
          throw std::runtime_error("failed read from console.");
     }
-    compare(data, tempServerCharInfos);
 
     return 0;
 }
@@ -233,75 +205,4 @@ bool Console::changedClientCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi)
                 csbi.srWindow.Left != lastClientCSBI.srWindow.Left ||
                 csbi.srWindow.Right != lastClientCSBI.srWindow.Right
            );
-}
-
-int Console::compare(DataOut &data, std::vector<CHAR_INFO> &temp)
-{
-   int copyFrom = 0;
-   int copyTo = 0;
-
-   if(lastServerCharInfos.size() < temp.size())
-   {
-       copyTo = temp.size();
-   }
-   else
-   {
-       for(int i=lastServerCharInfos.size()-1; i >= 0; i--)
-       {
-           if(compareCharInfo(temp[i], lastServerCharInfos[i]))
-           {
-               copyTo = i + 1;
-               break;
-           }
-       }
-   }
-
-   if(copyTo)
-   {
-       for(int i=0; i<lastServerCharInfos.size() && i<copyTo; i++)
-       {
-           if(compareCharInfo(temp[i], lastServerCharInfos[i]))
-           {
-               copyFrom = i;
-               break;
-           }
-       }
-   }
-   else
-   {
-       data.st.writeFrom = {-1, -1};
-       data.st.writeTo = {-1, -1};
-       data.st.changedCharInfos = false;
-
-       return 0;
-   }
-
-   std::vector<CHAR_INFO>::const_iterator first = temp.begin() + copyFrom;
-   std::vector<CHAR_INFO>::const_iterator last = temp.begin() + copyTo;
-   data.charInfos = std::vector<CHAR_INFO>(first, last);
-
-   data.st.writeFrom = indexToCOORD(copyFrom, data.st.size.X);
-   data.st.writeTo = indexToCOORD(copyTo, data.st.size.X);
-   data.st.changedCharInfos = true;
-
-   return 0;
-}
-
-COORD Console::indexToCOORD(int index, int sizeLine)
-{
-    if(!index)
-        return {0, 0};
-    return {index % sizeLine - 1,index / sizeLine};
-}
-
-bool Console::compareCharInfo(CHAR_INFO first, CHAR_INFO second)
-{
-    if(
-           first.Attributes != second.Attributes ||
-           first.Char.AsciiChar != second.Char.AsciiChar ||
-           first.Char.UnicodeChar != second.Char.UnicodeChar
-       )
-        return false;
-    else
-        return true;
 }
