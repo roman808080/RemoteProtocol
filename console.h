@@ -5,6 +5,7 @@
 #include <iostream>
 #include <Windows.h>
 #include <winbase.h>
+#include <QtWidgets/QMessageBox>
 
 #include "datastruct.h"
 
@@ -24,11 +25,14 @@ public:
 
     void setName(std::wstring name);
     bool changedClientCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi);
+    COORD indexToCoord(int index, int sizeLine);
+    int coordToIndex(int left, int top, int sizeLine);
 
 private:
     DWORD dwProcessId;
     DWORD dwErrorId;
     CONSOLE_SCREEN_BUFFER_INFO lastClientCSBI;
+    SMALL_RECT srctLastRect;
 };
 
 #endif // CONSOLE_H

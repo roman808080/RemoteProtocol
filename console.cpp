@@ -66,6 +66,7 @@ void Console::startServer(LPWSTR desktopName)
 
     setName(L"Server");
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &lastClientCSBI);
+    srctLastRect = {0, 0, 0, 0};
 }
 
 void Console::startServer()
@@ -79,12 +80,12 @@ int Console::readInputFromConsole(DataIn& data)
     DWORD events = 0;
     DWORD unread = 0;
 
-    DWORD fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT | ENABLE_PROCESSED_INPUT;
-    BOOL bMode = SetConsoleMode(inputHandle, fdwMode);
-    if(!bMode)
-    {
-        std::runtime_error("error with mode");
-    }
+//    DWORD fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT | ENABLE_PROCESSED_INPUT;
+//    BOOL bMode = SetConsoleMode(inputHandle, fdwMode);
+//    if(!bMode)
+//    {
+//        std::runtime_error("error with mode");
+//    }
 
     BOOL statusUnread = TRUE;
     statusUnread = GetNumberOfConsoleInputEvents(inputHandle, &unread);
@@ -123,7 +124,7 @@ int Console::writeOutputToConsole(DataOut& data)
                        &data.charInfos[0],
                        {data.st.srctReadRect.Right + 1, data.st.srctReadRect.Bottom + 1},
 //                       {data.size.X, data.size.Y},
-                       { 0, 0 },
+                       { data.st.srctLastRect.Left, data.st.srctLastRect.Top},
                        &writeArea);
                        //&data.st.srctReadRect);
     return 0;
@@ -175,13 +176,17 @@ int Console::readOutputFromConsole(DataOut& data)
     data.st.size = bufferInfo.dwSize;
     SMALL_RECT writeArea{0, 0, data.st.size.X - 1, data.st.size.Y - 1};
 
-    data.charInfos.resize/*(data.size.X * data.size.Y);*/((data.st.srctReadRect.Right + 1) * (data.st.srctReadRect.Bottom + 1)); //(data.srctReadRect.Bottom + 1));
+    data.charInfos.resize(
+                            (data.st.srctReadRect.Right + 1) * (data.st.srctReadRect.Bottom + 1)
+                            //- (data.st.srctReadRect.Right + 1)*(srctLastRect.Top + 1)
+                           /// - coordToIndex(srctLastRect.Left, srctLastRect.Top, data.st.srctReadRect.Right)
+                          );
     BOOL bReadConsole = 0;
     bReadConsole = ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
                                       &data.charInfos[0],
 //                                      {data.size.X, data.size.Y},
                                       {data.st.srctReadRect.Right + 1, data.st.srctReadRect.Bottom + 1},
-                                      {0, 0},
+                                      {srctLastRect.Left, srctLastRect.Top},
                                       &writeArea);
                                       //&bufferInfo.srWindow);
     if(!bReadConsole)
@@ -189,6 +194,8 @@ int Console::readOutputFromConsole(DataOut& data)
          throw std::runtime_error("failed read from console.");
     }
 
+    data.st.srctLastRect = srctLastRect;
+    srctLastRect = data.st.srctReadRect;
     return 0;
 }
 
@@ -205,4 +212,19 @@ bool Console::changedClientCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi)
                 csbi.srWindow.Left != lastClientCSBI.srWindow.Left ||
                 csbi.srWindow.Right != lastClientCSBI.srWindow.Right
            );
+}
+
+COORD Console::indexToCoord(int index, int sizeLine)
+{
+    if(!index)
+        return {0, 0};
+    return {index % sizeLine - 1,index / sizeLine};
+}
+
+int Console::coordToIndex(int left, int top, int sizeLine)
+{
+    if(!left && !top)
+        return 0;
+    else
+        return top * sizeLine + left + 1;
 }
