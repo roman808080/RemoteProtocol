@@ -79,7 +79,7 @@ int Console::readInputFromConsole(DataIn& data)
     DWORD events = 0;
 //    DWORD unread = 0;
 
-    DWORD fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
+    DWORD fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT | ENABLE_PROCESSED_INPUT;
     BOOL bMode = SetConsoleMode(inputHandle, fdwMode);
     if(!bMode)
     {
