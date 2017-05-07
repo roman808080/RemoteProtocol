@@ -15,6 +15,12 @@ struct DataStaticOut
     COORD size = {0};
 };
 
+struct DataStaticIn
+{
+    CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo = {};
+    bool windowChanged;
+};
+
 struct DataOut
 {
 //    SMALL_RECT srctReadRect = {0};
@@ -26,9 +32,8 @@ struct DataOut
 
 struct DataIn
 {
-    CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo = {};
-    bool windowChanged;
-    INPUT_RECORD inputRecord;
+    DataStaticIn st;
+    std::vector<INPUT_RECORD> inputRecords;
 };
 
 #endif // DATASTRUCT_H

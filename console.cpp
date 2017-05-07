@@ -77,7 +77,7 @@ int Console::readInputFromConsole(DataIn& data)
 {
     HANDLE inputHandle = GetStdHandle(STD_INPUT_HANDLE);
     DWORD events = 0;
-//    DWORD unread = 0;
+    DWORD unread = 0;
 
     DWORD fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT | ENABLE_PROCESSED_INPUT;
     BOOL bMode = SetConsoleMode(inputHandle, fdwMode);
@@ -85,26 +85,21 @@ int Console::readInputFromConsole(DataIn& data)
     {
         std::runtime_error("error with mode");
     }
-//    if(unread)
-//    {
-//    BOOL statusUnread = TRUE;
-//    statusUnread = GetNumberOfConsoleInputEvents(inputHandle, &unread);
-//    if(!statusUnread)
-//        throw std::runtime_error("GetNumberOfConsoleInputEvents failed.");
-//    }
-//    else
-//        Sleep(500);
 
+    BOOL statusUnread = TRUE;
+    statusUnread = GetNumberOfConsoleInputEvents(inputHandle, &unread);
+    if(!statusUnread)
+        throw std::runtime_error("GetNumberOfConsoleInputEvents failed.");
 
-//    data.inputRecords.resize(unread);
+    data.inputRecords.resize(unread);
     BOOL statusRead = TRUE;
-    statusRead = ReadConsoleInput(inputHandle, &data.inputRecord, 1, &events);
+    statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], unread, &events);
     if(!statusRead)
         throw std::runtime_error("ReadConsoleInput failed.");
 
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &data.consoleScreenBufferInfo);
-    data.windowChanged = changedServerCSBI(data.consoleScreenBufferInfo);
-    lastServerCSBI = data.consoleScreenBufferInfo;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &data.st.consoleScreenBufferInfo);
+    data.st.windowChanged = changedServerCSBI(data.st.consoleScreenBufferInfo);
+    lastServerCSBI = data.st.consoleScreenBufferInfo;
 
     return 0;
 }
@@ -137,26 +132,26 @@ int Console::writeInputToConsole(DataIn& data)
     HANDLE hConIn = GetStdHandle(STD_INPUT_HANDLE);
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwTmp;
-    data.windowChanged = false;
+    data.st.windowChanged = false;/////////////////////////////////
 
     BOOL bScreenSize = 0;
-    bScreenSize = SetConsoleScreenBufferSize(hConOut, data.consoleScreenBufferInfo.dwSize);
+    bScreenSize = SetConsoleScreenBufferSize(hConOut, data.st.consoleScreenBufferInfo.dwSize);
 //    if(!bScreenSize) ///
 //        throw std::runtime_error("Set console screen buffer size failed.");
 
     dwTmp = 0;
     BOOL statusWrite = 0;
     statusWrite = WriteConsoleInput(hConIn,
-                                    &data.inputRecord,
-                                    1,
+                                    &data.inputRecords[0],
+                                    data.inputRecords.size(),
                                     &dwTmp);
     if(!statusWrite)
         throw std::runtime_error("WriteConsoleInput failed.");
 
-    if(data.windowChanged)
+    if(data.st.windowChanged)
     {
         BOOL bWindowInfo = 0;
-        bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.consoleScreenBufferInfo.srWindow);
+        bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.st.consoleScreenBufferInfo.srWindow);
         if(!bWindowInfo) ///
             throw std::runtime_error("Set position failed.");
     }

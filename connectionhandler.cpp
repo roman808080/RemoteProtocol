@@ -269,7 +269,6 @@ int ConnectionHandler::readPassword(std::vector<char>& keyExchange)
     return 0;
 }
 
-
 // client side
 int ConnectionHandler::write(DataIn& data)
 {
@@ -277,14 +276,27 @@ int ConnectionHandler::write(DataIn& data)
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_4);
 
-    QByteArray qba;
-    ConvertorData::data_to_qbytearray(&data, qba, sizeof(data));
-    qba = aes.encrypt(qba);
+    QByteArray qbaAll;
+    int count = 2;
+    QByteArray arrayQba[count];
+
+    qint32 sizeSt = sizeof(data.st);
+    qint32 sizeInputRecords = (int)data.inputRecords.capacity() * sizeof(INPUT_RECORD);
+
+    ConvertorData::data_to_qbytearray(&data.st, arrayQba[0], sizeSt);
+    ConvertorData::data_to_qbytearray(&data.inputRecords[0], arrayQba[1], sizeInputRecords);
+
+    for(int i=0; i<count; i++)
+        qbaAll.append(arrayQba[i]);
+    qbaAll = aes.encrypt(qbaAll);
 
     out << (quint32)CONSOLE_IN;
-    out << qba.size();
+    out << (quint32)qbaAll.size();
 
-    if(out.writeRawData(qba.data(), qba.size()) == -1)
+    out << (quint32)sizeSt; // st size
+    out << (quint32)sizeInputRecords; // inputRecords size
+
+    if(out.writeRawData(qbaAll.data(), qbaAll.size()) == -1)
         return -1;
 
     socket->write(block);
@@ -371,17 +383,29 @@ int ConnectionHandler::read(DataIn& data)
     in.setVersion(QDataStream::Qt_5_4);
 
     qint32 size;
+    qint32 sizeSt;
+    qint32 sizeInputRecords;
+
     in >> size;
+    in >> sizeSt;
+    in >> sizeInputRecords;
 
-    QByteArray qba;
-    qba.resize(size);
+    QByteArray qbaAll;
+    qbaAll.resize(size);
 
-    int readBytes = in.readRawData(qba.data(), size);
+    int readBytes = in.readRawData(qbaAll.data(), size);
     if(readBytes == -1)
         return -1;
 
-    qba = aes.decrypt(qba);
-    ConvertorData::qbytearray_to_data(qba, &data, qba.size());
+    qbaAll = aes.decrypt(qbaAll);
+    data.inputRecords.resize(sizeInputRecords/sizeof(INPUT_RECORD));
+
+    int pos = 0;
+    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeSt), &data.st, sizeSt);
+    pos += sizeSt;
+    ConvertorData::qbytearray_to_data(qbaAll.mid(pos, sizeInputRecords), &data.inputRecords[0], sizeInputRecords);
+    pos += sizeInputRecords;
+
     return 0;
 }
 
