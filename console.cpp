@@ -65,7 +65,7 @@ void Console::startServer(LPWSTR desktopName)
     }
 
     setName(L"Server");
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &lastServerCSBI);
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &lastClientCSBI);
 }
 
 void Console::startServer()
@@ -98,8 +98,8 @@ int Console::readInputFromConsole(DataIn& data)
         throw std::runtime_error("ReadConsoleInput failed.");
 
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &data.st.consoleScreenBufferInfo);
-    data.st.windowChanged = changedServerCSBI(data.st.consoleScreenBufferInfo);
-    lastServerCSBI = data.st.consoleScreenBufferInfo;
+    data.st.windowChanged = changedClientCSBI(data.st.consoleScreenBufferInfo);
+    lastClientCSBI = data.st.consoleScreenBufferInfo;
 
     return 0;
 }
@@ -132,7 +132,6 @@ int Console::writeInputToConsole(DataIn& data)
     HANDLE hConIn = GetStdHandle(STD_INPUT_HANDLE);
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwTmp;
-    data.st.windowChanged = false;/////////////////////////////////
 
     BOOL bScreenSize = 0;
     bScreenSize = SetConsoleScreenBufferSize(hConOut, data.st.consoleScreenBufferInfo.dwSize);
@@ -152,7 +151,7 @@ int Console::writeInputToConsole(DataIn& data)
     {
         BOOL bWindowInfo = 0;
         bWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.st.consoleScreenBufferInfo.srWindow);
-        if(!bWindowInfo) ///
+        if(!bWindowInfo)
             throw std::runtime_error("Set position failed.");
     }
 
@@ -194,12 +193,12 @@ void Console::setName(std::wstring name)
     SetConsoleTitle((LPCWSTR)name.c_str());
 }
 
-bool Console::changedServerCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi)
+bool Console::changedClientCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi)
 {
     return (
-                csbi.srWindow.Bottom != lastServerCSBI.srWindow.Bottom ||
-                csbi.srWindow.Top != lastServerCSBI.srWindow.Top ||
-                csbi.srWindow.Left != lastServerCSBI.srWindow.Left ||
-                csbi.srWindow.Right != lastServerCSBI.srWindow.Right
+                csbi.srWindow.Bottom != lastClientCSBI.srWindow.Bottom ||
+                csbi.srWindow.Top != lastClientCSBI.srWindow.Top ||
+                csbi.srWindow.Left != lastClientCSBI.srWindow.Left ||
+                csbi.srWindow.Right != lastClientCSBI.srWindow.Right
            );
 }
