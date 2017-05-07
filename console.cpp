@@ -66,6 +66,7 @@ void Console::startServer(LPWSTR desktopName)
 
     setName(L"Server");
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &lastClientCSBI);
+    lastClientCursorPosition = {0, 0};
 }
 
 void Console::startServer()
@@ -108,10 +109,15 @@ int Console::writeOutputToConsole(DataOut& data)
 {
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    BOOL setCoorsor = 0;
-    setCoorsor = SetConsoleCursorPosition(hConOut, data.st.position);
-//    if(!setCoorsor) ////
-//        std::runtime_error("Set coorsor failed.");
+    if(data.st.position.X != lastClientCursorPosition.X || data.st.position.Y != lastClientCursorPosition.Y)
+    {
+        BOOL setCoorsor = 0;
+        setCoorsor = SetConsoleCursorPosition(hConOut, data.st.position);
+        //    if(!setCoorsor) ////
+        //        std::runtime_error("Set coorsor failed.");
+        lastClientCursorPosition = data.st.position;
+    }
+
 
     BOOL setWindowInfo = 0;
     setWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.st.srctReadRect);

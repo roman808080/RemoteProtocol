@@ -29,6 +29,7 @@ private:
     DWORD dwProcessId;
     DWORD dwErrorId;
     CONSOLE_SCREEN_BUFFER_INFO lastClientCSBI;
+    COORD lastClientCursorPosition;
 };
 
 #endif // CONSOLE_H
