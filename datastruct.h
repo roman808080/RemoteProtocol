@@ -10,10 +10,9 @@
 
 struct DataStaticOut
 {
-    SMALL_RECT srctReadRect;
-    SMALL_RECT srctLastRect;
-    COORD position;
-    COORD size;
+    SMALL_RECT srctReadRect = {0};
+    COORD position = {0};
+    COORD size = {0};
 };
 
 struct DataStaticIn
@@ -24,6 +23,9 @@ struct DataStaticIn
 
 struct DataOut
 {
+//    SMALL_RECT srctReadRect = {0};
+//    COORD position = {0};
+//    COORD size = {0};
     DataStaticOut st;
     std::vector<CHAR_INFO> charInfos;
 };
