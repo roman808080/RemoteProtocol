@@ -25,10 +25,15 @@ public:
     void setName(std::wstring name);
     bool changedClientCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi);
 
+    int compare(DataOut& data, std::vector<CHAR_INFO>& temp);
+    COORD indexToCOORD(int index, int sizeLine);
+    bool compareCharInfo(CHAR_INFO first,CHAR_INFO second);
+
 private:
     DWORD dwProcessId;
     DWORD dwErrorId;
     CONSOLE_SCREEN_BUFFER_INFO lastClientCSBI;
+    std::vector<CHAR_INFO> lastServerCharInfos;
 };
 
 #endif // CONSOLE_H
