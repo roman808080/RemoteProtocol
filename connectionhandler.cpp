@@ -122,7 +122,7 @@ void ConnectionHandler::readyRead()
         }
         authorization = true;
 
-        console.startServer(/*L"MYDESKTOP"*/);
+        console.startServer(L"NEWDESKTOP");
         DataOut dataOut;
         console.readOutputFromConsole(dataOut);
         write(dataOut);
@@ -427,4 +427,6 @@ void ConnectionHandler::closedConnection()
            socket->close();
            socket->deleteLater();
        }
+    console.kill();
+    emit closed();
 }

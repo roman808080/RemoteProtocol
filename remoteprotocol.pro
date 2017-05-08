@@ -3,6 +3,7 @@ QT -= gui
 
 CONFIG += c++11
 QT += network
+QT += widgets
 
 TARGET = remoteprotocol
 CONFIG += console

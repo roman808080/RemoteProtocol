@@ -26,6 +26,9 @@ public:
     void setSocket(QSharedPointer<QTcpSocket> socket);
     void setPassword(std::vector<char> password);
 
+signals:
+    void closed();
+
 public slots:
     void sendConnectError(QAbstractSocket::SocketError e);
     void closedConnection();

@@ -36,6 +36,7 @@ class TcpProtocol : public QObject
     signals:
         void newOutConnection(QSharedPointer<QTcpSocket> mSock);
         void newInConnection(QSharedPointer<QTcpSocket> mSock);
+        void closed();
 
     private:
         QScopedPointer<QTcpServer> mTcpServer; // Socket TCP

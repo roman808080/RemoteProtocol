@@ -24,12 +24,14 @@ public:
 
     void setName(std::wstring name);
     bool changedClientCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi);
+    void kill();
 
 private:
     DWORD dwProcessId;
     DWORD dwErrorId;
     CONSOLE_SCREEN_BUFFER_INFO lastClientCSBI;
     COORD lastClientCursorPosition;
+    HDESK desktop;
 };
 
 #endif // CONSOLE_H

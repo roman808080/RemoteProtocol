@@ -9,6 +9,8 @@ Example::~Example(){}
 
 void Example::menu()
 {
+    connect(&remoteProtocol, SIGNAL(closed()), this, SIGNAL(closed()));
+
     std::vector<char> keyVector;
     generateRandomKey(keyVector, 8);
 

@@ -16,6 +16,12 @@ Console::Console()
 
 Console::~Console()
 {
+    kill();
+}
+
+void Console::kill()
+{
+    CloseDesktop(desktop);
     HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwProcessId);
     if (killed)
     {
@@ -26,7 +32,7 @@ Console::~Console()
 void Console::startServer(LPWSTR desktopName)
 {
     if(desktopName)
-        CreateDesktopW(desktopName, 0, 0, 0, GENERIC_ALL, 0);
+        desktop = CreateDesktopW(desktopName, 0, 0, 0, GENERIC_ALL, 0);
     FreeConsole();
     std::wstring path = L"cmd.exe";
 

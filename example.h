@@ -30,6 +30,9 @@ public:
     void createClient(std::string ip, int port);
     void createServer();
 
+signals:
+    void closed();
+
 private:
     TcpProtocol  remoteProtocol;
 };
