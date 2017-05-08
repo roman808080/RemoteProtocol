@@ -184,6 +184,8 @@ int Console::writeInputToConsole(DataIn& data)
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwTmp;
 
+    SetConsoleTextAttribute(hConOut, data.st.consoleScreenBufferInfo.wAttributes);
+
     BOOL bScreenSize = 0;
     bScreenSize = SetConsoleScreenBufferSize(hConOut, data.st.consoleScreenBufferInfo.dwSize);
 //    if(!bScreenSize) ///

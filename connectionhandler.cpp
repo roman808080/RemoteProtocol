@@ -40,7 +40,6 @@ ConnectionHandler::~ConnectionHandler()
     closedConnection();
 }
 
-
 void ConnectionHandler::startServer()
 {
     exchanger.InitDiffieHellmanKeysExchanger(cryptoPModule, cryptoGModule);
