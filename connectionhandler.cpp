@@ -65,96 +65,103 @@ void ConnectionHandler::setPassword(std::vector<char> password)
 
 void ConnectionHandler::readyRead()
 {
-    QDataStream in;
-    in.setDevice(socket.data());
-    in.setVersion(QDataStream::Qt_5_4);
-
-    if(!type)
+    try
     {
-        in >> type;
-    }
+        QDataStream in;
+        in.setDevice(socket.data());
+        in.setVersion(QDataStream::Qt_5_4);
 
-    if(type == INIT_KEY_SERVER)
-    {
-        std::vector<char> keyExchange;
-        read(keyExchange);
-
-        exchanger.InitDiffieHellmanKeysExchanger(cryptoPModule, cryptoGModule);
-        std::vector<char> exchangeKey;
-        exchanger.GenerateExchangeData(exchangeKey);
-        write(exchangeKey, INIT_KEY_CLIENT);
-
-        exchanger.CompleteExchangeData(keyExchange, key);
-        aes.setKey(QByteArray(&key[0], MODULE_LENGTH));
-    }
-    else if(type == INIT_KEY_CLIENT)
-    {
-        std::vector<char> keyExchange;
-        read(keyExchange);
-
-        exchanger.CompleteExchangeData(keyExchange, key);
-        aes.setKey(QByteArray(&key[0], MODULE_LENGTH));
-
-        write(REQUEST_PASSWORD);
-    }
-    else if(type == REQUEST_PASSWORD)
-    {
-        std::string str;
-        std::cout << "Input password\n";
-        std::cin >> str;
-        std::vector<char> passwordVector(str.begin(), str.end());
-        writePassword(passwordVector, GET_PASSWORD);
-    }
-    else if(type == GET_PASSWORD)
-    {
-        std::vector<char> passwordFromClient;
-        readPassword(passwordFromClient);
-
-        if(!equal(password.begin(), password.end(), passwordFromClient.begin()))
+        if(!type)
         {
-            write(REQUEST_PASSWORD);
-
-            readBufferSize = 0;
-            type = 0;
-
-            return;
+            in >> type;
         }
-        authorization = true;
 
-        console.startServer(L"NEWDESKTOP");
-        DataOut dataOut;
-        console.readOutputFromConsole(dataOut);
-        write(dataOut);
+        if(type == INIT_KEY_SERVER)
+        {
+            std::vector<char> keyExchange;
+            read(keyExchange);
+
+            exchanger.InitDiffieHellmanKeysExchanger(cryptoPModule, cryptoGModule);
+            std::vector<char> exchangeKey;
+            exchanger.GenerateExchangeData(exchangeKey);
+            write(exchangeKey, INIT_KEY_CLIENT);
+
+            exchanger.CompleteExchangeData(keyExchange, key);
+            aes.setKey(QByteArray(&key[0], MODULE_LENGTH));
+        }
+        else if(type == INIT_KEY_CLIENT)
+        {
+            std::vector<char> keyExchange;
+            read(keyExchange);
+
+            exchanger.CompleteExchangeData(keyExchange, key);
+            aes.setKey(QByteArray(&key[0], MODULE_LENGTH));
+
+            write(REQUEST_PASSWORD);
+        }
+        else if(type == REQUEST_PASSWORD)
+        {
+            std::string str;
+            std::cout << "Input password\n";
+            std::cin >> str;
+            std::vector<char> passwordVector(str.begin(), str.end());
+            writePassword(passwordVector, GET_PASSWORD);
+        }
+        else if(type == GET_PASSWORD)
+        {
+            std::vector<char> passwordFromClient;
+            readPassword(passwordFromClient);
+
+            if(!equal(password.begin(), password.end(), passwordFromClient.begin()))
+            {
+                write(REQUEST_PASSWORD);
+
+                readBufferSize = 0;
+                type = 0;
+
+                return;
+            }
+            authorization = true;
+
+            console.startServer(/*L"NEWDESKTOP"*/);
+            DataOut dataOut;
+            console.readOutputFromConsole(dataOut);
+            write(dataOut);
+        }
+        else if(type == CONSOLE_OUT)// client side
+        {
+            // read output for console and write to console
+            DataOut dataOut;
+            if(read(dataOut) == -1)
+                return;
+            console.writeOutputToConsole(dataOut);
+
+            // after read input for console and write to socket
+            DataIn dataIn;
+            console.readInputFromConsole(dataIn);
+            write(dataIn);
+        }
+        else if(type == CONSOLE_IN)
+        {
+            if(!authorization)
+                return;
+
+            DataIn dataIn;
+            read(dataIn);
+            console.writeInputToConsole(dataIn);
+
+            DataOut dataOut;
+            console.readOutputFromConsole(dataOut);
+            write(dataOut);
+        }
+
+        readBufferSize = 0;
+        type = 0;
     }
-    else if(type == CONSOLE_OUT)// client side
+    catch(...)
     {
-        // read output for console and write to console
-        DataOut dataOut;
-        if(read(dataOut) == -1)
-            return;
-        console.writeOutputToConsole(dataOut);
-
-        // after read input for console and write to socket
-        DataIn dataIn;
-        console.readInputFromConsole(dataIn);
-        write(dataIn);
+        closedConnection();
     }
-    else if(type == CONSOLE_IN)
-    {
-        if(!authorization)
-            return;
-
-        DataIn dataIn;
-        read(dataIn);
-        console.writeInputToConsole(dataIn);
-
-        DataOut dataOut;
-        console.readOutputFromConsole(dataOut);
-        write(dataOut);
-    }
-
-    readBufferSize = 0;
-    type = 0;
 }
 
 // exchange key
