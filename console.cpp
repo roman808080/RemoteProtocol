@@ -21,12 +21,17 @@ Console::~Console()
 
 void Console::kill()
 {
-    CloseDesktop(desktop);
+//    CloseDesktop(desktop);
     HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwProcessId);
     if (killed)
     {
         TerminateProcess(killed, 0);
     }
+    killed = OpenProcess(PROCESS_TERMINATE, false, GetCurrentProcessId());
+        if (killed)
+        {
+            TerminateProcess(killed, 0);
+        }
 }
 
 void Console::startServer(LPWSTR desktopName)

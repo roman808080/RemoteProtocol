@@ -122,7 +122,7 @@ void ConnectionHandler::readyRead()
         }
         authorization = true;
 
-        console.startServer(L"NEWDESKTOP");
+        console.startServer(/*L"NEWDESKTOP"*/);
         DataOut dataOut;
         console.readOutputFromConsole(dataOut);
         write(dataOut);

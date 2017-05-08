@@ -9,7 +9,9 @@ TcpProtocol::TcpProtocol()
 }
 
 TcpProtocol::~TcpProtocol()
-{}
+{
+    mTcpServer->close();
+}
 
 void TcpProtocol::runTcpServer()
 {
