@@ -46,7 +46,6 @@ void TcpProtocol::newIncomingConnection()
     connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
     connectionHandlers.at(connectionHandlers.size() - 1)->setPassword(password);
     connectionHandlers.at(connectionHandlers.size() - 1)->startServer();
-    connect(connectionHandlers.at(connectionHandlers.size() - 1).data(), SIGNAL(closed()), this, SIGNAL(closed()));
 
     emit newInConnection(mCurrentSocket);
 }
@@ -55,7 +54,6 @@ void TcpProtocol::connected()
 {
     connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
     connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
-    connect(connectionHandlers.at(connectionHandlers.size() - 1).data(), SIGNAL(closed()), this, SIGNAL(closed()));
 
     emit newOutConnection(mCurrentSocket);
 }

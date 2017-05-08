@@ -26,9 +26,12 @@ public:
     bool changedClientCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi);
     bool equalCharInfos(std::vector<CHAR_INFO> first, std::vector<CHAR_INFO> second);
     bool compareCharInfo(CHAR_INFO first, CHAR_INFO second);
+
     void kill();
+    void killAll();
 
 private:
+    DWORD dwParrentId;
     DWORD dwProcessId;
     DWORD dwErrorId;
     CONSOLE_SCREEN_BUFFER_INFO lastClientCSBI;

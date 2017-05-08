@@ -428,5 +428,4 @@ void ConnectionHandler::closedConnection()
            socket->deleteLater();
        }
     console.kill();
-    emit closed();
 }

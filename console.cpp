@@ -24,23 +24,21 @@ void Console::kill()
 //    CloseDesktop(desktop);
     HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwProcessId);
     if (killed)
-    {
         TerminateProcess(killed, 0);
-    }
-    killed = OpenProcess(PROCESS_TERMINATE, false, GetCurrentProcessId());
-        if (killed)
-        {
-            TerminateProcess(killed, 0);
-        }
-        killed = OpenProcess(PROCESS_TERMINATE, false, GetCurrentProcessId());
-            if (killed)
-            {
-                TerminateProcess(killed, 0);
-            }
+    killed = OpenProcess(PROCESS_TERMINATE, false, dwParrentId);
+    if (killed)
+        TerminateProcess(killed, 0);
+}
+
+void Console::killAll()
+{
+
 }
 
 void Console::startServer(LPWSTR desktopName)
 {
+    dwParrentId = GetCurrentProcessId();
+
     if(desktopName)
         desktop = CreateDesktopW(desktopName, 0, 0, 0, GENERIC_ALL, 0);
     FreeConsole();
@@ -207,7 +205,7 @@ int Console::readOutputFromConsole(DataOut& data)
     }
 
     if(equalCharInfos(lastServerCharInfos, data.charInfos))
-        data.charInfos.clear();
+        data.charInfos.resize(0);
     else
         lastServerCharInfos = data.charInfos;
 
@@ -234,7 +232,7 @@ bool Console::equalCharInfos(std::vector<CHAR_INFO> first, std::vector<CHAR_INFO
     if(first.size() != second.size())
         return false;
     for(int i=0; i<first.size(); i++)
-        if(compareCharInfo(first[i], second[i]) != compareCharInfo(first[i], second[i]))
+        if(compareCharInfo(first[i], second[i]))
             return false;
     return true;
 }
@@ -250,4 +248,3 @@ bool Console::compareCharInfo(CHAR_INFO first, CHAR_INFO second)
     else
         return true;
 }
-
