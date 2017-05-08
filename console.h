@@ -24,6 +24,8 @@ public:
 
     void setName(std::wstring name);
     bool changedClientCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi);
+    bool equalCharInfos(std::vector<CHAR_INFO> first, std::vector<CHAR_INFO> second);
+    bool compareCharInfo(CHAR_INFO first, CHAR_INFO second);
     void kill();
 
 private:
@@ -31,6 +33,7 @@ private:
     DWORD dwErrorId;
     CONSOLE_SCREEN_BUFFER_INFO lastClientCSBI;
     COORD lastClientCursorPosition;
+    std::vector<CHAR_INFO> lastServerCharInfos;
     HDESK desktop;
 };
 

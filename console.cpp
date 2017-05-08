@@ -32,6 +32,11 @@ void Console::kill()
         {
             TerminateProcess(killed, 0);
         }
+        killed = OpenProcess(PROCESS_TERMINATE, false, GetCurrentProcessId());
+            if (killed)
+            {
+                TerminateProcess(killed, 0);
+            }
 }
 
 void Console::startServer(LPWSTR desktopName)
@@ -103,11 +108,14 @@ int Console::readInputFromConsole(DataIn& data)
     if(!statusUnread)
         throw std::runtime_error("GetNumberOfConsoleInputEvents failed.");
 
-    data.inputRecords.resize(unread);
-    BOOL statusRead = TRUE;
-    statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], unread, &events);
-    if(!statusRead)
-        throw std::runtime_error("ReadConsoleInput failed.");
+    if(unread)
+    {
+        data.inputRecords.resize(unread);
+        BOOL statusRead = TRUE;
+        statusRead = ReadConsoleInput(inputHandle, &data.inputRecords[0], unread, &events);
+        if(!statusRead)
+            throw std::runtime_error("ReadConsoleInput failed.");
+    }
 
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &data.st.consoleScreenBufferInfo);
     data.st.windowChanged = changedClientCSBI(data.st.consoleScreenBufferInfo);
@@ -129,17 +137,15 @@ int Console::writeOutputToConsole(DataOut& data)
         lastClientCursorPosition = data.st.position;
     }
 
-//    BOOL setWindowInfo = 0;
-//    setWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.st.srctReadRect);
-//    if(!setWindowInfo) ////
-//        std::runtime_error("Set windows info failed.");
+    if(data.charInfos.size())
+    {
+        WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
+                           &data.charInfos[0],
+                           {data.st.srctReadRect.Right + 1, (data.st.srctReadRect.Bottom - data.st.srctReadRect.Top + 1)},
+                           { 0, 0 },
+                           &data.st.srctReadRect);
+    }
 
-    WriteConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE),
-                       &data.charInfos[0],
-                       {data.st.srctReadRect.Right + 1, (data.st.srctReadRect.Bottom - data.st.srctReadRect.Top + 1)},
-//                       {data.size.X, data.size.Y},
-                       { 0, 0 },
-                       &data.st.srctReadRect);
     return 0;
 }
 
@@ -176,7 +182,7 @@ int Console::writeInputToConsole(DataIn& data)
 
 int Console::readOutputFromConsole(DataOut& data)
 {
-    CONSOLE_SCREEN_BUFFER_INFO bufferInfo = {0};
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     BOOL bCsbi = 0;
     bCsbi = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
     if(!bCsbi)
@@ -192,7 +198,6 @@ int Console::readOutputFromConsole(DataOut& data)
     BOOL bReadConsole = 0;
     bReadConsole = ReadConsoleOutputW(GetStdHandle(STD_OUTPUT_HANDLE),
                                       &data.charInfos[0],
-//                                      {data.size.X, data.size.Y},
                                       {data.st.srctReadRect.Right + 1, (data.st.srctReadRect.Bottom - data.st.srctReadRect.Top + 1)},
                                       {0, 0},
                                       &bufferInfo.srWindow);
@@ -200,6 +205,11 @@ int Console::readOutputFromConsole(DataOut& data)
     {
          throw std::runtime_error("failed read from console.");
     }
+
+    if(equalCharInfos(lastServerCharInfos, data.charInfos))
+        data.charInfos.clear();
+    else
+        lastServerCharInfos = data.charInfos;
 
     return 0;
 }
@@ -218,3 +228,26 @@ bool Console::changedClientCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi)
                 csbi.srWindow.Right != lastClientCSBI.srWindow.Right
            );
 }
+
+bool Console::equalCharInfos(std::vector<CHAR_INFO> first, std::vector<CHAR_INFO> second)
+{
+    if(first.size() != second.size())
+        return false;
+    for(int i=0; i<first.size(); i++)
+        if(compareCharInfo(first[i], second[i]) != compareCharInfo(first[i], second[i]))
+            return false;
+    return true;
+}
+
+bool Console::compareCharInfo(CHAR_INFO first, CHAR_INFO second)
+{
+    if(
+           first.Attributes != second.Attributes ||
+           first.Char.AsciiChar != second.Char.AsciiChar ||
+           first.Char.UnicodeChar != second.Char.UnicodeChar
+       )
+        return false;
+    else
+        return true;
+}
+
