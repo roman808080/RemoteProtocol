@@ -118,9 +118,8 @@ int Console::writeOutputToConsole(DataOut& data)
         lastClientCursorPosition = data.st.position;
     }
 
-
-    BOOL setWindowInfo = 0;
-    setWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.st.srctReadRect);
+//    BOOL setWindowInfo = 0;
+//    setWindowInfo = SetConsoleWindowInfo(hConOut, TRUE, &data.st.srctReadRect);
 //    if(!setWindowInfo) ////
 //        std::runtime_error("Set windows info failed.");
 
