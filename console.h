@@ -5,6 +5,7 @@
 #include <iostream>
 #include <Windows.h>
 #include <winbase.h>
+#include <TlHelp32.h>
 
 #include "datastruct.h"
 
