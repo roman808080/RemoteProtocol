@@ -18,6 +18,7 @@
 #include "convertordata.h"
 #include "datastruct.h"
 #include "connectionhandler.h"
+#include "processhandler.h"
 
 class Example : public QObject
 {
@@ -32,6 +33,7 @@ public:
 
 private:
     TcpProtocol  remoteProtocol;
+    ProcessHandler processHandler;
 };
 
 #endif // EXAMPLE_H

@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     tcpprotocol.cpp \
     convertordata.cpp \
     console.cpp \
-    connectionhandler.cpp
+    connectionhandler.cpp \
+    processhandler.cpp
 
 HEADERS += \
     peer.h \
@@ -30,6 +31,7 @@ HEADERS += \
     connectionhandler.h \
     ulong.h \
     diffiehellmankeysexchanger.h \
-    randomkeygenerator.h
+    randomkeygenerator.h \
+    processhandler.h
 
 include(vendor/vendor.pri)

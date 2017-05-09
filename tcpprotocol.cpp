@@ -62,49 +62,6 @@ void TcpProtocol::connected()
     emit newOutConnection(mCurrentSocket);
 }
 
-void TcpProtocol::startProcessServer(LPWSTR desktopName)
-{
-    if(desktopName)
-        desktop = CreateDesktopW(desktopName, 0, 0, 0, GENERIC_ALL, 0);
-
-    std::wstring passwordServer(password.begin(), password.end());
-
-    std::wstring path = L"remoteprotocol.exe";
-    path += L" " + passwordServer;
-
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-
-    ZeroMemory(&si, sizeof(si));
-    ZeroMemory(&pi, sizeof(pi));
-
-    si.cb = sizeof(si);
-    if(desktopName)
-        si.lpDesktop = desktopName;
-
-    SECURITY_ATTRIBUTES security = {
-       sizeof(security), NULL, TRUE
-     };
-
-    if(CreateProcess(NULL, (LPWSTR)path.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
-    {
-        dwProcessIds.push_back(pi.dwProcessId);
-    }
-    else
-    {
-        DWORD dwErrorId = GetLastError();
-        printf("CreateProcess failed (%d).\n", dwErrorId);
-        return;
-    }
-
-    Sleep(500);
-}
-
-void TcpProtocol::startProcessClient(QString ip, int port)
-{
-
-}
-
 void TcpProtocol::closedProcess()
 {
     int countClosed = 0;

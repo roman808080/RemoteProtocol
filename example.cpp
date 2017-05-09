@@ -28,10 +28,7 @@ void Example::menu()
 
     if(choice == 1){
         std::cout << "You're choice is server\n";
-//        remoteProtocol.runTcpServer();
-//        remoteProtocol.setPassword(keyVector);
-        remoteProtocol.setPassword(keyVector);
-        remoteProtocol.startProcessServer(NULL);
+        processHandler.startProcessServer(keyVector, NULL);
     }
     else if(choice == 2)
     {
@@ -41,12 +38,14 @@ void Example::menu()
         std::cout << "You're choice is client\n";
         ip = "127.0.0.1";
         port = 4644;
-        createClient(ip, port);
+//        createClient(ip, port);
+        processHandler.startProcessClient(ip, port, NULL);
     }
     else
     {
         std::cout << "Invalid comand\n";
     }
+
 }
 
 void Example::createClient(std::string ip, int port){

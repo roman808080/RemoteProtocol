@@ -11,15 +11,22 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     Example example;
     QScopedPointer<ConnectionHandler> connectionHandler;
-    TcpProtocol server;
+    TcpProtocol tcpProtocol;
 
     if(argc == 2)
     {
         std::string passwordStr =  argv[1];
         std::vector<char> password(passwordStr.begin(), passwordStr.end());
 
-        server.runTcpServer();
-        server.setPassword(password);
+        tcpProtocol.runTcpServer();
+        tcpProtocol.setPassword(password);
+    }
+    else if(argc == 3)
+    {
+        std::string ip =  argv[1];
+        int port = atoi(argv[2]);
+
+        tcpProtocol.connectToServer(QString::fromUtf8(ip.c_str()), port);
     }
     else
     {
