@@ -4,12 +4,12 @@
 #include <iostream>
 #include <QObject>
 
-#include "example.h"
+#include "app.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    Example example;
+    App app;
     QScopedPointer<ConnectionHandler> connectionHandler;
     TcpProtocol tcpProtocol;
 
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        example.menu();
+        app.menu();
     }
 
     return a.exec();

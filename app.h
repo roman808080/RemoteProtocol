@@ -20,13 +20,13 @@
 #include "connectionhandler.h"
 #include "processhandler.h"
 
-class Example : public QObject
+class App : public QObject
 {
     Q_OBJECT
 
 public:
-    Example();
-    virtual ~Example();
+    App();
+    virtual ~App();
     void menu();
     QString publicIp();
 

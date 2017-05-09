@@ -1,31 +1,35 @@
 #include <vector>
-#include "example.h"
+#include "app.h"
 #include "randomkeygenerator.h"
 
-Example::Example()
+#define PORT 4644
+
+App::App()
 {}
 
-Example::~Example(){}
+App::~App(){}
 
-void Example::menu()
+void App::menu()
 {
     std::vector<char> keyVector;
     generateRandomKey(keyVector, 8);
 
-    qDebug() << publicIp();
+    qDebug() << "IP this computer in network: " << publicIp();
+    std::cout << "Password for connect this computer: ";
     for(auto symbol: keyVector)
     {
         std::cout << symbol;
     }
-    std::cout << "\n";
+    std::cout << "\n\n";
+
+    int choice;
+    std::cout << "Input 1 for create Server\n";
+    std::cout << "Input 2 for create Client\n";
+    std::cout << "Input -1 for end program\n";
+
     while(true)
     {
-        int choice;
-        std::cout << "Hello in menu\n ";
-        std::cout << "Input 1 for create Server\n";
-        std::cout << "Input 2 for create Client\n";
-        std::cout << "Input -1 for end program\n";
-
+        std::cout << "choice > ";
         std::cin >> choice;
 
         if(choice == 1){
@@ -35,14 +39,12 @@ void Example::menu()
         else if(choice == 2)
         {
             std::string ip;
-            int port;
 
             std::cout << "You're choice is client\n";
-            std::cout << "Input ip\n";
+            std::cout << "Input ip: ";
             std::cin >> ip;
-//            ip = "127.0.0.1";
-            port = 4644;
-            processHandler.startProcessClient(ip, port, NULL);
+
+            processHandler.startProcessClient(ip, PORT, NULL);
         }
         else
         {
@@ -52,7 +54,7 @@ void Example::menu()
 }
 
 
-QString Example::publicIp()
+QString App::publicIp()
 {
     QTcpSocket socket;
     QString ip;
