@@ -58,7 +58,15 @@ void ConnectionHandler::setSocket(QSharedPointer<QTcpSocket> socket)
 
 void ConnectionHandler::setSocketDescriptor(qintptr descriptor)
 {
+    socket.reset(new QTcpSocket);
     socket->setSocketDescriptor(descriptor);
+
+    qDebug() << "here";
+    connect(this->socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
+    connect(this->socket.data(), SIGNAL(disconnected()),
+            this, SLOT(closedConnection()));
+    connect(this->socket.data(), SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
 
 void ConnectionHandler::setPassword(std::vector<char> password)

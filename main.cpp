@@ -9,6 +9,8 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
+    Example example;
+    QScopedPointer<ConnectionHandler> connectionHandler;
 
 //    char temp[10];
 //    ltoa((long int)t,temp,10);
@@ -19,12 +21,20 @@ int main(int argc, char *argv[])
 
     if(argc == 3)
     {
-        qDebug() << argv[1] << " " << argv[2];
-//        qDebug() << (atol(argv[1]) + atol(argv[2]));
-        qDebug() << "-------------------------------------------------------";
+        std::string passwordStr =  argv[1];
+        std::vector<char> password(passwordStr.begin(), passwordStr.end());
+
+        qintptr descriptor = atol(argv[2]);
+
+        connectionHandler.reset(new ConnectionHandler);
+        connectionHandler->setSocketDescriptor(descriptor);
+        connectionHandler->setPassword(password);
+        connectionHandler->startServer();
     }
-    Example example;
-    example.menu();
+    else
+    {
+        example.menu();
+    }
 
     return a.exec();
 }

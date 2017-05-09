@@ -43,6 +43,8 @@ void TcpProtocol::newIncomingConnection()
     if (!mTcpServer->hasPendingConnections()) return;
 
     mCurrentSocket = QSharedPointer<QTcpSocket>(mTcpServer->nextPendingConnection());
+    qDebug() << mCurrentSocket->state();
+    system("pause");
     startProcessServer(mCurrentSocket->socketDescriptor(), NULL);
 
 //    mCurrentSocket->socketDescriptor()
