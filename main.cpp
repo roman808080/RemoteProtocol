@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     if(argc == 3)
     {
         qDebug() << argv[1] << " " << argv[2];
-        qDebug() << (atol(argv[1]) + atol(argv[2]));
+//        qDebug() << (atol(argv[1]) + atol(argv[2]));
         qDebug() << "-------------------------------------------------------";
     }
     Example example;

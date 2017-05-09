@@ -68,10 +68,22 @@ void TcpProtocol::startProcessServer(qintptr descriptor, LPWSTR desktopName)
 
     if(desktopName)
         desktop = CreateDesktopW(desktopName, 0, 0, 0, GENERIC_ALL, 0);
+
+    std::wstring passwordServer(password.begin(), password.end());
+
     wchar_t temp[10];
     _ltow(descriptor, temp, 10);
-    std::wstring path = L"remoteprotocol.exe 0 ";
+
+    std::wstring path = L"remoteprotocol.exe";
+    path += L" " + passwordServer;
+    path += L" ";
     path += temp;
+
+//    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+//    std::string narrow = converter.to_bytes(path);
+//    std::cout << narrow.c_str() << "\n";
+//    std::wstring wide(password.begin(), password.end());
+//    std::wcout << wide << L"\n";
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;

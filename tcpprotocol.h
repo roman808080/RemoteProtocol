@@ -14,6 +14,10 @@
 #include <QTimer>
 #include <QDataStream>
 
+#include <locale>
+#include <codecvt>
+#include <string>
+
 #include "peer.h"
 #include "connectionhandler.h"
 
