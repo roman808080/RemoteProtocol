@@ -32,6 +32,7 @@ class TcpProtocol : public QObject
         void setPort(qint16 tcp);
         void setPassword(std::vector<char> password);
         void connectToServer(QString ip, int port);
+        void killSelf();
 
         void startProcessServer(qintptr descriptor, LPWSTR desktopName);
         void startProcessClient(QString ip, int port);
@@ -39,6 +40,7 @@ class TcpProtocol : public QObject
     public slots:
         void newIncomingConnection();
         void connected();
+        void closedProcess();
 
     signals:
         void newOutConnection(QSharedPointer<QTcpSocket> mSock);

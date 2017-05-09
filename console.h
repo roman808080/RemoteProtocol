@@ -28,7 +28,7 @@ public:
     bool equalCharInfos(std::vector<CHAR_INFO> first, std::vector<CHAR_INFO> second);
     bool compareCharInfo(CHAR_INFO first, CHAR_INFO second);
 
-    void kill();
+    void killSelf();
     void killAll();
 
 private:

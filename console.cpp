@@ -16,10 +16,10 @@ Console::Console()
 
 Console::~Console()
 {
-    kill();
+    killAll();
 }
 
-void Console::kill()
+void Console::killSelf()
 {
 //    CloseDesktop(desktop);
     HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwProcessId);
@@ -62,7 +62,9 @@ void Console::killAll()
         }
 
         // kill the main process
-        kill();
+        HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwProcessId);
+        if (killed)
+            TerminateProcess(killed, 0);
     }
 }
 
@@ -72,6 +74,7 @@ void Console::startServer(LPWSTR desktopName)
 
     if(desktopName)
         desktop = CreateDesktopW(desktopName, 0, 0, 0, GENERIC_ALL, 0);
+
     FreeConsole();
     std::wstring path = L"cmd.exe";
 
@@ -180,6 +183,14 @@ int Console::writeOutputToConsole(DataOut& data)
 
 int Console::writeInputToConsole(DataIn& data)
 {
+    FreeConsole();
+    if(!AttachConsole(dwProcessId))
+    {
+        dwErrorId = GetLastError();
+        printf( "AttachConsole failed (%d).\n", dwErrorId);
+        return -1;
+    }
+
     HANDLE hConIn = GetStdHandle(STD_INPUT_HANDLE);
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwTmp;
@@ -215,6 +226,14 @@ int Console::writeInputToConsole(DataIn& data)
 
 int Console::readOutputFromConsole(DataOut& data)
 {
+    FreeConsole();
+    if(!AttachConsole(dwProcessId))
+    {
+        dwErrorId = GetLastError();
+        printf( "AttachConsole failed (%d).\n", dwErrorId);
+        return -1;
+    }
+
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     BOOL bCsbi = 0;
     bCsbi = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);

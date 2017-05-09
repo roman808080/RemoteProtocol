@@ -23,6 +23,7 @@ public:
     ~ConnectionHandler();
 
     void startServer();
+    bool alive();
 
     void setSocket(QSharedPointer<QTcpSocket> socket);
     void setSocketDescriptor(qintptr descriptor);
@@ -33,6 +34,9 @@ public slots:
     void closedConnection();
 
     void readyRead();
+
+signals:
+    closed();
 
 private:
     //exchange key
@@ -62,6 +66,7 @@ private:
     DiffieHellmanKeysExchanger<MODULE_LENGTH> exchanger;
     std::vector<char> key;
     std::vector<char> password;
+    bool aliveState;
 };
 
 #endif // CONNECTIONHANDLER_H

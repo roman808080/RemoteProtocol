@@ -43,15 +43,14 @@ void TcpProtocol::newIncomingConnection()
     if (!mTcpServer->hasPendingConnections()) return;
 
     mCurrentSocket = QSharedPointer<QTcpSocket>(mTcpServer->nextPendingConnection());
-    qDebug() << mCurrentSocket->state();
-    system("pause");
-    startProcessServer(mCurrentSocket->socketDescriptor(), NULL);
 
-//    mCurrentSocket->socketDescriptor()
-//    connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
-//    connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
-//    connectionHandlers.at(connectionHandlers.size() - 1)->setPassword(password);
-//    connectionHandlers.at(connectionHandlers.size() - 1)->startServer();
+//    startProcessServer(mCurrentSocket->socketDescriptor(), NULL);
+
+    connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
+    connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
+    connectionHandlers.at(connectionHandlers.size() - 1)->setPassword(password);
+    connect(connectionHandlers.at(connectionHandlers.size() - 1).data(), SIGNAL(closed()), this, SLOT(closedProcess()));
+    connectionHandlers.at(connectionHandlers.size() - 1)->startServer();
 
     emit newInConnection(mCurrentSocket);
 }
@@ -60,6 +59,7 @@ void TcpProtocol::connected()
 {
     connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
     connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
+    connect(connectionHandlers.at(connectionHandlers.size() - 1).data(), SIGNAL(closed()), this, SLOT(closedProcess()));
 
     emit newOutConnection(mCurrentSocket);
 }
@@ -80,12 +80,6 @@ void TcpProtocol::startProcessServer(qintptr descriptor, LPWSTR desktopName)
     path += L" " + passwordServer;
     path += L" ";
     path += temp;
-
-//    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-//    std::string narrow = converter.to_bytes(path);
-//    std::cout << narrow.c_str() << "\n";
-//    std::wstring wide(password.begin(), password.end());
-//    std::wcout << wide << L"\n";
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -118,4 +112,27 @@ void TcpProtocol::startProcessServer(qintptr descriptor, LPWSTR desktopName)
 void TcpProtocol::startProcessClient(QString ip, int port)
 {
 
+}
+
+void TcpProtocol::closedProcess()
+{
+    int countClosed = 0;
+    for(auto connectionHandler: connectionHandlers)
+    {
+        if(!connectionHandler.data()->alive())
+        {
+            countClosed++;
+        }
+    }
+    if(connectionHandlers.size() == countClosed)
+    {
+        killSelf();
+    }
+}
+
+void TcpProtocol::killSelf()
+{
+    HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwParrentId);
+    if (killed)
+        TerminateProcess(killed, 0);
 }

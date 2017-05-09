@@ -21,6 +21,7 @@ ConnectionHandler::ConnectionHandler()
     cryptoPModule = std::vector<char>((char*)buffer, (char*)buffer + MODULE_LENGTH);
     cryptoGModule = 0x02;
     authorization = false;
+    aliveState = true;
 
     aes.setMode(QTinyAes::ECB);
 }
@@ -46,6 +47,11 @@ void ConnectionHandler::startServer()
     write(exchangeKey, INIT_KEY_SERVER);
 }
 
+bool ConnectionHandler::alive()
+{
+    return aliveState;
+}
+
 void ConnectionHandler::setSocket(QSharedPointer<QTcpSocket> socket)
 {
     this->socket = socket;
@@ -61,7 +67,6 @@ void ConnectionHandler::setSocketDescriptor(qintptr descriptor)
     socket.reset(new QTcpSocket);
     socket->setSocketDescriptor(descriptor);
 
-    qDebug() << "here";
     connect(this->socket.data(), SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(sendConnectError(QAbstractSocket::SocketError)));
     connect(this->socket.data(), SIGNAL(disconnected()),
@@ -445,4 +450,6 @@ void ConnectionHandler::closedConnection()
            socket->deleteLater();
        }
     console.killAll();
+    aliveState = false;
+    emit closed();
 }
