@@ -29,6 +29,9 @@ class TcpProtocol : public QObject
         void setPassword(std::vector<char> password);
         void connectToServer(QString ip, int port);
 
+        void startProcessServer(qintptr descriptor, LPWSTR desktopName);
+        void startProcessClient(QString ip, int port);
+
     public slots:
         void newIncomingConnection();
         void connected();
@@ -46,6 +49,10 @@ class TcpProtocol : public QObject
 
         //TCP port
         qint16 mLocalTcpPort;
+
+        DWORD dwParrentId;
+        std::vector<DWORD> dwProcessIds;
+        HDESK desktop;
 };
 
 #endif // REMOTEPROTOCOL_H

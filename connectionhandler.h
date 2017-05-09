@@ -23,7 +23,9 @@ public:
     ~ConnectionHandler();
 
     void startServer();
+
     void setSocket(QSharedPointer<QTcpSocket> socket);
+    void setSocketDescriptor(qintptr descriptor);
     void setPassword(std::vector<char> password);
 
 public slots:

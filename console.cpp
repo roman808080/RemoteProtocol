@@ -102,19 +102,6 @@ void Console::startServer(LPWSTR desktopName)
 
     Sleep(500);
 
-//    if(CreateProcess(NULL, (LPWSTR)path.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
-//    {
-//        dwProcessId = pi.dwProcessId;
-//    }
-//    else
-//    {
-//        dwErrorId = GetLastError();
-//        printf("CreateProcess failed (%d).\n", dwErrorId);
-//        return;
-//    }
-
-//    Sleep(1000);
-
     if(!AttachConsole(pi.dwProcessId))
     {
         dwErrorId = GetLastError();

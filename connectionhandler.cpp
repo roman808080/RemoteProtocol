@@ -7,8 +7,6 @@
 #define CONSOLE_OUT 5
 #define CONSOLE_IN 6
 
-#define COUNT_QINT32 6
-
 ConnectionHandler::ConnectionHandler()
 {
     readBufferSize = 0;
@@ -56,6 +54,11 @@ void ConnectionHandler::setSocket(QSharedPointer<QTcpSocket> socket)
     connect(this->socket.data(), SIGNAL(disconnected()),
             this, SLOT(closedConnection()));
     connect(this->socket.data(), SIGNAL(readyRead()), this, SLOT(readyRead()));
+}
+
+void ConnectionHandler::setSocketDescriptor(qintptr descriptor)
+{
+    socket->setSocketDescriptor(descriptor);
 }
 
 void ConnectionHandler::setPassword(std::vector<char> password)
