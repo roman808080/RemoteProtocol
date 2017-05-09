@@ -57,8 +57,6 @@ class TcpProtocol : public QObject
         qint16 mLocalTcpPort;
 
         DWORD dwParrentId;
-        std::vector<DWORD> dwProcessIds;
-        HDESK desktop;
 };
 
 #endif // REMOTEPROTOCOL_H

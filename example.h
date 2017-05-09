@@ -28,8 +28,6 @@ public:
     Example();
     virtual ~Example();
     void menu();
-    void createClient(std::string ip, int port);
-    void createServer();
 
 private:
     TcpProtocol  remoteProtocol;
