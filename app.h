@@ -14,7 +14,6 @@
 #include <windows.h>
 
 #include "tcpprotocol.h"
-#include "peer.h"
 #include "convertordata.h"
 #include "datastruct.h"
 #include "connectionhandler.h"

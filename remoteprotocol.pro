@@ -12,7 +12,6 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    udpprotocol.cpp \
     tcpprotocol.cpp \
     convertordata.cpp \
     console.cpp \
@@ -21,9 +20,6 @@ SOURCES += main.cpp \
     app.cpp
 
 HEADERS += \
-    peer.h \
-    udpprotocol.h \
-    tcpprotocol.h \
     convertordata.h \
     datastruct.h \
     console.h \
@@ -32,6 +28,7 @@ HEADERS += \
     diffiehellmankeysexchanger.h \
     randomkeygenerator.h \
     processhandler.h \
-    app.h
+    app.h \
+    tcpprotocol.h
 
 include(vendor/vendor.pri)

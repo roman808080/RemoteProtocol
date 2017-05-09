@@ -18,7 +18,6 @@
 #include <codecvt>
 #include <string>
 
-#include "peer.h"
 #include "connectionhandler.h"
 
 class TcpProtocol : public QObject
