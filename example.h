@@ -28,6 +28,7 @@ public:
     Example();
     virtual ~Example();
     void menu();
+    QString publicIp();
 
 private:
     TcpProtocol  remoteProtocol;

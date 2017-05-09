@@ -12,6 +12,7 @@ void Example::menu()
     std::vector<char> keyVector;
     generateRandomKey(keyVector, 8);
 
+    qDebug() << publicIp();
     for(auto symbol: keyVector)
     {
         std::cout << symbol;
@@ -29,7 +30,7 @@ void Example::menu()
 
         if(choice == 1){
             std::cout << "You're choice is server\n";
-            processHandler.startProcessServer(keyVector, NULL);
+            processHandler.startProcessServer(keyVector, L"NEWDESKTOP");
         }
         else if(choice == 2)
         {
@@ -37,7 +38,9 @@ void Example::menu()
             int port;
 
             std::cout << "You're choice is client\n";
-            ip = "127.0.0.1";
+            std::cout << "Input ip\n";
+            std::cin >> ip;
+//            ip = "127.0.0.1";
             port = 4644;
             processHandler.startProcessClient(ip, port, NULL);
         }
@@ -46,4 +49,21 @@ void Example::menu()
             std::cout << "Invalid comand\n";
         }
     }
+}
+
+
+QString Example::publicIp()
+{
+    QTcpSocket socket;
+    QString ip;
+    socket.connectToHost("8.8.8.8", 53); // google DNS, or something else reliable
+    if (socket.waitForConnected()) {
+        ip = socket.localAddress().toString();
+    } else {
+        qWarning()
+            << "could not determine local IPv4 address:"
+            << socket.errorString();
+        ip = "";
+    }
+    return ip;
 }
