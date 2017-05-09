@@ -449,6 +449,7 @@ void ConnectionHandler::closedConnection()
            socket->close();
            socket->deleteLater();
        }
+
     console.killAll();
     aliveState = false;
     emit closed();

@@ -44,8 +44,6 @@ void TcpProtocol::newIncomingConnection()
 
     mCurrentSocket = QSharedPointer<QTcpSocket>(mTcpServer->nextPendingConnection());
 
-//    startProcessServer(mCurrentSocket->socketDescriptor(), NULL);
-
     connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
     connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
     connectionHandlers.at(connectionHandlers.size() - 1)->setPassword(password);
@@ -64,22 +62,15 @@ void TcpProtocol::connected()
     emit newOutConnection(mCurrentSocket);
 }
 
-void TcpProtocol::startProcessServer(qintptr descriptor, LPWSTR desktopName)
+void TcpProtocol::startProcessServer(LPWSTR desktopName)
 {
-    qDebug() << descriptor;
-
     if(desktopName)
         desktop = CreateDesktopW(desktopName, 0, 0, 0, GENERIC_ALL, 0);
 
     std::wstring passwordServer(password.begin(), password.end());
 
-    wchar_t temp[10];
-    _ltow(descriptor, temp, 10);
-
     std::wstring path = L"remoteprotocol.exe";
     path += L" " + passwordServer;
-    path += L" ";
-    path += temp;
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;

@@ -34,7 +34,7 @@ class TcpProtocol : public QObject
         void connectToServer(QString ip, int port);
         void killSelf();
 
-        void startProcessServer(qintptr descriptor, LPWSTR desktopName);
+        void startProcessServer(LPWSTR desktopName);
         void startProcessClient(QString ip, int port);
 
     public slots:
