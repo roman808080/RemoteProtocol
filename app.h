@@ -16,8 +16,7 @@
 #include "tcpprotocol.h"
 #include "convertordata.h"
 #include "datastruct.h"
-#include "connectionhandler.h"
-#include "processhandler.h"
+//#include "connectionhandler.h"
 
 class App : public QObject
 {
@@ -32,7 +31,6 @@ public:
 
 private:
     TcpProtocol  remoteProtocol;
-    ProcessHandler processHandler;
     ConnectionHandler controlConnection;
 
     std::vector<char> keyVector;

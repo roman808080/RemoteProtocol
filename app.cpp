@@ -1,6 +1,7 @@
 #include <vector>
 #include "app.h"
 #include "randomkeygenerator.h"
+#include "processhandler.h"
 
 #define PORT 4644
 #define SIZE_PASSWORD 8
@@ -8,13 +9,16 @@
 App::App()
 {
     generateRandomKey(keyVector, SIZE_PASSWORD);
+//    qDebug() << "exit " << atexit(killAllProcessServer);
+    SetConsoleCtrlHandler( (PHANDLER_ROUTINE) ctrlHandler, TRUE );
+    dwParrentId = GetCurrentProcessId();
 }
 
 App::~App()
 {
 //    controlConnection.closedConnection();
-    processHandler.killAllProcessServer();
-    processHandler.killSelf();
+    killAllProcessServer();
+    killSelf();
 }
 
 void App::menu()
@@ -50,16 +54,16 @@ void App::menu()
             std::cout << "Input ip: ";
             std::cin >> ip;
 
-            processHandler.startProcessClient(ip, PORT, NULL);
+            startProcessClient(ip, PORT, NULL);
         }
         else if(choice == 3)
         {
-            processHandler.killAllProcessServer();
+            killAllProcessServer();
 //            controlConnection.closedConnection();
         }
         else if(choice == -1)
         {
-            processHandler.killSelf();
+//            killSelf();
             exit(0);
         }
         else
@@ -96,7 +100,7 @@ bool App::startServer()
     {
         std::string str(keyVector.begin(), keyVector.end());
         std::cout << str.c_str() << std::endl;
-        processHandler.startProcessServer(keyVector, NULL/*L"NEWDESKTOP"*/);
+        startProcessServer(keyVector, NULL/*L"NEWDESKTOP"*/);
         return true;
     }
     else

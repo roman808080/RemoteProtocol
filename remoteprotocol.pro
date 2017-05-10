@@ -16,7 +16,6 @@ SOURCES += main.cpp \
     convertordata.cpp \
     console.cpp \
     connectionhandler.cpp \
-    processhandler.cpp \
     app.cpp
 
 HEADERS += \
