@@ -1,5 +1,4 @@
 #include <QCoreApplication>
-#include <QApplication>
 #include <QDebug>
 #include <iostream>
 #include <QObject>
@@ -13,7 +12,7 @@ int main(int argc, char *argv[])
     QScopedPointer<ConnectionHandler> connectionHandler;
     TcpProtocol tcpProtocol;
 
-    if(argc == 2)
+    if(argc == 2) // start server
     {
         std::string passwordStr =  argv[1];
         std::vector<char> password(passwordStr.begin(), passwordStr.end());
@@ -21,14 +20,14 @@ int main(int argc, char *argv[])
         tcpProtocol.runTcpServer();
         tcpProtocol.setPassword(password);
     }
-    else if(argc == 3)
+    else if(argc == 3) // start client
     {
         std::string ip =  argv[1];
         int port = atoi(argv[2]);
 
         tcpProtocol.connectToServer(QString::fromUtf8(ip.c_str()), port);
     }
-    else
+    else // start menu
     {
         app.menu();
     }

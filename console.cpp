@@ -19,6 +19,7 @@ Console::~Console()
     killAll();
 }
 
+// kill self and parent process
 void Console::killSelf()
 {
 //    CloseDesktop(desktop);
@@ -30,6 +31,7 @@ void Console::killSelf()
         TerminateProcess(killed, 0);
 }
 
+// kill self and all children process
 void Console::killAll()
 {
     PROCESSENTRY32 pe;
@@ -68,6 +70,7 @@ void Console::killAll()
     }
 }
 
+// start server side process
 void Console::startServer(LPWSTR desktopName)
 {
     dwParrentId = GetCurrentProcessId();
@@ -117,11 +120,14 @@ void Console::startServer(LPWSTR desktopName)
     lastClientCursorPosition = {0, 0};
 }
 
+// start server process visible
 void Console::startServer()
 {
     startServer(NULL);
 }
 
+// read input on client side and after send to server side
+// if input is empty send to server empty std::vector
 int Console::readInputFromConsole(DataIn& data)
 {
     HANDLE inputHandle = GetStdHandle(STD_INPUT_HANDLE);
@@ -156,16 +162,14 @@ int Console::readInputFromConsole(DataIn& data)
     return 0;
 }
 
+// write on client side output from server
 int Console::writeOutputToConsole(DataOut& data)
 {
     HANDLE hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
     if(data.st.position.X != lastClientCursorPosition.X || data.st.position.Y != lastClientCursorPosition.Y)
     {
-        BOOL setCoorsor = 0;
-        setCoorsor = SetConsoleCursorPosition(hConOut, data.st.position);
-        //    if(!setCoorsor) ////
-        //        std::runtime_error("Set coorsor failed.");
+        SetConsoleCursorPosition(hConOut, data.st.position);
         lastClientCursorPosition = data.st.position;
     }
 
@@ -181,6 +185,7 @@ int Console::writeOutputToConsole(DataOut& data)
     return 0;
 }
 
+// on server side write input from client
 int Console::writeInputToConsole(DataIn& data)
 {
     FreeConsole();
@@ -196,11 +201,7 @@ int Console::writeInputToConsole(DataIn& data)
     DWORD dwTmp;
 
     SetConsoleTextAttribute(hConOut, data.st.consoleScreenBufferInfo.wAttributes);
-
-    BOOL bScreenSize = 0;
-    bScreenSize = SetConsoleScreenBufferSize(hConOut, data.st.consoleScreenBufferInfo.dwSize);
-//    if(!bScreenSize) ///
-//        throw std::runtime_error("Set console screen buffer size failed.");
+    SetConsoleScreenBufferSize(hConOut, data.st.consoleScreenBufferInfo.dwSize);
 
     dwTmp = 0;
     BOOL statusWrite = 0;
@@ -224,6 +225,7 @@ int Console::writeInputToConsole(DataIn& data)
     return 0;
 }
 
+// on server side read output after send this to client
 int Console::readOutputFromConsole(DataOut& data)
 {
     FreeConsole();
@@ -266,11 +268,13 @@ int Console::readOutputFromConsole(DataOut& data)
     return 0;
 }
 
+// set name of title console
 void Console::setName(std::wstring name)
 {
     SetConsoleTitle((LPCWSTR)name.c_str());
 }
 
+// check changes on CONSOLE_SCREEN_BUFFER_INFO of client
 bool Console::changedClientCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi)
 {
     return (
@@ -281,6 +285,7 @@ bool Console::changedClientCSBI(CONSOLE_SCREEN_BUFFER_INFO &csbi)
            );
 }
 
+// compare output
 bool Console::equalCharInfos(std::vector<CHAR_INFO> first, std::vector<CHAR_INFO> second)
 {
     if(first.size() != second.size())
@@ -291,6 +296,7 @@ bool Console::equalCharInfos(std::vector<CHAR_INFO> first, std::vector<CHAR_INFO
     return true;
 }
 
+// compare two CHAR_INFOs
 bool Console::compareCharInfo(CHAR_INFO first, CHAR_INFO second)
 {
     if(

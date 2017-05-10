@@ -6,7 +6,6 @@ TcpProtocol::TcpProtocol()
     : mTcpServer(NULL), mCurrentSocket(NULL)
 {
     setPort(DEFAULT_TCP_PORT);
-    dwParrentId = GetCurrentProcessId();
 }
 
 TcpProtocol::~TcpProtocol()
@@ -48,7 +47,6 @@ void TcpProtocol::newIncomingConnection()
     connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
     connectionHandlers.at(connectionHandlers.size() - 1)->setPassword(password);
     connect(connectionHandlers.at(connectionHandlers.size() - 1).data(), SIGNAL(closed()), this, SIGNAL(closed()));
-    connect(connectionHandlers.at(connectionHandlers.size() - 1).data(), SIGNAL(killServer()), this, SLOT(closeServer()));
     connectionHandlers.at(connectionHandlers.size() - 1)->startServer();
 
     emit newInConnection(mCurrentSocket);
@@ -57,23 +55,8 @@ void TcpProtocol::newIncomingConnection()
 void TcpProtocol::connected()
 {
     connectionHandlers.append(QSharedPointer<ConnectionHandler>(new ConnectionHandler));
-//    connectionHandlers.at(connectionHandlers.size() - 1)->setControlConnection(true);//////
     connectionHandlers.at(connectionHandlers.size() - 1)->setSocket(mCurrentSocket);
     connect(connectionHandlers.at(connectionHandlers.size() - 1).data(), SIGNAL(closed()), this, SIGNAL(closed()));
 
     emit newOutConnection(mCurrentSocket);
-}
-
-void TcpProtocol::closeServer()
-{
-    for(auto connectionHandler: connectionHandlers)
-    {
-        if(connectionHandler->alive())
-        {
-            connectionHandler->closedConnection();
-        }
-    }
-    HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwParrentId);
-        if (killed)
-            TerminateProcess(killed, 0);
 }

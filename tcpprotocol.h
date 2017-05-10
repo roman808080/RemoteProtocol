@@ -38,7 +38,6 @@ class TcpProtocol : public QObject
     public slots:
         void newIncomingConnection();
         void connected();
-        void closeServer();
 
     signals:
         void newOutConnection(QSharedPointer<QTcpSocket> mSock);
@@ -53,8 +52,6 @@ class TcpProtocol : public QObject
 
         //TCP port
         qint16 mLocalTcpPort;
-
-        DWORD dwParrentId;
 };
 
 #endif // REMOTEPROTOCOL_H

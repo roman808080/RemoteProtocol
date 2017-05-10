@@ -5,7 +5,6 @@
 #include <TlHelp32.h>
 
 #include <QString>
-#include <QDebug>
 #include <vector>
 #include <iostream>
 
@@ -19,6 +18,7 @@ void killSelf();
 void killAllChildren(DWORD dwProcessId);
 void killParent(DWORD dwProcessId);
 
+BOOL ctrlHandler(DWORD fdwCtrlType);
 
 DWORD dwParrentId;
 std::vector<DWORD> dwProcessServerIds;
@@ -26,7 +26,7 @@ std::vector<DWORD> dwProcessClientIds;
 HDESK desktop;
 
 
-BOOL ctrlHandler( DWORD fdwCtrlType )
+BOOL ctrlHandler(DWORD fdwCtrlType)
 {
   switch( fdwCtrlType )
   {
@@ -42,7 +42,6 @@ BOOL ctrlHandler( DWORD fdwCtrlType )
       killAllProcessServer();
       return( TRUE );
 
-    // Pass other signals to the next handler.
     case CTRL_BREAK_EVENT:
       killAllProcessClient();;
       killAllProcessServer();
@@ -90,7 +89,6 @@ void startProcessServer(std::vector<char> password, LPWSTR desktopName)
     if(CreateProcess(NULL, (LPWSTR)path.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
     {
         dwProcessServerIds.push_back(pi.dwProcessId);
-        qDebug() << pi.dwProcessId << " " << dwParrentId;
     }
     else
     {
@@ -156,7 +154,6 @@ void killAllProcessClient()
 
 void killAllProcessServer()
 {
-    qDebug() << "kill";
     for(auto server: dwProcessServerIds)
     {
         killAllChildren(server);

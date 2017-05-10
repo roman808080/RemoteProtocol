@@ -9,13 +9,14 @@
 App::App()
 {
     generateRandomKey(keyVector, SIZE_PASSWORD);
-    SetConsoleCtrlHandler( (PHANDLER_ROUTINE) ctrlHandler, TRUE );
-    dwParrentId = GetCurrentProcessId();
+
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE) ctrlHandler, TRUE);// set Ctrl handler
+    dwParrentId = GetCurrentProcessId();// set parent id
 }
 
 App::~App()
 {
-//    controlConnection.closedConnection();
+    killAllProcessClient();
     killAllProcessServer();
     killSelf();
 }
@@ -34,6 +35,7 @@ void App::menu()
     std::cout << "Input 1 for create Server\n";
     std::cout << "Input 2 for create Client\n";
     std::cout << "Input 3 for stop Server\n";
+    std::cout << "Input 4 for refresh password\n";
     std::cout << "Input -1 for end program\n";
 
     while(true)
@@ -59,6 +61,13 @@ void App::menu()
         {
             killAllProcessServer();
         }
+        else if(choice == 4)
+        {
+            generateRandomKey(keyVector, SIZE_PASSWORD);
+            std::string key(keyVector.begin(), keyVector.end());
+            std::cout << "New password: " << key.c_str() << std::endl;
+            std::cout << "For apply reboot server\n";
+        }
         else if(choice == -1)
         {
             killAllProcessClient();
@@ -71,7 +80,6 @@ void App::menu()
         }
     }
 }
-
 
 QString App::publicIp()
 {
@@ -97,16 +105,13 @@ bool App::startServer()
     tempSocket.connectToHost("127.0.0.1", PORT);
     if(!tempSocket.waitForConnected())
     {
-        std::string str(keyVector.begin(), keyVector.end());
-        std::cout << str.c_str() << std::endl;
-        startProcessServer(keyVector, NULL/*L"NEWDESKTOP"*/);
+        startProcessServer(keyVector, L"NEWDESKTOP");
         return true;
     }
     else
     {
         qWarning()
-            << "Server is running:"
-            << tempSocket.errorString();
+            << "Server is running!!!";
         tempSocket.disconnect();
         return false;
     }
