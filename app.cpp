@@ -12,9 +12,9 @@ App::App()
 
 App::~App()
 {
-    controlConnection.closedConnection();
-//    processHandler.killAllProcessServer();
-//    processHandler.killSelf();
+//    controlConnection.closedConnection();
+    processHandler.killAllProcessServer();
+    processHandler.killSelf();
 }
 
 void App::menu()
@@ -54,13 +54,12 @@ void App::menu()
         }
         else if(choice == 3)
         {
-//            processHandler.killAllProcessServer();
-            controlConnection.closedConnection();
+            processHandler.killAllProcessServer();
+//            controlConnection.closedConnection();
         }
         else if(choice == -1)
         {
-//            processHandler.killSelf();
-            controlConnection.closedConnection();
+            processHandler.killSelf();
             exit(0);
         }
         else
@@ -98,15 +97,6 @@ bool App::startServer()
         std::string str(keyVector.begin(), keyVector.end());
         std::cout << str.c_str() << std::endl;
         processHandler.startProcessServer(keyVector, NULL/*L"NEWDESKTOP"*/);
-
-        Sleep(3000);
-        QSharedPointer<QTcpSocket> controlSocket;
-        controlSocket.reset(new QTcpSocket);
-        controlSocket->connectToHost("127.0.0.1", PORT);
-        qDebug() << controlSocket->waitForConnected();
-        controlConnection.setControlConnection(true);
-        controlConnection.setSocket(controlSocket);
-
         return true;
     }
     else

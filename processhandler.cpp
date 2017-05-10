@@ -32,6 +32,7 @@ void ProcessHandler::startProcessServer(std::vector<char> password, LPWSTR deskt
     if(CreateProcess(NULL, (LPWSTR)path.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
     {
         dwProcessServerIds.push_back(pi.dwProcessId);
+        qDebug() << pi.dwProcessId << " " << dwParrentId;
     }
     else
     {
@@ -141,9 +142,9 @@ void ProcessHandler::killParent(DWORD dwProcessId)
     HANDLE killed = OpenProcess(PROCESS_TERMINATE, false, dwProcessId);
     if (killed)
         TerminateProcess(killed, 0);
-    killed = OpenProcess(PROCESS_TERMINATE, false, dwParrentId);
-    if (killed)
-        TerminateProcess(killed, 0);
+//    killed = OpenProcess(PROCESS_TERMINATE, false, dwParrentId);
+//    if (killed)
+//        TerminateProcess(killed, 0);
 }
 
 void ProcessHandler::killSelf()
