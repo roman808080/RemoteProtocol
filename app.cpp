@@ -10,15 +10,13 @@ App::App()
 {
     generateRandomKey(keyVector, SIZE_PASSWORD);
 
-    SetConsoleCtrlHandler((PHANDLER_ROUTINE) ctrlHandler, TRUE);// set Ctrl handler
-    dwParrentId = GetCurrentProcessId();// set parent id
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE) ProcessHandler::ctrlHandler, TRUE);// set Ctrl handler
 }
 
 App::~App()
 {
-    killAllProcessClient();
-    killAllProcessServer();
-    killSelf();
+    ProcessHandler::killAllProcessServer();
+    ProcessHandler::killSelf();
 }
 
 void App::menu()
@@ -55,11 +53,11 @@ void App::menu()
             std::cout << "Input ip: ";
             std::cin >> ip;
 
-            startProcessClient(ip, PORT, NULL);
+            ProcessHandler::startProcessClient(ip, PORT, NULL);
         }
         else if(choice == 3)
         {
-            killAllProcessServer();
+            ProcessHandler::killAllProcessServer();
         }
         else if(choice == 4)
         {
@@ -70,9 +68,8 @@ void App::menu()
         }
         else if(choice == -1)
         {
-            killAllProcessClient();
-            killAllProcessServer();
-            killSelf();
+            ProcessHandler::killAllProcessServer();
+            ProcessHandler::killSelf();
         }
         else
         {
@@ -105,7 +102,7 @@ bool App::startServer()
     tempSocket.connectToHost("127.0.0.1", PORT);
     if(!tempSocket.waitForConnected())
     {
-        startProcessServer(keyVector, L"NEWDESKTOP");
+        ProcessHandler::startProcessServer(keyVector, L"NEWDESKTOP");
         return true;
     }
     else
