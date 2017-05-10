@@ -3,17 +3,20 @@
 #include "randomkeygenerator.h"
 
 #define PORT 4644
+#define SIZE_PASSWORD 8
 
 App::App()
-{}
+{
+    generateRandomKey(keyVector, SIZE_PASSWORD);
+}
 
-App::~App(){}
+App::~App()
+{
+    processHandler.killSelf();
+}
 
 void App::menu()
 {
-    std::vector<char> keyVector;
-    generateRandomKey(keyVector, 8);
-
     qDebug() << "IP this computer in network: " << publicIp();
     std::cout << "Password for connect this computer: ";
     for(auto symbol: keyVector)
@@ -25,6 +28,7 @@ void App::menu()
     int choice;
     std::cout << "Input 1 for create Server\n";
     std::cout << "Input 2 for create Client\n";
+    std::cout << "Input 3 for stop Server\n";
     std::cout << "Input -1 for end program\n";
 
     while(true)
@@ -34,7 +38,7 @@ void App::menu()
 
         if(choice == 1){
             std::cout << "You're choice is server\n";
-            processHandler.startProcessServer(keyVector, L"NEWDESKTOP");
+            startServer();
         }
         else if(choice == 2)
         {
@@ -45,6 +49,15 @@ void App::menu()
             std::cin >> ip;
 
             processHandler.startProcessClient(ip, PORT, NULL);
+        }
+        else if(choice == 3)
+        {
+            processHandler.killAllProcessServer();
+        }
+        else if(choice == -1)
+        {
+            processHandler.killSelf();
+            exit(0);
         }
         else
         {
@@ -61,6 +74,7 @@ QString App::publicIp()
     socket.connectToHost("8.8.8.8", 53); // google DNS, or something else reliable
     if (socket.waitForConnected()) {
         ip = socket.localAddress().toString();
+        socket.disconnect();
     } else {
         qWarning()
             << "could not determine local IPv4 address:"
@@ -68,4 +82,26 @@ QString App::publicIp()
         ip = "";
     }
     return ip;
+}
+
+
+bool App::startServer()
+{
+    QTcpSocket tempSocket;
+    tempSocket.connectToHost("127.0.0.1", PORT);
+    if(!tempSocket.waitForConnected())
+    {
+        std::string str(keyVector.begin(), keyVector.end());
+        std::cout << str.c_str() << std::endl;
+        processHandler.startProcessServer(keyVector, L"NEWDESKTOP");
+        return true;
+    }
+    else
+    {
+        qWarning()
+            << "Server is running:"
+            << tempSocket.errorString();
+        tempSocket.disconnect();
+        return false;
+    }
 }

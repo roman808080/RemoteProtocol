@@ -28,10 +28,13 @@ public:
     virtual ~App();
     void menu();
     QString publicIp();
+    bool startServer();
 
 private:
     TcpProtocol  remoteProtocol;
     ProcessHandler processHandler;
+
+    std::vector<char> keyVector;
 };
 
 #endif // EXAMPLE_H
