@@ -32,24 +32,29 @@ BOOL ctrlHandler( DWORD fdwCtrlType )
   {
     // Handle the CTRL-C signal.
     case CTRL_C_EVENT:
+      killAllProcessClient();
       killAllProcessServer();
       return( TRUE );
 
     // CTRL-CLOSE: confirm that the user wants to exit.
     case CTRL_CLOSE_EVENT:
+      killAllProcessClient();
       killAllProcessServer();
       return( TRUE );
 
     // Pass other signals to the next handler.
     case CTRL_BREAK_EVENT:
+      killAllProcessClient();;
       killAllProcessServer();
       return TRUE;
 
     case CTRL_LOGOFF_EVENT:
+      killAllProcessClient();
       killAllProcessServer();
       return TRUE;
 
     case CTRL_SHUTDOWN_EVENT:
+      killAllProcessClient();
       killAllProcessServer();
       return TRUE;
 
@@ -145,6 +150,7 @@ void killAllProcessClient()
     for(auto client: dwProcessClientIds)
     {
         killAllChildren(client);
+        killParent(client);
     }
 }
 
