@@ -33,6 +33,7 @@ public:
 private:
     TcpProtocol  remoteProtocol;
     ProcessHandler processHandler;
+    ConnectionHandler controlConnection;
 
     std::vector<char> keyVector;
 };

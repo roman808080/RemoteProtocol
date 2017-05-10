@@ -28,6 +28,7 @@ public:
     void setSocket(QSharedPointer<QTcpSocket> socket);
     void setSocketDescriptor(qintptr descriptor);
     void setPassword(std::vector<char> password);
+    void setControlConnection(bool state);
 
 public slots:
     void sendConnectError(QAbstractSocket::SocketError e);
@@ -37,6 +38,7 @@ public slots:
 
 signals:
     closed();
+    killServer();
 
 private:
     //exchange key
@@ -67,6 +69,8 @@ private:
     std::vector<char> key;
     std::vector<char> password;
     bool aliveState;
+    bool controlConnection;
+    bool server;
 };
 
 #endif // CONNECTIONHANDLER_H

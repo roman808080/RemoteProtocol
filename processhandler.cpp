@@ -99,6 +99,7 @@ void ProcessHandler::killAllProcessServer()
     for(auto server: dwProcessServerIds)
     {
         killAllChildren(server);
+        killParent(server);
     }
 }
 
@@ -147,8 +148,6 @@ void ProcessHandler::killParent(DWORD dwProcessId)
 
 void ProcessHandler::killSelf()
 {
-    qDebug() << dwProcessClientIds.size();
-    qDebug() << dwProcessServerIds.size();
     killAllProcessClient();
     killAllProcessServer();
 

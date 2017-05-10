@@ -6,6 +6,7 @@
 #define GET_PASSWORD 4
 #define CONSOLE_OUT 5
 #define CONSOLE_IN 6
+#define CONTROL_CONNECTION 7
 
 ConnectionHandler::ConnectionHandler()
 {
@@ -22,6 +23,8 @@ ConnectionHandler::ConnectionHandler()
     cryptoGModule = 0x02;
     authorization = false;
     aliveState = true;
+    controlConnection = false;
+    server = false;
 
     aes.setMode(QTinyAes::ECB);
 }
@@ -41,6 +44,7 @@ ConnectionHandler::~ConnectionHandler()
 
 void ConnectionHandler::startServer()
 {
+    server = true;
     exchanger.InitDiffieHellmanKeysExchanger(cryptoPModule, cryptoGModule);
     std::vector<char> exchangeKey;
     exchanger.GenerateExchangeData(exchangeKey);
@@ -79,6 +83,11 @@ void ConnectionHandler::setPassword(std::vector<char> password)
     this->password = password;
 }
 
+void ConnectionHandler::setControlConnection(bool state)
+{
+    controlConnection = state;
+}
+
 void ConnectionHandler::readyRead()
 {
     try
@@ -94,6 +103,7 @@ void ConnectionHandler::readyRead()
 
         if(type == INIT_KEY_SERVER)
         {
+            qDebug() << "send key";
             std::vector<char> keyExchange;
             read(keyExchange);
 
@@ -117,11 +127,18 @@ void ConnectionHandler::readyRead()
         }
         else if(type == REQUEST_PASSWORD)
         {
-            std::string str;
-            std::cout << "Input password\n";
-            std::cin >> str;
-            std::vector<char> passwordVector(str.begin(), str.end());
-            writePassword(passwordVector, GET_PASSWORD);
+            if(controlConnection)
+            {
+                writePassword(password, CONTROL_CONNECTION);
+            }
+            else
+            {
+                std::string str;
+                std::cout << "Input password\n";
+                std::cin >> str;
+                std::vector<char> passwordVector(str.begin(), str.end());
+                writePassword(passwordVector, GET_PASSWORD);
+            }
         }
         else if(type == GET_PASSWORD)
         {
@@ -169,6 +186,24 @@ void ConnectionHandler::readyRead()
             DataOut dataOut;
             console.readOutputFromConsole(dataOut);
             write(dataOut);
+        }
+        else if(type == CONTROL_CONNECTION)
+        {
+            std::vector<char> passwordFromClient;
+            readPassword(passwordFromClient);
+
+            if(!equal(password.begin(), password.end(), passwordFromClient.begin()))
+            {
+                qDebug() << "controlConnection. Problem with password";
+                write(REQUEST_PASSWORD);
+
+                readBufferSize = 0;
+                type = 0;
+
+                return;
+            }
+            controlConnection = true;
+            qDebug() << "controlConnection " << controlConnection;
         }
 
         readBufferSize = 0;
@@ -453,4 +488,10 @@ void ConnectionHandler::closedConnection()
     console.killAll();
     aliveState = false;
     emit closed();
+
+    if(server && controlConnection)
+    {
+        qDebug() << "send signal";
+        emit killServer();
+    }
 }

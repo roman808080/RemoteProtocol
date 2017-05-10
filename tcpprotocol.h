@@ -38,6 +38,7 @@ class TcpProtocol : public QObject
     public slots:
         void newIncomingConnection();
         void connected();
+        void closeServer();
 
     signals:
         void newOutConnection(QSharedPointer<QTcpSocket> mSock);
@@ -47,8 +48,7 @@ class TcpProtocol : public QObject
     private:
         QScopedPointer<QTcpServer> mTcpServer; // Socket TCP
         QSharedPointer<QTcpSocket> mCurrentSocket; // Socket TCP current socket
-        QList<QSharedPointer<ConnectionHandler>> connectionHandlers;
-
+        QList<QSharedPointer<ConnectionHandler>> connectionHandlers; // list all connection
         std::vector<char> password;
 
         //TCP port
