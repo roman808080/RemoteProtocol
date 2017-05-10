@@ -9,7 +9,6 @@
 App::App()
 {
     generateRandomKey(keyVector, SIZE_PASSWORD);
-//    qDebug() << "exit " << atexit(killAllProcessServer);
     SetConsoleCtrlHandler( (PHANDLER_ROUTINE) ctrlHandler, TRUE );
     dwParrentId = GetCurrentProcessId();
 }
@@ -59,12 +58,12 @@ void App::menu()
         else if(choice == 3)
         {
             killAllProcessServer();
-//            controlConnection.closedConnection();
         }
         else if(choice == -1)
         {
-//            killSelf();
-            exit(0);
+            killAllProcessClient();
+            killAllProcessServer();
+            killSelf();
         }
         else
         {
