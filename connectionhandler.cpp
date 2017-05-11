@@ -22,6 +22,7 @@ ConnectionHandler::ConnectionHandler()
     cryptoGModule = 0x02;
     authorization = false;
     aliveState = true;
+    server = false;
 
     aes.setMode(QTinyAes::ECB);
 }
@@ -41,6 +42,7 @@ ConnectionHandler::~ConnectionHandler()
 
 void ConnectionHandler::startServer()
 {
+    server = true;
     exchanger.InitDiffieHellmanKeysExchanger(cryptoPModule, cryptoGModule);
     std::vector<char> exchangeKey;
     exchanger.GenerateExchangeData(exchangeKey);
@@ -452,7 +454,16 @@ void ConnectionHandler::closedConnection()
            socket->deleteLater();
        }
 
-    console.killAll();
+    if(server)
+    {
+       console.killAll();
+    }
+    else
+    {
+        qDebug() << "kill self";
+        console.killSelf();
+    }
+
     aliveState = false;
     emit closed();
 }

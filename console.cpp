@@ -2,8 +2,10 @@
 
 Console::Console()
 {
+    dwParrentId = GetCurrentProcessId();
     dwProcessId = 0 ;
     dwErrorId = 0;
+
 }
 
 Console::~Console()

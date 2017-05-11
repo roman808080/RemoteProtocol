@@ -67,6 +67,7 @@ private:
     std::vector<char> key;
     std::vector<char> password;
     bool aliveState;
+    bool server;
 };
 
 #endif // CONNECTIONHANDLER_H
